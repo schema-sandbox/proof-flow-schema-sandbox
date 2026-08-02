@@ -90,6 +90,28 @@ def _translate_error(exc: Exception) -> HTTPException:
     return HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="internal server error")
 
 
+async def _spool_upload(file: UploadFile, maximum_bytes: int) -> Path:
+    """Stream an upload to a temporary file without buffering it in RAM."""
+
+    handle = tempfile.NamedTemporaryFile(suffix=".smath.zip", delete=False)
+    path = Path(handle.name)
+    total = 0
+    try:
+        with handle:
+            while chunk := await file.read(1024 * 1024):
+                total += len(chunk)
+                if total > maximum_bytes:
+                    raise HTTPException(
+                        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                        detail="uploaded archive exceeds the configured import size limit",
+                    )
+                handle.write(chunk)
+        return path
+    except Exception:
+        path.unlink(missing_ok=True)
+        raise
+
+
 @router.post("/projects", response_model=ProjectManifest, status_code=201)
 def create_project(
     request: ProjectCreate, service: Annotated[SchemaMathService, Depends(get_service)]
@@ -874,17 +896,17 @@ async def import_project(
     service: Annotated[SchemaMathService, Depends(get_service)],
     file: UploadFile = File(...),
 ) -> ProjectManifest:
+    temporary_path: Path | None = None
     try:
-        content = await file.read(service.settings.maximum_upload_bytes * 20)
-        with tempfile.NamedTemporaryFile(suffix=".smath.zip", delete=False) as handle:
-            handle.write(content)
-            temporary_path = Path(handle.name)
-        try:
-            return service.import_project_zip(temporary_path)
-        finally:
-            temporary_path.unlink(missing_ok=True)
+        temporary_path = await _spool_upload(file, service.settings.maximum_import_bytes)
+        return service.import_project_zip(temporary_path)
+    except HTTPException:
+        raise
     except Exception as exc:
         raise _translate_error(exc) from exc
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 @router.post("/imports/preflight", response_model=ImportPreflightReport)
@@ -892,14 +914,14 @@ async def preflight_project_import(
     service: Annotated[SchemaMathService, Depends(get_service)],
     file: UploadFile = File(...),
 ) -> ImportPreflightReport:
+    temporary_path: Path | None = None
     try:
-        content = await file.read(service.settings.maximum_upload_bytes * 20)
-        with tempfile.NamedTemporaryFile(suffix=".smath.zip", delete=False) as handle:
-            handle.write(content)
-            temporary_path = Path(handle.name)
-        try:
-            return service.preflight_project_zip(temporary_path)
-        finally:
-            temporary_path.unlink(missing_ok=True)
+        temporary_path = await _spool_upload(file, service.settings.maximum_import_bytes)
+        return service.preflight_project_zip(temporary_path)
+    except HTTPException:
+        raise
     except Exception as exc:
         raise _translate_error(exc) from exc
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)

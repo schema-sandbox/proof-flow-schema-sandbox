@@ -39,6 +39,16 @@ npm run build --prefix apps/web
 访问 `http://127.0.0.1:8000/app/`。API 文档位于 `/docs`；Alpha.2
 的无依赖原型保留在 `/prototype/`。
 
+生产容器配置需要显式认证。请将 `.env.production.example` 复制为受保护的
+`.env.production`，替换两个占位符后运行：
+
+```powershell
+docker compose --env-file .env.production -f docker-compose.prod.yml up --build
+```
+
+生产配置将数据持久化到 `/data`、端口绑定到回环地址，并默认禁用本地进程插件；`/app/`
+在收到 401 后会提示输入 API key，密钥只保存在当前浏览器会话中。
+
 优先使用 `PROOFFLOW_WORKSPACE`、`PROOFFLOW_PLUGIN_ROOT` 等
 `PROOFFLOW_*` 环境变量。为兼容 Alpha.2，对应的 `SCHEMAMATH_*`
 变量仍然有效。
@@ -60,17 +70,9 @@ npm audit --prefix apps/web --audit-level=high
 ## 安全边界
 
 本地命令与 Python 运行器是进程级隔离，不是操作系统安全沙箱，仍拥有启动
-ProofFlow 的本地用户权限。只运行可信代码，并将 API 绑定在 localhost。
+ProofFlow 的本地用户权限。只运行可信代码，并将 API 绑定在 localhost。生产模式在缺少
+`PROOFFLOW_SECRET_KEY` 或 `PROOFFLOW_API_KEYS` 时会拒绝启动，并默认禁用本地进程插件。
 OCI 插件要求镜像使用摘要固定，但容器运行时及其安全配置仍由操作者负责。
 数学工具按需安装；缺少可选工具时，系统会如实报告不可用。
-
-可选 API 认证：设置 `PROOFFLOW_API_TOKEN`（或 `SCHEMAMATH_API_TOKEN`）后，
-所有 `/api/*` 请求必须携带 Bearer 或 `X-API-Key` token。未设置时 API 保持
-开放以支持本地优先工作流，因此未配置 token 时请只将服务暴露给 localhost。
-
-Windows 资源限制：Python 运行器仅在 POSIX 上生效 CPU/内存/文件大小限制
-（`resource.setrlimit`）。Windows 上只有墙钟超时与输出上限生效，因此在
-Windows 主机上绝不要运行不受信的 `python.local` 代码；不受信负载请改用
-OCI 运行器。
 
 许可证：Apache-2.0。

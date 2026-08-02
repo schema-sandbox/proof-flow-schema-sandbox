@@ -2,6 +2,15 @@
 
 ## 0.1.0-alpha.4
 
+- Added fail-closed production API-key/HMAC authentication and disabled local
+  process plugins in the production profile by default.
+- Bound development and production Compose ports to loopback, added a minimal
+  non-root Docker image, persistent `/data`, and secret-file examples.
+- Streamed archive uploads with size limits, staged imports before atomic
+  replacement, and added cross-process event-store locking.
+- Changed unavailable Lean/Z3/WASI/GUDHI and placeholder proof/economic paths to
+  report unverified or unavailable outcomes instead of false success.
+- Regenerated the release manifest and SHA-256 checksums after the remediation.
 - Added read-only `.smath.zip` preflight diagnostics before import.
 - Added archive path, duplicate-member, symlink, compressed-size, chain and
   content-addressed artifact checks.

@@ -18,6 +18,7 @@ import {
 } from "@xyflow/react";
 import {
   api,
+  setApiKey,
   type BranchRecord,
   type BridgeResultRecord,
   type ChallengeRecord,
@@ -190,10 +191,10 @@ export function App() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [apiKeyDraft, setApiKeyDraft] = useState("");
   const sceneDraft = useRef<SceneDraft | null>(null);
   const selectedElementIds = useRef<string[]>([]);
   const flowInstance = useRef<ReactFlowInstance<Node<GraphData>, Edge> | null>(null);
-  const openSeq = useRef(0);
 
   const graph = useMemo(
     () => buildGraph(routes, branches, challenges, bridges),
@@ -223,7 +224,6 @@ export function App() {
   }, []);
 
   async function openProject(id: string) {
-    const seq = ++openSeq.current;
     setLoading(true);
     setError("");
     try {
@@ -238,7 +238,6 @@ export function App() {
           api.deltas(id),
           api.latestCanvas(id),
         ]);
-      if (seq !== openSeq.current) return;
       setProject(p);
       setRoutes(r);
       setBranches(b);
@@ -264,10 +263,9 @@ export function App() {
       setSelectedNode(null);
       setNotice("");
     } catch (reason) {
-      if (seq !== openSeq.current) return;
       setError(reason instanceof Error ? reason.message : "项目加载失败");
     } finally {
-      if (seq === openSeq.current) setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -422,6 +420,28 @@ export function App() {
         )}
         {!loading && !project && (
           <div className="welcome">
+            {error.toLowerCase().includes("authentication required") && (
+              <div className="auth-box">
+                <h3>API 认证</h3>
+                <p>生产模式需要 API key；密钥只保存在本次浏览器会话中。</p>
+                <input
+                  aria-label="API key"
+                  type="password"
+                  value={apiKeyDraft}
+                  onChange={(event) => setApiKeyDraft(event.target.value)}
+                  placeholder="输入 PROOFFLOW_API_KEYS 中的一个 key"
+                />
+                <button
+                  disabled={!apiKeyDraft.trim()}
+                  onClick={() => {
+                    setApiKey(apiKeyDraft);
+                    window.location.reload();
+                  }}
+                >
+                  连接 API
+                </button>
+              </div>
+            )}
             <h2>选择研究项目</h2>
             <p>双画布会保留路线、失败、异议、桥接结果和人工介入。</p>
           </div>

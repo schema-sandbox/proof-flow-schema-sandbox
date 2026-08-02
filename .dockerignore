@@ -1,0 +1,15 @@
+.git
+.env
+.env.production
+.pytest_cache
+.ruff_cache
+__pycache__
+*.py[cod]
+.venv
+node_modules
+dist
+runtime-workspaces
+runtime-plugins
+*.smath
+*.smath.zip
+tsconfig.tsbuildinfo

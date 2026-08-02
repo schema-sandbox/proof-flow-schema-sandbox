@@ -94,12 +94,33 @@ export type CanvasSnapshotResponse = {
   scene: Record<string, unknown>;
 };
 
+const API_KEY_STORAGE_KEY = "proofflow_api_key";
+
+function storedApiKey(): string {
+  try {
+    return window.sessionStorage.getItem(API_KEY_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function setApiKey(apiKey: string): void {
+  try {
+    if (apiKey.trim()) window.sessionStorage.setItem(API_KEY_STORAGE_KEY, apiKey.trim());
+    else window.sessionStorage.removeItem(API_KEY_STORAGE_KEY);
+  } catch {
+    // Private browsing policies may disable sessionStorage; local mode remains usable.
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (init?.body) headers.set("Content-Type", "application/json");
+  const apiKey = storedApiKey();
+  if (apiKey) headers.set("X-API-Key", apiKey);
   const response = await fetch(path, {
     ...init,
-    headers: init?.body
-      ? { "Content-Type": "application/json", ...init.headers }
-      : init?.headers,
+    headers,
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

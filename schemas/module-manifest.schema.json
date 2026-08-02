@@ -1,0 +1,345 @@
+{
+  "$defs": {
+    "CapabilityDeclaration": {
+      "description": "A capability that a module provides or requires.\n\nCapabilities are the currency of module composition.  The K0 kernel\nuses capability declarations to resolve dependencies and detect\nconflicts during registration.",
+      "properties": {
+        "name": {
+          "description": "Capability identifier, e.g. 'schema_validation', 'audit_logging'",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Capability version (semver major.minor at minimum)",
+          "pattern": "^\\d+\\.\\d+",
+          "title": "Version",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "description": "Human-readable description of the capability",
+          "maxLength": 512,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "CapabilityDeclaration",
+      "type": "object"
+    },
+    "CriticalityLevel": {
+      "description": "How critical this module is to system operation.",
+      "enum": [
+        "required",
+        "recommended",
+        "optional"
+      ],
+      "title": "CriticalityLevel",
+      "type": "string"
+    },
+    "DegradationSpec": {
+      "description": "When failure_semantics is DEGRADE, this describes what degrades.",
+      "properties": {
+        "affected_capabilities": {
+          "description": "Capabilities that are reduced or lost during degradation",
+          "items": {
+            "type": "string"
+          },
+          "title": "Affected Capabilities",
+          "type": "array"
+        },
+        "fallback_behavior": {
+          "default": "",
+          "description": "Human-readable description of degraded behavior",
+          "maxLength": 512,
+          "title": "Fallback Behavior",
+          "type": "string"
+        },
+        "max_degradation_duration_seconds": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Maximum time in degraded state before escalating to FAIL_CLOSED",
+          "title": "Max Degradation Duration Seconds"
+        }
+      },
+      "title": "DegradationSpec",
+      "type": "object"
+    },
+    "FailureSemantics": {
+      "description": "How the module behaves when it encounters an error.\n\nThe K0 kernel uses this declaration to determine system-level behavior\nwhen a module fails.  FAIL_CLOSED is the safest default.",
+      "enum": [
+        "fail_closed",
+        "defer",
+        "degrade",
+        "require_human"
+      ],
+      "title": "FailureSemantics",
+      "type": "string"
+    },
+    "HookType": {
+      "description": "When within a phase a hook runs.",
+      "enum": [
+        "pre",
+        "post"
+      ],
+      "title": "HookType",
+      "type": "string"
+    },
+    "LifecycleHook": {
+      "description": "Declaration of which lifecycle phase a module hooks into.\n\nA module may register multiple hooks across different phases.\nWithin a single phase, hooks are ordered by priority (lower = earlier).",
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/LifecyclePhase",
+          "description": "Which lifecycle phase this hook targets"
+        },
+        "hook_type": {
+          "$ref": "#/$defs/HookType",
+          "description": "Whether this runs before or after the phase core logic"
+        },
+        "priority": {
+          "default": 100,
+          "description": "Execution priority within phase (lower = earlier, default 100)",
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "description": {
+          "default": "",
+          "description": "What this hook does",
+          "maxLength": 512,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "phase",
+        "hook_type"
+      ],
+      "title": "LifecycleHook",
+      "type": "object"
+    },
+    "LifecyclePhase": {
+      "description": "Fixed lifecycle phases P0–P10.\n\nInstead of arbitrary compose() middleware chains where safety depends\non loading order, execution follows these fixed phases.  Modules\nregister hooks into specific phases; K0 schedules them in order.",
+      "enum": [
+        "P0_LOAD_ATTEST",
+        "P1_INPUT_NORMALIZATION",
+        "P2_GOAL_BINDING",
+        "P3_PLAN_PROPOSAL",
+        "P4_ACTION_AUTH",
+        "P5_EXECUTION",
+        "P6_ARTIFACT_RECORDING",
+        "P7_ASSERTION_EVALUATION",
+        "P8_RELEASE_AUTH",
+        "P9_ATOMIC_COMMIT",
+        "P10_TEARDOWN_COMPACT"
+      ],
+      "title": "LifecyclePhase",
+      "type": "string"
+    },
+    "ModuleKind": {
+      "description": "Kind of module, determining its role in the K0 lifecycle.\n\nOnly K0 itself may perform side-effects.  All other module kinds\noperate through proposals that K0 arbitrates and commits.",
+      "enum": [
+        "observer",
+        "gate",
+        "state_machine",
+        "transformer",
+        "verifier",
+        "router",
+        "scheduler",
+        "adapter"
+      ],
+      "title": "ModuleKind",
+      "type": "string"
+    },
+    "SecurityPrivilege": {
+      "description": "Security privilege required by a module.\n\nModules must declare all privileges they need upfront.  K0 will\nrefuse to load a module that requests undeclared privileges at\nruntime (Monotonic Consequences).",
+      "properties": {
+        "resource": {
+          "description": "Resource type: 'fs', 'net', 'tool', 'event_store', 'projection', 'plugin'",
+          "title": "Resource",
+          "type": "string"
+        },
+        "access": {
+          "description": "Access level: 'read', 'write', 'execute'",
+          "title": "Access",
+          "type": "string"
+        },
+        "scope": {
+          "default": "*",
+          "description": "Scope restriction, e.g. '/workspace/blobs' or 'api.openai.com'",
+          "title": "Scope",
+          "type": "string"
+        },
+        "justification": {
+          "default": "",
+          "description": "Why this privilege is needed (for audit trail)",
+          "maxLength": 512,
+          "title": "Justification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource",
+        "access"
+      ],
+      "title": "SecurityPrivilege",
+      "type": "object"
+    }
+  },
+  "description": "K0 Trust Kernel Module Manifest.\n\nEvery module that participates in the K0 lifecycle must declare\na manifest specifying its capabilities, requirements, lifecycle\nhooks, security privileges, and failure semantics.\n\nDesign invariants:\n    1. A module MUST declare all capabilities it provides.\n    2. A module MUST declare all capabilities it requires.\n    3. A module MUST declare all lifecycle phases it hooks into.\n    4. A module MUST declare all security privileges it needs.\n    5. A module MUST declare its failure semantics.\n    6. A module SHOULD declare non-guarantees to set expectations.\n    7. DEGRADE failure semantics MUST include a degradation_spec.",
+  "properties": {
+    "module_id": {
+      "description": "Unique identifier for this module instance",
+      "format": "uuid",
+      "title": "Module Id",
+      "type": "string"
+    },
+    "name": {
+      "description": "Module name, e.g. '@sip/contract' or 'python.local'",
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z@][a-zA-Z0-9_\\-/\\.]*$",
+      "title": "Name",
+      "type": "string"
+    },
+    "version": {
+      "description": "Semantic version string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "title": "Version",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "description": "Human-readable module description",
+      "maxLength": 1024,
+      "title": "Description",
+      "type": "string"
+    },
+    "author": {
+      "default": "",
+      "maxLength": 256,
+      "title": "Author",
+      "type": "string"
+    },
+    "license": {
+      "default": "",
+      "maxLength": 64,
+      "title": "License",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/ModuleKind",
+      "description": "Module kind, determining its role in the K0 lifecycle"
+    },
+    "criticality": {
+      "$ref": "#/$defs/CriticalityLevel",
+      "default": "optional",
+      "description": "How critical this module is to system operation"
+    },
+    "provides": {
+      "description": "Capabilities this module provides to others",
+      "items": {
+        "$ref": "#/$defs/CapabilityDeclaration"
+      },
+      "title": "Provides",
+      "type": "array"
+    },
+    "requires": {
+      "description": "Capabilities this module requires from others",
+      "items": {
+        "$ref": "#/$defs/CapabilityDeclaration"
+      },
+      "title": "Requires",
+      "type": "array"
+    },
+    "lifecycle_hooks": {
+      "description": "Lifecycle phases this module participates in",
+      "items": {
+        "$ref": "#/$defs/LifecycleHook"
+      },
+      "title": "Lifecycle Hooks",
+      "type": "array"
+    },
+    "privileges": {
+      "description": "Security privileges required by this module",
+      "items": {
+        "$ref": "#/$defs/SecurityPrivilege"
+      },
+      "title": "Privileges",
+      "type": "array"
+    },
+    "failure_semantics": {
+      "$ref": "#/$defs/FailureSemantics",
+      "default": "fail_closed",
+      "description": "How the module behaves on error"
+    },
+    "degradation_spec": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DegradationSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Required when failure_semantics is DEGRADE"
+    },
+    "guarantees": {
+      "description": "What this module guarantees when functioning correctly",
+      "items": {
+        "type": "string"
+      },
+      "title": "Guarantees",
+      "type": "array"
+    },
+    "non_guarantees": {
+      "description": "What this module explicitly does NOT guarantee",
+      "items": {
+        "type": "string"
+      },
+      "title": "Non Guarantees",
+      "type": "array"
+    },
+    "schema_version": {
+      "default": "1.0",
+      "description": "Manifest schema version for forward compatibility",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "tags": {
+      "description": "Freeform tags for categorization and discovery",
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "description": "Extension metadata for domain-specific needs",
+      "title": "Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "version",
+    "kind"
+  ],
+  "title": "ModuleManifest",
+  "type": "object"
+}

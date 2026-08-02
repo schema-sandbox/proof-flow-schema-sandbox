@@ -31,40 +31,6 @@ EXCLUDED_NAMES = {
     "SHA256SUMS.txt",
     "tsconfig.tsbuildinfo",
 }
-# The repository root is the active ProofFlow source tree.  The sibling
-# versioned snapshots and theory package are retained for audit/reference only;
-# they are deliberately not part of a ProofFlow release or its checksums.
-EXCLUDED_ROOT_NAMES = {
-    "ProofFlow_Schema_Sandbox_0.1.0-alpha.3",
-    "ProofFlow_Schema_Sandbox_0.1.0-alpha.4",
-    "SchemaMath_Experimental_Sandbox_alpha_0.1.0-alpha.2",
-    "SchemaMath_Experimental_Sandbox_Design_v0.1",
-}
-EXCLUDED_ROOT_FILES = {
-    "ai_math_discoveries_2026_paper.md",
-    "From_Prompt_to_Proof_v0.10.md",
-    "From_Prompt_to_Proof_v0.10_CN.md",
-    "internal_kb_schema_sandbox_paper_V33_CN.md",
-    "internal_kb_schema_sandbox_paper_V33_EN.md",
-    "internal_kb_schema_sandbox_V34_MKS_CN.md",
-    "internal_kb_schema_sandbox_V34_MKS_EN.md",
-    "operational_evidence_map_v0.10.png",
-    "operational_evidence_map_v0.10.svg",
-    "ProofFlow_Schema_Sandbox_0.1.0-alpha.3.zip",
-    "ProofFlow_Schema_Sandbox_0.1.0-alpha.4.zip",
-    "SchemaMath_Experimental_Sandbox_alpha_0.1.0-alpha.1.zip",
-    "SchemaMath_Experimental_Sandbox_alpha_0.1.0-alpha.2.zip",
-    "SchemaMath_Experimental_Sandbox_Design_Package_v0.1.zip",
-    "schema_sandbox_modular_architecture.md",
-    "Schema_Sandbox_V34_Modular_Trust_Kernel_Proposal_CN.md",
-}
-
-
-def is_reference_material(relative: Path) -> bool:
-    return bool(relative.parts) and (
-        relative.parts[0] in EXCLUDED_ROOT_NAMES
-        or (len(relative.parts) == 1 and relative.name in EXCLUDED_ROOT_FILES)
-    )
 
 
 def sha256_file(path: Path) -> str:
@@ -81,8 +47,6 @@ def included_files(*, include_generated: bool = False) -> list[Path]:
         if not path.is_file():
             continue
         relative = path.relative_to(ROOT)
-        if is_reference_material(relative):
-            continue
         if any(part in EXCLUDED_PARTS for part in relative.parts):
             continue
         if not include_generated and path.name in EXCLUDED_NAMES:
@@ -185,13 +149,17 @@ def write_manifest() -> dict[str, object]:
             "json_schema_documents_present": schema_total,
             "openapi_paths": openapi_paths(),
             "markdown_documents_present": sum(1 for path in files if path.suffix.lower() == ".md"),
-            "prototype_javascript_syntax": True,
-            "demo_export_import": True,
-            "react_build": True,
-            "npm_audit_high": "0 vulnerabilities",
+            "prototype_javascript_syntax": "not_run_by_offline_builder",
+            "demo_export_import": "not_run_by_offline_builder",
+            "react_build": "not_run_by_offline_builder",
+            # Dependency audit requires an explicit network-enabled CI step.  The
+            # offline release builder must never manufacture a clean result.
+            "npm_audit_high": "not_run_by_offline_builder",
         },
         "security_boundary": {
             "network_binding": "localhost by default",
+            "production_authentication": "required via PROOFFLOW_SECRET_KEY and PROOFFLOW_API_KEYS",
+            "production_local_process_plugins": "disabled unless explicitly enabled outside production",
             "plugin_host_isolation": (
                 "process-only for trusted local commands; digest-pinned OCI supported"
             ),
@@ -225,8 +193,6 @@ def zip_files() -> list[Path]:
         if not path.is_file():
             continue
         relative = path.relative_to(ROOT)
-        if is_reference_material(relative):
-            continue
         if any(part in EXCLUDED_PARTS for part in relative.parts):
             continue
         if path.name in {".coverage", "tsconfig.tsbuildinfo"}:

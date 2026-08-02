@@ -10,13 +10,6 @@ automatically marks a project solved. `UNRESOLVED` is a first-class outcome;
 objections remain easy while certified route closure intentionally requires
 strong evidence and a human actor.
 
-## Active development root
-
-This directory is the single active ProofFlow codebase. Make all future
-changes, tests, manifests, checksums, and releases here. The adjacent
-versioned Alpha.2/Alpha.3/Alpha.4 folders and theory materials are retained as
-read-only historical or design references; the release builder excludes them.
-
 ## Alpha.4
 
 - Added a read-only `.smath.zip` import preflight that reports archive safety,
@@ -61,11 +54,25 @@ npm run build --prefix apps/web
 Open `http://127.0.0.1:8000/app/`. API docs are at `/docs`; the Alpha.2
 dependency-free prototype remains available at `/prototype/`.
 
+For the hardened container profile, copy `.env.production.example` to a protected
+`.env.production` file, replace both placeholders, and run:
+
+```powershell
+docker compose --env-file .env.production -f docker-compose.prod.yml up --build
+```
+
+The production profile persists `/data`, requires API authentication, binds the
+published port to loopback, and disables local process plugins. The `/app/` UI
+prompts for an API key after a 401 and keeps it only in the current browser session.
+
 ProofFlow-prefixed environment variables are preferred:
 `PROOFFLOW_WORKSPACE`, `PROOFFLOW_PLUGIN_ROOT`,
 `PROOFFLOW_MAX_UPLOAD_BYTES`, `PROOFFLOW_MAX_CHAT_IMPORT_CHARS`,
 `PROOFFLOW_MAX_PLUGIN_OUTPUT_BYTES`, and
-`PROOFFLOW_MAX_PLUGIN_OUTPUT_FILES`. Their `SCHEMAMATH_*` Alpha.2 aliases remain
+`PROOFFLOW_MAX_PLUGIN_OUTPUT_FILES`. Production additionally requires
+`PROOFFLOW_SECRET_KEY` and `PROOFFLOW_API_KEYS`, and accepts
+`PROOFFLOW_AUTH_ENABLED`, `PROOFFLOW_ALLOW_LOCAL_PLUGINS`, and
+`PROOFFLOW_MAX_IMPORT_BYTES`. Their `SCHEMAMATH_*` Alpha.2 aliases remain
 supported for compatibility.
 
 ## Validate
@@ -86,18 +93,10 @@ See [Alpha.4 release notes](docs/ALPHA_4_RELEASE_NOTES_CN.md),
 
 The local process runners are not an OS security sandbox and inherit the local
 user's authority. Run only trusted code and keep the API bound to localhost.
+Production mode fails closed without explicit authentication secrets and disables
+local process plugins by default.
 OCI manifests must use digest-pinned images, but container availability and
 security configuration remain an operator responsibility. Tools are installed
 only when needed; an unavailable optional tool is reported honestly.
-
-Optional API authentication: set `PROOFFLOW_API_TOKEN` (or `SCHEMAMATH_API_TOKEN`)
-to require a Bearer or `X-API-Key` token on every `/api/*` request. Without it
-the API stays open for the local-first workflow, so only expose the service to
-localhost when no token is configured.
-
-Resource limits on Windows: the Python runner applies CPU, memory and file-size
-limits on POSIX only (`resource.setrlimit`). On Windows only the wall-clock
-timeout and output caps apply, so never run untrusted `python.local` code on a
-Windows host; prefer the OCI runner for untrusted workloads.
 
 License: Apache-2.0.

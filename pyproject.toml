@@ -1,6 +1,6 @@
 [project]
 name = "proof-flow-schema-sandbox"
-version = "0.1.0a4"
+version = "0.1.0-alpha.4"
 description = "Local-first, human-guided experimental mathematics research sandbox"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,6 +12,10 @@ dependencies = [
   "pydantic>=2.8,<3",
   "python-multipart>=0.0.9,<1",
 ]
+
+[project.scripts]
+proofflow = "schemamath_api.cli:main"
+schemamath = "schemamath_api.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -27,25 +31,6 @@ dev = [
 pythonpath = ["apps/api"]
 testpaths = ["tests"]
 addopts = "-q"
-cov_source = ["schemamath_api"]
-cov_report = ["term-missing"]
-filterwarnings = [
-  "ignore::DeprecationWarning:starlette.testclient",
-]
-
-[tool.coverage.run]
-source = ["schemamath_api"]
-branch = true
-omit = ["schemamath_api/__main__.py"]
-
-[tool.coverage.report]
-show_missing = true
-skip_covered = true
-exclude_lines = [
-  "pragma: no cover",
-  "def __repr__",
-  "if TYPE_CHECKING:",
-]
 
 [tool.ruff]
 line-length = 100

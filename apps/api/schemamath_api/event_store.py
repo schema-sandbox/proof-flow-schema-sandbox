@@ -5,10 +5,12 @@ import json
 import os
 import threading
 from collections.abc import Iterable
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
+from .auth import authenticated_actor
 from .domain import SCHEMA_VERSION, Actor, EpistemicDeltaType, EventRecord, utc_now
 
 _LOCKS_GUARD = threading.Lock()
@@ -19,6 +21,35 @@ def _lock_for(path: Path) -> threading.Lock:
     key = str(path.resolve())
     with _LOCKS_GUARD:
         return _LOCKS.setdefault(key, threading.Lock())
+
+
+@contextmanager
+def _process_lock(path: Path):
+    """Coordinate appenders across worker processes as well as threads."""
+
+    lock_path = path.with_name(f"{path.name}.lock")
+    with lock_path.open("a+b") as handle:
+        if os.name == "nt":
+            import msvcrt
+
+            handle.seek(0)
+            handle.write(b"0")
+            handle.flush()
+            handle.seek(0)
+            msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+            try:
+                yield
+            finally:
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def canonical_json(value: dict[str, Any]) -> bytes:
@@ -77,7 +108,8 @@ class EventStore:
         epistemic_delta_type: EpistemicDeltaType | None = None,
     ) -> EventRecord:
         lock = _lock_for(self.events_path)
-        with lock:
+        with _process_lock(self.events_path), lock:
+            actor = authenticated_actor(actor)
             previous_hash = self._tail_hash_or_raise()
             event_without_hash: dict[str, Any] = {
                 "schema_version": SCHEMA_VERSION,
@@ -151,6 +183,12 @@ class EventStore:
                 continue
             return json.loads(stripped)
         return None
+
+    def _last_hash_unlocked(self) -> str | None:
+        last: dict[str, Any] | None = None
+        for raw in self.iter_raw():
+            last = raw
+        return None if last is None else str(last.get("event_hash"))
 
     def verify_chain(self) -> tuple[bool, int | None, str | None]:
         expected_previous: str | None = None

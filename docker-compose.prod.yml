@@ -1,0 +1,33 @@
+services:
+  proofflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: proofflow/proofflow-api:0.1.0-alpha.4
+    container_name: proofflow_api
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PROOFFLOW_ENV: production
+      PROOFFLOW_AUTH_ENABLED: "true"
+      PROOFFLOW_SECRET_KEY: ${PROOFFLOW_SECRET_KEY:?set a strong secret before starting}
+      PROOFFLOW_API_KEYS: ${PROOFFLOW_API_KEYS:?set at least one comma-separated API key before starting}
+      PROOFFLOW_ALLOW_LOCAL_PLUGINS: "false"
+      PROOFFLOW_WORKSPACE: /data/workspaces
+      PROOFFLOW_PLUGIN_ROOT: /data/plugins
+    volumes:
+      - proofflow-data:/data
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,noexec,nosuid,nodev
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  proofflow-data:

@@ -14,8 +14,18 @@ from pydantic import (
     model_validator,
 )
 
-SCHEMA_VERSION = "0.4"
-SUPPORTED_SCHEMA_VERSIONS = {"0.1", "0.2", "0.3", "0.4"}
+SCHEMA_VERSION = "0.5"
+SUPPORTED_SCHEMA_VERSIONS = {"0.1", "0.2", "0.3", "0.4", "0.5"}
+
+
+class TraceDerivationClass(StrEnum):
+    """Trace Derivation Classes (v0.13 §3): taxonomy of process transparency."""
+
+    RAW_EVENT_STREAM = "RAW_EVENT_STREAM"
+    REWRITTEN_LOG = "REWRITTEN_LOG"
+    MODEL_RECONSTRUCTION = "MODEL_RECONSTRUCTION"
+    HUMAN_SYNTHESIS = "HUMAN_SYNTHESIS"
+    FINAL_ONLY_ARTIFACT = "FINAL_ONLY_ARTIFACT"
 
 
 def utc_now() -> datetime:

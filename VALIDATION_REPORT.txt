@@ -1,15 +1,11 @@
 ProofFlow Schema Sandbox 0.1.0-alpha.4
 Validation date: 2026-07-30
 
-Validation was executed from the active repository root. Adjacent Alpha.2,
-Alpha.3, Alpha.4, Design Package, and theory materials are preserved as
-reference-only inputs and excluded from the release manifest and checksums.
-
 Validated scope
 ===============
 
 Core Python/API
-- 33 pytest service and FastAPI integration tests: PASS
+- 33 pytest service and FastAPI integration tests: PASS (historical Alpha.4 record; not independently rerun in this environment)
 - Ruff lint and format checks for apps/api, scripts and tests: PASS
 - Production /app/ HTTP mount and redirect smoke test: PASS
 - Alpha.2 /prototype/ retained: PASS
@@ -36,7 +32,7 @@ Research-state behavior
 
 Interface and packaging
 - TypeScript compilation and Vite production build: PASS
-- npm audit at high severity: 0 vulnerabilities
+- npm audit at high severity: 0 vulnerabilities (historical record; not independently rerun in this environment)
 - React Flow and lazily loaded Excalidraw dual canvas: PASS
 - Release Manifest and SHA-256 generation: PASS
 
@@ -48,3 +44,16 @@ Known boundaries
 - Starlette TestClient emits an httpx2 migration warning; tests still pass.
 - Local plugins are not an OS security sandbox.
 - No mathematical correctness, completeness, novelty or guaranteed-solution claim follows from these tests.
+
+Remediation verification (2026-08-01)
+=====================================
+
+- Python syntax compilation for `apps/api`, `scripts` and `tests`: PASS (196 files).
+- JSON parsing for schemas, OpenAPI and release manifest: PASS (32 documents).
+- React TypeScript/Vite production build: PASS (2375 modules; Vite still reports large-chunk warnings).
+- SHA-256 release checksums: PASS (445 entries verified).
+- Production Compose security settings: statically checked; full `docker compose config` was not run because it would require resolving deployment secrets.
+- Full pytest suite: NOT RUN in this offline environment (`pytest` is not installed); no result is inferred from the cached collection metadata.
+- `npm audit`: NOT RUN by the offline release builder; the release manifest records `not_run_by_offline_builder` rather than manufacturing a clean result.
+- Production remediation: API-key/HMAC authentication is fail-closed, local process plugins are disabled by default, imports stream to bounded temporary files, project imports stage and atomically replace destinations, and the development Compose port binds to loopback.
+- Experimental proof/solver integrations now report unavailable or unverified states when their external verifier/runtime is absent; they do not claim success from canned fallback output.

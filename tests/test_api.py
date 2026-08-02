@@ -271,24 +271,48 @@ def test_import_preflight_api_does_not_create_project(tmp_path: Path) -> None:
     assert list((tmp_path / "workspaces").iterdir()) == []
 
 
-def test_api_token_gates_api_surface_when_configured(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("PROOFFLOW_API_TOKEN", "test-secret")
+def test_generic_event_api_rejects_internal_state_machine_events(tmp_path: Path) -> None:
     app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
     client = TestClient(app)
+    project = client.post(
+        "/api/v1/projects",
+        json={
+            "title": "Guarded project",
+            "description": "test",
+            "problem": {"source_text": "Test statement.", "author_notes": ""},
+            "actor": {"type": "human", "id": "tester"},
+        },
+    ).json()
+    project_id = project["project_id"]
+    route = client.post(
+        f"/api/v1/projects/{project_id}/routes",
+        json={
+            "title": "Target",
+            "initial_state": "ACTIVE",
+            "actor": {"type": "human", "id": "tester"},
+        },
+    ).json()
 
-    assert client.get("/api/v1/projects").status_code == 401
-    assert client.get("/api/v1/projects", headers={"Authorization": "Bearer wrong"}).status_code == 401
-    assert client.get("/api/v1/projects", headers={"X-API-Key": "wrong"}).status_code == 401
-    assert (
-        client.get("/api/v1/projects", headers={"Authorization": "Bearer test-secret"}).status_code
-        == 200
+    response = client.post(
+        f"/api/v1/projects/{project_id}/events",
+        json={
+            "event_type": "ROUTE_STATE_CHANGED",
+            "actor": {"type": "model", "id": "forger"},
+            "route_id": route["route_id"],
+            "payload": {"new_state": "CERTIFIED_CLOSED", "closure_evidence_refs": []},
+        },
     )
-    assert client.get("/api/v1/projects", headers={"X-API-Key": "test-secret"}).status_code == 200
+    assert response.status_code == 400, response.text
 
-    assert client.get("/health").status_code == 200
+    routes = client.get(f"/api/v1/projects/{project_id}/routes").json()
+    assert routes[0]["state"] == "ACTIVE"
 
-
-def test_api_without_token_remains_open(tmp_path: Path) -> None:
-    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
-    client = TestClient(app)
-    assert client.get("/api/v1/projects").status_code == 200
+    annotation = client.post(
+        f"/api/v1/projects/{project_id}/events",
+        json={
+            "event_type": "EXPERIMENT_NOTE",
+            "actor": {"type": "human", "id": "tester"},
+            "payload": {"label": "observation"},
+        },
+    )
+    assert annotation.status_code == 201, annotation.text

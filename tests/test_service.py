@@ -103,6 +103,67 @@ def test_certified_close_requires_human_and_evidence(service: SchemaMathService)
     assert closed.closure_evidence_refs == ["artifact:certificate-1"]
 
 
+def test_generic_event_cannot_forge_certified_close(service: SchemaMathService) -> None:
+    from schemamath_api.domain import GenericEventCreate
+
+    project = make_project(service)
+    route = service.create_route(
+        project.project_id,
+        RouteCreate(title="Guarded route", initial_state=RouteState.ACTIVE),
+    )
+    with pytest.raises(ValueError, match="dedicated endpoint"):
+        service.append_generic_event(
+            project.project_id,
+            GenericEventCreate(
+                event_type="ROUTE_STATE_CHANGED",
+                actor=Actor(type=ActorType.MODEL, id="forger"),
+                route_id=route.route_id,
+                payload={"new_state": "CERTIFIED_CLOSED", "closure_evidence_refs": []},
+            ),
+        )
+    assert service.list_routes(project.project_id)[0].state == RouteState.ACTIVE
+    assert service.integrity_report(project.project_id).valid is True
+
+
+def test_generic_event_cannot_forge_internal_event_types(
+    service: SchemaMathService,
+) -> None:
+    from schemamath_api.domain import GenericEventCreate
+
+    project = make_project(service)
+    for event_type in ("ROUTE_CREATED", "BRANCH_STATE_CHANGED", "CHALLENGE_STATUS_CHANGED"):
+        with pytest.raises(ValueError, match="dedicated endpoint"):
+            service.append_generic_event(
+                project.project_id,
+                GenericEventCreate(
+                    event_type=event_type,
+                    actor=Actor(type=ActorType.MODEL, id="forger"),
+                    payload={"anything": True},
+                ),
+            )
+
+
+def test_generic_event_accepts_arbitrary_research_annotation(
+    service: SchemaMathService,
+) -> None:
+    from schemamath_api.domain import GenericEventCreate
+
+    project = make_project(service)
+    event = service.append_generic_event(
+        project.project_id,
+        GenericEventCreate(
+            event_type="EXPERIMENT_NOTE",
+            actor=Actor(type=ActorType.HUMAN, id="researcher"),
+            payload={"label": "sporadic-observation"},
+            epistemic_delta="A new experimental observation was recorded.",
+        ),
+    )
+    assert event.event_type == "EXPERIMENT_NOTE"
+    events = service.list_events(project.project_id)
+    assert any(item.event_type == "EXPERIMENT_NOTE" for item in events)
+    assert service.integrity_report(project.project_id).valid is True
+
+
 def test_content_addressed_artifact_and_packet(service: SchemaMathService) -> None:
     project = make_project(service)
     route = service.create_route(

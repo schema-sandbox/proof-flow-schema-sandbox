@@ -1,10 +1,5 @@
 # Repository Map — ProofFlow `0.1.0-alpha.4`
 
-The repository root is the only active development and release root. Sibling
-Alpha.2/Alpha.3/Alpha.4 snapshots, Design Package material, and theoretical
-papers remain available for reference only and are excluded from package
-manifests, checksums, and release archives.
-
 ```text
 .
 ├── apps/

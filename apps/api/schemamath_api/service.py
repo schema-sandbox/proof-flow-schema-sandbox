@@ -126,9 +126,50 @@ def _replace_with_retry(source: Path, target: Path, attempts: int = 10) -> None:
             time.sleep(0.01 * (attempt + 1))
 
 
+# Event types that are emitted exclusively by dedicated service methods (which
+# enforce transitions, evidence, and actor rules). The generic event endpoint
+# must never accept them, otherwise a caller could forge internal
+# state-machine transitions, for example ``ROUTE_STATE_CHANGED`` with
+# ``new_state=CERTIFIED_CLOSED`` and empty closure evidence.
+RESERVED_EVENT_TYPES = frozenset(
+    {
+        "PROJECT_CREATED",
+        "ROUTE_CREATED",
+        "ROUTE_SPLIT",
+        "ROUTES_MERGED",
+        "ROUTE_STATE_CHANGED",
+        "BRANCH_CREATED",
+        "BRANCH_STATE_CHANGED",
+        "CHALLENGE_CREATED",
+        "CHALLENGE_STATUS_CHANGED",
+        "BRIDGE_RESULT_CREATED",
+        "DEAD_END_CONSTRAINT_CREATED",
+        "RESEARCH_CHECKPOINT_CREATED",
+        "ARTIFACT_ADDED",
+        "OBJECTION_ADDED",
+        "HUMAN_INTERVENTION_ADDED",
+        "CHAT_IMPORT_PREVIEW_CREATED",
+        "MODEL_NOTE_IMPORTED",
+        "CHAT_IMPORT_CONFIRMED",
+        "PLUGIN_INSTALLED",
+        "PLUGIN_HEALTH_CHECKED",
+        "PLUGIN_ENABLED",
+        "PLUGIN_DISABLED",
+        "PLUGIN_UNINSTALLED",
+        "PLUGIN_RUN_STARTED",
+        "PLUGIN_RUN_COMPLETED",
+        "MODEL_SESSION_CREATED",
+        "HANDOFF_CREATED",
+        "ARENA_RECIPE_CREATED",
+        "VISUAL_CANVAS_SNAPSHOT_CREATED",
+    }
+)
+
+
 class SchemaMathService:
     MAX_IMPORT_MEMBERS = 10_000
     MAX_IMPORT_UNCOMPRESSED_BYTES = 250 * 1024 * 1024
+    MAX_IMPORT_MANIFEST_BYTES = 4 * 1024 * 1024
 
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
@@ -734,6 +775,11 @@ class SchemaMathService:
         return event
 
     def append_generic_event(self, project_id: UUID, request: GenericEventCreate) -> EventRecord:
+        if request.event_type in RESERVED_EVENT_TYPES:
+            raise ValueError(
+                f"event type {request.event_type} is managed by a dedicated endpoint "
+                "and cannot be submitted as a generic event"
+            )
         route_id, branch_id = self._normalize_optional_target(
             project_id, request.route_id, request.branch_id
         )
@@ -924,22 +970,23 @@ class SchemaMathService:
                 ignored_count += 1
                 continue
             if selection.disposition == ImportDisposition.MODEL_NOTE:
-                event = self.append_generic_event(
-                    project_id,
-                    GenericEventCreate(
-                        event_type="MODEL_NOTE_IMPORTED",
-                        actor=request.actor,
-                        route_id=selection.route_id,
-                        branch_id=selection.branch_id,
-                        caused_by=[str(import_id), str(selection.candidate_id)],
-                        epistemic_delta="A human accepted imported model text as a visible research note.",
-                        payload={
-                            "title": selection.title,
-                            "content": content,
-                            "source_artifact_id": str(preview.artifact_id),
-                        },
+                event = self._event_store(project_id).append(
+                    project_id=project_id,
+                    event_type="MODEL_NOTE_IMPORTED",
+                    actor=request.actor,
+                    route_id=selection.route_id,
+                    branch_id=selection.branch_id,
+                    caused_by=[str(import_id), str(selection.candidate_id)],
+                    epistemic_delta=(
+                        "A human accepted imported model text as a visible research note."
                     ),
+                    payload={
+                        "title": selection.title,
+                        "content": content,
+                        "source_artifact_id": str(preview.artifact_id),
+                    },
                 )
+                self._projection(project_id).apply(event)
                 created_event_ids.append(event.event_id)
                 created_object_refs.append(f"event:{event.event_id}")
             elif selection.disposition == ImportDisposition.RESEARCH_CHECKPOINT:
@@ -1067,6 +1114,13 @@ class SchemaMathService:
         if request.actor.type != ActorType.HUMAN:
             raise ConflictError("plugin installation requires a human actor")
         manifest = self._require_plugin_manifest(plugin_id)
+        if not self.settings.allow_local_plugins and manifest.runner_type.value in {
+            "python",
+            "local_command",
+        }:
+            raise ConflictError(
+                "local process plugins are disabled by deployment policy; use a digest-pinned OCI runner"
+            )
         if request.expected_version and request.expected_version != manifest.version:
             raise ConflictError(
                 f"requested {request.expected_version}, available version is {manifest.version}"
@@ -1138,6 +1192,13 @@ class SchemaMathService:
         if actor.type != ActorType.HUMAN:
             raise ConflictError("plugin enablement requires a human actor")
         manifest = self._require_plugin_manifest(plugin_id)
+        if not self.settings.allow_local_plugins and manifest.runner_type.value in {
+            "python",
+            "local_command",
+        }:
+            raise ConflictError(
+                "local process plugins are disabled by deployment policy; use a digest-pinned OCI runner"
+            )
         current = self._projection(project_id).get_project_plugin(plugin_id)
         if current is None or current.lifecycle_status == PluginLifecycleStatus.UNINSTALLED:
             self.install_plugin(
@@ -1249,6 +1310,8 @@ class SchemaMathService:
         self, project_id: UUID, request: PythonPluginRunRequest
     ) -> PluginRunRecord:
         self.get_project(project_id)
+        if not self.settings.allow_local_plugins:
+            raise ConflictError("python.local is disabled by deployment policy")
         plugin = self._projection(project_id).get_project_plugin("python.local")
         if plugin is None or not plugin.enabled:
             raise ConflictError("python.local must be enabled before running it")
@@ -1404,6 +1467,11 @@ class SchemaMathService:
     ) -> PluginRunRecord:
         self.get_project(project_id)
         manifest = self._require_plugin_manifest(plugin_id)
+        if not self.settings.allow_local_plugins and manifest.runner_type.value in {
+            "python",
+            "local_command",
+        }:
+            raise ConflictError("local process plugins are disabled by deployment policy")
         if manifest.runner_type.value == "python":
             raise ConflictError(
                 "python.local keeps its backward-compatible structured run endpoint"
@@ -2180,7 +2248,7 @@ class SchemaMathService:
 
         if not archive_path.is_file():
             errors.append("archive does not exist or is not a file")
-        elif archive_bytes > self.settings.maximum_upload_bytes * 20:
+        elif archive_bytes > self.settings.maximum_import_bytes:
             errors.append("archive exceeds configured import size limit")
 
         if not errors:
@@ -2226,6 +2294,21 @@ class SchemaMathService:
                             can_import=False,
                         )
 
+                    manifest_member = archive.getinfo("project.json")
+                    if manifest_member.file_size > self.MAX_IMPORT_MANIFEST_BYTES:
+                        errors.append("project manifest exceeds the configured size limit")
+                        return ImportPreflightReport(
+                            archive_name=archive_name,
+                            archive_bytes=archive_bytes,
+                            file_count=file_count,
+                            compressed_bytes=compressed_bytes,
+                            uncompressed_bytes=uncompressed_bytes,
+                            missing_artifact_paths=missing_artifact_paths,
+                            warnings=warnings,
+                            errors=errors,
+                            can_import=False,
+                        )
+
                     try:
                         manifest = ProjectManifest.model_validate_json(
                             archive.read("project.json").decode("utf-8")
@@ -2245,7 +2328,10 @@ class SchemaMathService:
                                 prefix="proofflow-preflight-"
                             ) as temp_dir:
                                 events_path = Path(temp_dir) / "events.jsonl"
-                                events_path.write_bytes(archive.read(event_stream))
+                                with archive.open(event_stream, "r") as source, events_path.open(
+                                    "wb"
+                                ) as target:
+                                    shutil.copyfileobj(source, target, length=1024 * 1024)
                                 store = EventStore(events_path)
                                 try:
                                     events = store.read_all()
@@ -2320,8 +2406,20 @@ class SchemaMathService:
             destination = self.project_dir(manifest.project_id)
             if destination.exists():
                 raise ConflictError(f"project {manifest.project_id} already exists")
-            shutil.copytree(temp_path, destination)
-            self.rebuild_projection(manifest.project_id)
+            staging = self.settings.workspace_root / (
+                f".{manifest.project_id}.smath.importing-{uuid4().hex}"
+            )
+            try:
+                shutil.copytree(temp_path, staging)
+                projection = ProjectionStore(staging / "database" / "projections.sqlite3")
+                projection.reset()
+                events = EventStore(staging / "events" / "events.jsonl").read_all()
+                for event in events:
+                    projection.apply(event)
+                staging.replace(destination)
+            finally:
+                if staging.exists():
+                    shutil.rmtree(staging, ignore_errors=True)
             return manifest
 
     # ------------------------------------------------------------------
