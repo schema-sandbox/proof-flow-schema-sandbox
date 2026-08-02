@@ -193,6 +193,7 @@ export function App() {
   const sceneDraft = useRef<SceneDraft | null>(null);
   const selectedElementIds = useRef<string[]>([]);
   const flowInstance = useRef<ReactFlowInstance<Node<GraphData>, Edge> | null>(null);
+  const openSeq = useRef(0);
 
   const graph = useMemo(
     () => buildGraph(routes, branches, challenges, bridges),
@@ -222,6 +223,7 @@ export function App() {
   }, []);
 
   async function openProject(id: string) {
+    const seq = ++openSeq.current;
     setLoading(true);
     setError("");
     try {
@@ -236,6 +238,7 @@ export function App() {
           api.deltas(id),
           api.latestCanvas(id),
         ]);
+      if (seq !== openSeq.current) return;
       setProject(p);
       setRoutes(r);
       setBranches(b);
@@ -261,9 +264,10 @@ export function App() {
       setSelectedNode(null);
       setNotice("");
     } catch (reason) {
+      if (seq !== openSeq.current) return;
       setError(reason instanceof Error ? reason.message : "项目加载失败");
     } finally {
-      setLoading(false);
+      if (seq === openSeq.current) setLoading(false);
     }
   }
 

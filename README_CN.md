@@ -64,4 +64,13 @@ ProofFlow 的本地用户权限。只运行可信代码，并将 API 绑定在 l
 OCI 插件要求镜像使用摘要固定，但容器运行时及其安全配置仍由操作者负责。
 数学工具按需安装；缺少可选工具时，系统会如实报告不可用。
 
+可选 API 认证：设置 `PROOFFLOW_API_TOKEN`（或 `SCHEMAMATH_API_TOKEN`）后，
+所有 `/api/*` 请求必须携带 Bearer 或 `X-API-Key` token。未设置时 API 保持
+开放以支持本地优先工作流，因此未配置 token 时请只将服务暴露给 localhost。
+
+Windows 资源限制：Python 运行器仅在 POSIX 上生效 CPU/内存/文件大小限制
+（`resource.setrlimit`）。Windows 上只有墙钟超时与输出上限生效，因此在
+Windows 主机上绝不要运行不受信的 `python.local` 代码；不受信负载请改用
+OCI 运行器。
+
 许可证：Apache-2.0。

@@ -11,6 +11,7 @@ class Settings:
 
     workspace_root: Path
     plugin_root: Path
+    api_token: str | None = None
     maximum_upload_bytes: int = 25 * 1024 * 1024
     maximum_chat_import_chars: int = 2_000_000
     maximum_plugin_output_bytes: int = 10 * 1024 * 1024
@@ -44,6 +45,7 @@ class Settings:
                 )
             ).expanduser()
         )
+        api_token = os.environ.get("PROOFFLOW_API_TOKEN", os.environ.get("SCHEMAMATH_API_TOKEN")) or None
         max_upload = int(
             env_value(
                 "PROOFFLOW_MAX_UPLOAD_BYTES",
@@ -77,6 +79,7 @@ class Settings:
         return cls(
             workspace_root=root.resolve(),
             plugin_root=plugin_root.resolve(),
+            api_token=api_token,
             maximum_upload_bytes=max_upload,
             maximum_chat_import_chars=max_chat_chars,
             maximum_plugin_output_bytes=max_plugin_output,

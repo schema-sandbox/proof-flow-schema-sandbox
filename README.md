@@ -90,4 +90,14 @@ OCI manifests must use digest-pinned images, but container availability and
 security configuration remain an operator responsibility. Tools are installed
 only when needed; an unavailable optional tool is reported honestly.
 
+Optional API authentication: set `PROOFFLOW_API_TOKEN` (or `SCHEMAMATH_API_TOKEN`)
+to require a Bearer or `X-API-Key` token on every `/api/*` request. Without it
+the API stays open for the local-first workflow, so only expose the service to
+localhost when no token is configured.
+
+Resource limits on Windows: the Python runner applies CPU, memory and file-size
+limits on POSIX only (`resource.setrlimit`). On Windows only the wall-clock
+timeout and output caps apply, so never run untrusted `python.local` code on a
+Windows host; prefer the OCI runner for untrusted workloads.
+
 License: Apache-2.0.

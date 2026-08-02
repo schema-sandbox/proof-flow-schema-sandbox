@@ -3,9 +3,12 @@ from __future__ import annotations
 import hashlib
 import json
 import mimetypes
+import os
 import shutil
 import stat
 import tempfile
+import threading
+import time
 import zipfile
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -99,6 +102,28 @@ class NotFoundError(LookupError):
 
 class ConflictError(ValueError):
     pass
+
+
+_MANIFEST_LOCKS_GUARD = threading.Lock()
+_MANIFEST_LOCKS: dict[str, threading.Lock] = {}
+
+
+def _manifest_lock(path: Path) -> threading.Lock:
+    key = str(path.resolve())
+    with _MANIFEST_LOCKS_GUARD:
+        return _MANIFEST_LOCKS.setdefault(key, threading.Lock())
+
+
+def _replace_with_retry(source: Path, target: Path, attempts: int = 10) -> None:
+    """Atomically replace ``target``, retrying transient Windows sharing violations."""
+    for attempt in range(attempts):
+        try:
+            os.replace(source, target)
+            return
+        except OSError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(0.01 * (attempt + 1))
 
 
 class SchemaMathService:
@@ -2124,11 +2149,15 @@ class SchemaMathService:
         export_dir = self.project_dir(project_id) / "exports"
         export_dir.mkdir(parents=True, exist_ok=True)
         destination = export_dir / f"{project.project_id}.smath.zip"
+        excluded_tops = {"database", "runs", "exports"}
         with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as archive:
             for path in self.project_dir(project_id).rglob("*"):
                 if not path.is_file() or path == destination:
                     continue
-                archive.write(path, path.relative_to(self.project_dir(project_id)))
+                relative = path.relative_to(self.project_dir(project_id))
+                if relative.parts and relative.parts[0] in excluded_tops:
+                    continue
+                archive.write(path, relative)
         return destination
 
     def preflight_project_zip(self, archive_path: Path) -> ImportPreflightReport:
@@ -2368,10 +2397,7 @@ class SchemaMathService:
         return route_id, None
 
     def _require_artifact(self, project_id: UUID, artifact_id: UUID) -> ArtifactRecord:
-        artifact = next(
-            (item for item in self.list_artifacts(project_id) if item.artifact_id == artifact_id),
-            None,
-        )
+        artifact = self._projection(project_id).get_artifact(str(artifact_id))
         if artifact is None:
             raise NotFoundError(f"artifact {artifact_id} not found")
         return artifact
@@ -2409,11 +2435,12 @@ class SchemaMathService:
     def _write_manifest(self, manifest: ProjectManifest) -> None:
         path = self._manifest_path(manifest.project_id)
         path.parent.mkdir(parents=True, exist_ok=True)
-        temporary = path.with_suffix(".json.tmp")
-        temporary.write_text(
-            manifest.model_dump_json(indent=2, exclude_none=False), encoding="utf-8"
-        )
-        temporary.replace(path)
+        with _manifest_lock(path):
+            temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
+            temporary.write_text(
+                manifest.model_dump_json(indent=2, exclude_none=False), encoding="utf-8"
+            )
+            _replace_with_retry(temporary, path)
 
     def _touch_manifest(self, project_id: UUID) -> None:
         manifest = self.get_project(project_id)

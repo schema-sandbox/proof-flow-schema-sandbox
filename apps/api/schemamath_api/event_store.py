@@ -78,14 +78,7 @@ class EventStore:
     ) -> EventRecord:
         lock = _lock_for(self.events_path)
         with lock:
-            valid, index, error = self.verify_chain()
-            if not valid:
-                detail = error or "unknown event-chain error"
-                raise ValueError(
-                    "event store is read-only until recovery: "
-                    f"invalid event at index {index}: {detail}"
-                )
-            previous_hash = self._last_hash_unlocked()
+            previous_hash = self._tail_hash_or_raise()
             event_without_hash: dict[str, Any] = {
                 "schema_version": SCHEMA_VERSION,
                 "event_id": str(uuid4()),
@@ -119,11 +112,45 @@ class EventStore:
                 os.fsync(handle.fileno())
             return record
 
-    def _last_hash_unlocked(self) -> str | None:
-        last: dict[str, Any] | None = None
-        for raw in self.iter_raw():
-            last = raw
-        return None if last is None else str(last.get("event_hash"))
+    def _tail_hash_or_raise(self) -> str | None:
+        """Return the verified hash of the last record without scanning the chain.
+
+        Appends refuse to write when the tail is inconsistent (for example after a
+        crash that truncated the file). Full-chain verification remains available
+        through ``verify_chain`` for integrity reports and imports.
+        """
+        record = self._read_last_record()
+        if record is None:
+            return None
+        actual_hash = record.get("event_hash")
+        without_hash = dict(record)
+        without_hash.pop("event_hash", None)
+        if actual_hash != event_digest(without_hash):
+            raise ValueError(
+                "event store is read-only until recovery: "
+                "invalid event at the tail of the chain"
+            )
+        return str(actual_hash)
+
+    def _read_last_record(self) -> dict[str, Any] | None:
+        """Read the final non-empty JSONL record using a bounded tail seek."""
+        with self.events_path.open("rb") as handle:
+            handle.seek(0, os.SEEK_END)
+            size = handle.tell()
+            if size == 0:
+                return None
+            start = max(size - 65536, 0)
+            handle.seek(start)
+            tail = handle.read()
+        lines = tail.split(b"\n")
+        if start > 0:
+            lines = lines[1:]
+        for line in reversed(lines):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            return json.loads(stripped)
+        return None
 
     def verify_chain(self) -> tuple[bool, int | None, str | None]:
         expected_previous: str | None = None

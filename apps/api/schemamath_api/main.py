@@ -4,13 +4,34 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import __version__
 from . import api as api_module
 from .config import Settings
 from .service import SchemaMathService
+
+
+def _build_token_middleware(token: str | None):
+    """Gate the /api/* surface behind a shared Bearer/X-API-Key token.
+
+    The token is optional. When unset the service behaves as before so the
+    local web UI and existing clients keep working without configuration.
+    Static assets, /health and the schema routes stay open.
+    """
+
+    async def dispatch(request, call_next):
+        path = request.url.path
+        if token is None or not path.startswith("/api/"):
+            return await call_next(request)
+        authorization = request.headers.get("Authorization", "")
+        api_key = request.headers.get("X-API-Key", "")
+        if authorization == f"Bearer {token}" or api_key == token:
+            return await call_next(request)
+        return JSONResponse(status_code=401, content={"detail": "missing or invalid API token"})
+
+    return dispatch
 
 
 def create_app(workspace_root: Path | None = None, plugin_root: Path | None = None) -> FastAPI:
@@ -27,6 +48,8 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
     )
     app.state.settings = settings
     app.state.service = service
+
+    app.middleware("http")(_build_token_middleware(settings.api_token))
 
     app.add_middleware(
         CORSMiddleware,

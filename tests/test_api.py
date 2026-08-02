@@ -269,3 +269,26 @@ def test_import_preflight_api_does_not_create_project(tmp_path: Path) -> None:
     assert response.status_code == 200, response.text
     assert response.json()["can_import"] is True
     assert list((tmp_path / "workspaces").iterdir()) == []
+
+
+def test_api_token_gates_api_surface_when_configured(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("PROOFFLOW_API_TOKEN", "test-secret")
+    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
+    client = TestClient(app)
+
+    assert client.get("/api/v1/projects").status_code == 401
+    assert client.get("/api/v1/projects", headers={"Authorization": "Bearer wrong"}).status_code == 401
+    assert client.get("/api/v1/projects", headers={"X-API-Key": "wrong"}).status_code == 401
+    assert (
+        client.get("/api/v1/projects", headers={"Authorization": "Bearer test-secret"}).status_code
+        == 200
+    )
+    assert client.get("/api/v1/projects", headers={"X-API-Key": "test-secret"}).status_code == 200
+
+    assert client.get("/health").status_code == 200
+
+
+def test_api_without_token_remains_open(tmp_path: Path) -> None:
+    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
+    client = TestClient(app)
+    assert client.get("/api/v1/projects").status_code == 200

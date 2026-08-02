@@ -716,15 +716,28 @@ def test_import_preflight_reports_tampered_chain_and_unsafe_paths(
     assert any("unsafe path" in error for error in unsafe_report.errors)
 
 
-def test_corrupt_event_history_locks_project_against_new_writes(
-    service: SchemaMathService,
-) -> None:
+def test_corrupt_event_history_is_reported_by_integrity_check(service: SchemaMathService) -> None:
     project = make_project(service)
     event_path = service.project_dir(project.project_id) / "events" / "events.jsonl"
     records = event_path.read_text(encoding="utf-8").splitlines()
     record = json.loads(records[0])
     record["event_type"] = "TAMPERED_EVENT"
     records[0] = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+    event_path.write_text("\n".join(records) + "\n", encoding="utf-8")
+
+    report = service.integrity_report(project.project_id)
+    assert report.valid is False
+
+
+def test_corrupt_event_tail_locks_project_against_new_writes(
+    service: SchemaMathService,
+) -> None:
+    project = make_project(service)
+    event_path = service.project_dir(project.project_id) / "events" / "events.jsonl"
+    records = event_path.read_text(encoding="utf-8").splitlines()
+    record = json.loads(records[-1])
+    record["event_type"] = "TAMPERED_TAIL"
+    records[-1] = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
     event_path.write_text("\n".join(records) + "\n", encoding="utf-8")
 
     report = service.integrity_report(project.project_id)

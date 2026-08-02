@@ -239,7 +239,7 @@ class PythonPluginRunner:
         files: list[Path] = []
         truncated = False
         for path in sorted(output_dir.rglob("*")):
-            if not path.is_file():
+            if path.is_symlink() or not path.is_file():
                 continue
             if len(files) >= self.maximum_output_files:
                 truncated = True

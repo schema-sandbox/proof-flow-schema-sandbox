@@ -27,6 +27,25 @@ dev = [
 pythonpath = ["apps/api"]
 testpaths = ["tests"]
 addopts = "-q"
+cov_source = ["schemamath_api"]
+cov_report = ["term-missing"]
+filterwarnings = [
+  "ignore::DeprecationWarning:starlette.testclient",
+]
+
+[tool.coverage.run]
+source = ["schemamath_api"]
+branch = true
+omit = ["schemamath_api/__main__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if TYPE_CHECKING:",
+]
 
 [tool.ruff]
 line-length = 100

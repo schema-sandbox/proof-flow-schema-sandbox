@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import tempfile
 from pathlib import Path
 from typing import Annotated
@@ -69,6 +70,8 @@ from .domain import (
 )
 from .service import ConflictError, NotFoundError, SchemaMathService
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/v1")
 
 
@@ -81,7 +84,10 @@ def _translate_error(exc: Exception) -> HTTPException:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     if isinstance(exc, ConflictError):
         return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
-    return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    if isinstance(exc, ValueError):
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+    logger.exception("internal error while handling request", exc_info=exc)
+    return HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="internal server error")
 
 
 @router.post("/projects", response_model=ProjectManifest, status_code=201)

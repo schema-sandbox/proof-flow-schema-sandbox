@@ -241,8 +241,9 @@ class ProjectionStore:
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:
-        connection = sqlite3.connect(self.database_path)
+        connection = sqlite3.connect(self.database_path, timeout=5.0)
         connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA busy_timeout=5000")
         try:
             yield connection
             connection.commit()
@@ -796,6 +797,13 @@ class ProjectionStore:
         with self.connect() as connection:
             rows = connection.execute("SELECT * FROM artifacts ORDER BY created_at DESC").fetchall()
         return [ArtifactRecord.model_validate(dict(row)) for row in rows]
+
+    def get_artifact(self, artifact_id: str) -> ArtifactRecord | None:
+        with self.connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM artifacts WHERE artifact_id = ?", (artifact_id,)
+            ).fetchone()
+        return ArtifactRecord.model_validate(dict(row)) if row else None
 
     def list_chat_imports(self) -> list[ChatImportPreviewRecord]:
         with self.connect() as connection:
