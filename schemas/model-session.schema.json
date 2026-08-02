@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "ArenaRole": {
+      "enum": [
+        "explorer",
+        "builder",
+        "rival_theorist",
+        "counterexample_hunter",
+        "skeptic",
+        "bridge_builder",
+        "simplifier",
+        "visual_thinker",
+        "formalizer",
+        "historian",
+        "expositor"
+      ],
+      "title": "ArenaRole",
+      "type": "string"
+    },
+    "ConnectorType": {
+      "enum": [
+        "manual_chatgpt",
+        "openai_api",
+        "imported_transcript",
+        "tool_session",
+        "future_plugin"
+      ],
+      "title": "ConnectorType",
+      "type": "string"
+    },
+    "SessionCompleteness": {
+      "enum": [
+        "COMPLETE_VISIBLE",
+        "PARTIAL_VISIBLE",
+        "AUTHOR_ATTESTED",
+        "UNKNOWN"
+      ],
+      "title": "SessionCompleteness",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "session_id": {
+      "format": "uuid",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "connector_type": {
+      "$ref": "#/$defs/ConnectorType"
+    },
+    "display_label": {
+      "title": "Display Label",
+      "type": "string"
+    },
+    "reported_model": {
+      "default": "",
+      "title": "Reported Model",
+      "type": "string"
+    },
+    "model_family": {
+      "default": "",
+      "title": "Model Family",
+      "type": "string"
+    },
+    "role": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArenaRole"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "context_packet_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Context Packet Refs",
+      "type": "array"
+    },
+    "output_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Artifact Refs",
+      "type": "array"
+    },
+    "completeness": {
+      "$ref": "#/$defs/SessionCompleteness"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "notes": {
+      "default": "",
+      "title": "Notes",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_id",
+    "project_id",
+    "connector_type",
+    "display_label",
+    "completeness",
+    "created_at"
+  ],
+  "title": "ModelSessionRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/model-session.schema.json"
+}

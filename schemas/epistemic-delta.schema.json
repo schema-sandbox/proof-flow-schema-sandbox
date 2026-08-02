@@ -1,0 +1,83 @@
+{
+  "$defs": {
+    "EpistemicDeltaType": {
+      "enum": [
+        "TARGET_CLARIFIED",
+        "ASSUMPTION_CHANGED",
+        "ROUTE_CREATED",
+        "ROUTE_OBSTRUCTED",
+        "ROUTE_REVIVED",
+        "COUNTEREXAMPLE_FOUND",
+        "BRIDGE_RESULT_CREATED",
+        "TOOL_EVIDENCE_ADDED",
+        "HANDOFF_REUSED",
+        "VISUAL_PATTERN_NOTED",
+        "HUMAN_INTERVENTION",
+        "SESSION_RECORDED",
+        "NO_STATE_CHANGE"
+      ],
+      "title": "EpistemicDeltaType",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_type": {
+      "title": "Event Type",
+      "type": "string"
+    },
+    "delta_type": {
+      "$ref": "#/$defs/EpistemicDeltaType"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "delta_type",
+    "description",
+    "timestamp"
+  ],
+  "title": "EpistemicDeltaSummary",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/epistemic-delta.schema.json"
+}

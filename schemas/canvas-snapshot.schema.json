@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "VisualMappingStatus": {
+      "enum": [
+        "CONFIRMED",
+        "PARTIAL",
+        "AMBIGUOUS",
+        "UNMAPPED"
+      ],
+      "title": "VisualMappingStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "visual_id": {
+      "format": "uuid",
+      "title": "Visual Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "original_artifact_ref": {
+      "title": "Original Artifact Ref",
+      "type": "string"
+    },
+    "author_description": {
+      "default": "",
+      "title": "Author Description",
+      "type": "string"
+    },
+    "machine_interpretation": {
+      "default": "",
+      "title": "Machine Interpretation",
+      "type": "string"
+    },
+    "machine_interpretation_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Machine Interpretation Ref"
+    },
+    "mapping_status": {
+      "$ref": "#/$defs/VisualMappingStatus"
+    },
+    "element_links": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Element Links",
+      "type": "object"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "confirmed_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confirmed By"
+    }
+  },
+  "required": [
+    "visual_id",
+    "project_id",
+    "original_artifact_ref",
+    "mapping_status",
+    "created_at"
+  ],
+  "title": "CanvasSnapshotRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/canvas-snapshot.schema.json"
+}

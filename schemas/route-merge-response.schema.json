@@ -1,0 +1,127 @@
+{
+  "$defs": {
+    "RouteRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "route_id": {
+          "format": "uuid",
+          "title": "Route Id",
+          "type": "string"
+        },
+        "project_id": {
+          "format": "uuid",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "parent_route_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Route Id"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/RouteState"
+        },
+        "objections": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Objections",
+          "type": "array"
+        },
+        "revival_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Revival Conditions",
+          "type": "array"
+        },
+        "closure_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Closure Evidence Refs",
+          "type": "array"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "route_id",
+        "project_id",
+        "title",
+        "state",
+        "created_at",
+        "updated_at"
+      ],
+      "title": "RouteRecord",
+      "type": "object"
+    },
+    "RouteState": {
+      "enum": [
+        "SEED",
+        "ACTIVE",
+        "CHALLENGED",
+        "CONDITIONAL",
+        "DORMANT",
+        "REVIVED",
+        "BRIDGE_RESULT",
+        "SUPERSEDED",
+        "CERTIFIED_CLOSED"
+      ],
+      "title": "RouteState",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "merged_route": {
+      "$ref": "#/$defs/RouteRecord"
+    },
+    "source_route_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Source Route Ids",
+      "type": "array"
+    },
+    "event_id": {
+      "format": "uuid",
+      "title": "Event Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "merged_route",
+    "source_route_ids",
+    "event_id"
+  ],
+  "title": "RouteMergeResponse",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/route-merge-response.schema.json"
+}

@@ -1,0 +1,41 @@
+{
+  "recipe_id": "recipe-two-route-collision",
+  "name": "Two-route collision",
+  "description": "Steelman, challenge, and bridge two routes with human gates.",
+  "compute_mode": "conservative",
+  "stages": [
+    {
+      "stage_id": "s1",
+      "role": "rival_theorist",
+      "connector_id": "manual-chatgpt-a",
+      "input_selection": [
+        "route:A"
+      ],
+      "output_kind": "research_checkpoint",
+      "human_gate_after": true
+    },
+    {
+      "stage_id": "s2",
+      "role": "rival_theorist",
+      "connector_id": "manual-chatgpt-b",
+      "input_selection": [
+        "route:B"
+      ],
+      "output_kind": "research_checkpoint",
+      "human_gate_after": true
+    },
+    {
+      "stage_id": "s3",
+      "role": "bridge_builder",
+      "connector_id": "manual-chatgpt-a",
+      "input_selection": [
+        "route:A",
+        "route:B",
+        "checkpoint:s1",
+        "checkpoint:s2"
+      ],
+      "output_kind": "handoff_or_bridge",
+      "human_gate_after": true
+    }
+  ]
+}

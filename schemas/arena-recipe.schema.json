@@ -1,0 +1,135 @@
+{
+  "$defs": {
+    "ArenaComputeMode": {
+      "enum": [
+        "conservative",
+        "manual_parallel",
+        "custom"
+      ],
+      "title": "ArenaComputeMode",
+      "type": "string"
+    },
+    "ArenaRole": {
+      "enum": [
+        "explorer",
+        "builder",
+        "rival_theorist",
+        "counterexample_hunter",
+        "skeptic",
+        "bridge_builder",
+        "simplifier",
+        "visual_thinker",
+        "formalizer",
+        "historian",
+        "expositor"
+      ],
+      "title": "ArenaRole",
+      "type": "string"
+    },
+    "ArenaStage": {
+      "additionalProperties": false,
+      "properties": {
+        "stage_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Stage Id",
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/$defs/ArenaRole"
+        },
+        "connector_id": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Connector Id"
+        },
+        "input_selection": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Selection",
+          "type": "array"
+        },
+        "output_kind": {
+          "default": "research_checkpoint",
+          "maxLength": 240,
+          "title": "Output Kind",
+          "type": "string"
+        },
+        "human_gate_after": {
+          "default": true,
+          "title": "Human Gate After",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "stage_id",
+        "role"
+      ],
+      "title": "ArenaStage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "recipe_id": {
+      "format": "uuid",
+      "title": "Recipe Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "compute_mode": {
+      "$ref": "#/$defs/ArenaComputeMode"
+    },
+    "parallel_workers": {
+      "default": 0,
+      "title": "Parallel Workers",
+      "type": "integer"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/ArenaStage"
+      },
+      "title": "Stages",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "recipe_id",
+    "project_id",
+    "name",
+    "compute_mode",
+    "stages",
+    "created_at"
+  ],
+  "title": "ArenaRecipeRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/arena-recipe.schema.json"
+}

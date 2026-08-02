@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.1",
+  "project_id": "project-demo-001",
+  "title": "Demonstration unresolved graph problem",
+  "description": "Shows routes, an objection, a bridge result, and an unresolved export.",
+  "created_at": "2026-08-01T00:00:00Z",
+  "updated_at": "2026-08-01T00:00:00Z",
+  "original_problem": {
+    "problem_id": "problem-demo-001",
+    "statement": "Determine whether the stated graph property holds for all finite graphs in the declared class.",
+    "source_refs": [
+      "artifact-source-paper"
+    ],
+    "definitions": [
+      "G is a finite simple graph."
+    ],
+    "assumptions": [],
+    "author_notes": "This is a demonstration project; no solution is expected.",
+    "created_at": "2026-08-01T00:00:00Z",
+    "content_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "current_goal_id": "goal-v1",
+  "project_status": [
+    "UNRESOLVED",
+    "BRIDGE_RESULT",
+    "ROUTE_OBSTRUCTION"
+  ],
+  "event_stream": "events/events.jsonl",
+  "artifact_store": "blobs/sha256",
+  "plugins_lock": "plugins/plugins.lock.json"
+}

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SchemaMath Experimental Sandbox — Alpha.2</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>SchemaMath Experimental Sandbox</h1>
+      <p>Alpha.2：分支、挑战、桥接结果、会话导入与按需 Python 实验。</p>
+    </div>
+    <div class="status-badge" id="healthStatus">连接中…</div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar panel">
+      <section>
+        <div class="section-title">
+          <h2>项目</h2>
+          <button id="refreshProjects" class="ghost">刷新</button>
+        </div>
+        <div id="projectList" class="project-list"></div>
+      </section>
+
+      <details open>
+        <summary>新建实验项目</summary>
+        <form id="createProjectForm" class="stack">
+          <label>标题<input name="title" required placeholder="例如：某个组合结构猜想" /></label>
+          <label>原始问题<textarea name="problem" required rows="6" placeholder="保存原始问题，不会被工作目标覆盖"></textarea></label>
+          <label>研究者备注<textarea name="notes" rows="3" placeholder="已知背景、直觉、边界"></textarea></label>
+          <button type="submit">创建项目</button>
+        </form>
+      </details>
+
+      <section class="constitution">
+        <h3>实验宪法</h3>
+        <ul>
+          <li>不保证解答</li>
+          <li>异议容易，关闭困难</li>
+          <li>失败与桥接结果都可复用</li>
+          <li>导入内容必须由人类确认</li>
+          <li>工具按需启用</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <div id="emptyState" class="empty panel">
+        <h2>选择或创建一个项目</h2>
+        <p>Alpha.2 将可见模型会话、研究分支、挑战和工具实验纳入同一条事件轨迹。</p>
+      </div>
+
+      <div id="projectWorkspace" class="hidden">
+        <section class="panel problem-panel">
+          <div class="section-title">
+            <div>
+              <h2 id="projectTitle"></h2>
+              <p id="projectDescription"></p>
+            </div>
+            <div class="actions">
+              <button id="integrityButton" class="ghost">检查事件链</button>
+              <button id="exportProjectButton" class="ghost">导出 .smath.zip</button>
+              <button id="researchPacketButton">生成 Research Packet</button>
+            </div>
+          </div>
+          <div class="problem-box" id="problemText"></div>
+          <div class="minor" id="problemNotes"></div>
+        </section>
+
+        <section class="grid-two">
+          <div class="panel">
+            <div class="section-title">
+              <h2>路线与分支图</h2>
+              <div class="actions">
+                <button id="newRouteButton">新建路线</button>
+                <button id="newBranchButton" class="ghost">新建分支</button>
+                <button id="splitRouteButton" class="ghost">拆分选中路线</button>
+                <button id="mergeRoutesButton" class="ghost">合并路线</button>
+              </div>
+            </div>
+            <svg id="routeGraph" viewBox="0 0 1000 620" aria-label="研究路线与分支图"></svg>
+            <div id="routeDetails" class="route-details muted">点击路线或分支查看状态。</div>
+          </div>
+
+          <div class="panel">
+            <div class="section-title">
+              <h2>自由草图</h2>
+              <div class="actions">
+                <button id="clearSketch" class="ghost">清空</button>
+                <button id="saveSketch">保存为工件</button>
+              </div>
+            </div>
+            <canvas id="sketchCanvas" width="900" height="520"></canvas>
+            <p class="minor">原始草图永久保留；LLM 或专业工具的结构化解释只是派生对象。</p>
+          </div>
+        </section>
+
+        <section class="grid-three lower">
+          <div class="panel">
+            <h2>挑战：易提出，不自动杀路线</h2>
+            <form id="challengeForm" class="stack compact-form">
+              <label>路线<select name="route_id" id="challengeRouteSelect" required></select></label>
+              <label>分支（可选）<select name="branch_id" id="challengeBranchSelect"><option value="">路线级</option></select></label>
+              <label>类型<select name="challenge_type">
+                <option>OBJECTION</option><option>COUNTEREXAMPLE_SEARCH</option>
+                <option>SOURCE_CHECK</option><option>QUANTIFIER_CHECK</option>
+                <option>FORMALIZATION_TEST</option><option>COMPUTATIONAL_TEST</option>
+                <option>BOUNDARY_CASE</option><option>OTHER</option>
+              </select></label>
+              <label>异议或问题<textarea name="statement" required rows="4"></textarea></label>
+              <label>建议检验<textarea name="test_plan" rows="3"></textarea></label>
+              <button type="submit">打开挑战</button>
+            </form>
+            <div id="challengeList" class="object-list"></div>
+          </div>
+
+          <div class="panel">
+            <h2>桥接结果与已知死路</h2>
+            <form id="bridgeForm" class="stack compact-form">
+              <label>路线<select name="route_id" id="bridgeRouteSelect" required></select></label>
+              <label>分支（可选）<select name="branch_id" id="bridgeBranchSelect"><option value="">路线级</option></select></label>
+              <label>标题<input name="title" required /></label>
+              <label>摘要<textarea name="summary" required rows="4"></textarea></label>
+              <label>保留价值（每行一项）<textarea name="retained_value" rows="3"></textarea></label>
+              <button type="submit">保存桥接结果</button>
+            </form>
+            <details>
+              <summary>记录已知死路</summary>
+              <form id="deadEndForm" class="stack compact-form">
+                <label>路线<select name="route_id" id="deadEndRouteSelect"><option value="">项目级</option></select></label>
+                <label>标题<input name="title" required /></label>
+                <label>障碍描述<textarea name="description" required rows="4"></textarea></label>
+                <label>重新开放条件（每行一项）<textarea name="reopen_conditions" rows="3"></textarea></label>
+                <button type="submit">保存死路约束</button>
+              </form>
+            </details>
+            <div id="bridgeList" class="object-list"></div>
+            <div id="deadEndList" class="object-list"></div>
+          </div>
+
+          <div class="panel">
+            <h2>Research Checkpoint</h2>
+            <form id="checkpointForm" class="stack compact-form">
+              <label>当前目标<textarea name="current_target" required rows="3"></textarea></label>
+              <label>路线<select name="route_id" id="checkpointRouteSelect"><option value="">项目级</option></select></label>
+              <label>分支（可选）<select name="branch_id" id="checkpointBranchSelect"><option value="">无</option></select></label>
+              <label>准备做什么<textarea name="intended_move" rows="3"></textarea></label>
+              <label>本轮失败或收获<textarea name="observed_failure_or_gain" rows="3"></textarea></label>
+              <label>未完成义务（每行一项）<textarea name="unresolved_obligations" rows="3"></textarea></label>
+              <button type="submit">保存检查点</button>
+            </form>
+            <div id="checkpointList" class="object-list"></div>
+          </div>
+        </section>
+
+        <section class="grid-two lower">
+          <div class="panel">
+            <div class="section-title"><h2>ChatGPT Companion Import</h2><span class="pill">人工确认后入图</span></div>
+            <p class="minor">支持 Markdown、HTML、JSON 和纯文本。导入只生成预览，不会自动提升为研究结论。</p>
+            <form id="chatImportForm" class="stack">
+              <label>会话文件<input name="file" type="file" accept=".md,.markdown,.html,.htm,.json,.txt" required /></label>
+              <button type="submit">解析会话</button>
+            </form>
+            <div id="chatImportList" class="object-list"></div>
+          </div>
+
+          <div class="panel">
+            <div class="section-title"><h2>按需 Python 实验插件</h2><button id="enablePythonButton" class="ghost">启用插件</button></div>
+            <p class="minor warning">Alpha.2 仅提供进程级隔离，不是 OS 安全沙箱。只运行你信任的代码。</p>
+            <form id="pythonRunForm" class="stack">
+              <label>关联路线<select name="route_id" id="pythonRouteSelect"><option value="">项目级</option></select></label>
+              <label>关联分支<select name="branch_id" id="pythonBranchSelect"><option value="">无</option></select></label>
+              <label>Python 代码<textarea name="source_code" rows="12" required>from pathlib import Path
+import os
+print("hello from SchemaMath")
+out = Path(os.environ["SCHEMAMATH_OUTPUT_DIR"]) / "result.txt"
+out.write_text("experiment output", encoding="utf-8")</textarea></label>
+              <label>时限（秒）<input name="timeout_seconds" type="number" min="1" max="60" value="20" /></label>
+              <button type="submit">运行实验</button>
+            </form>
+            <div id="pluginRunList" class="object-list"></div>
+          </div>
+        </section>
+
+        <section class="grid-two lower">
+          <div class="panel">
+            <h2>人类热插入</h2>
+            <form id="noteForm" class="stack">
+              <label>关联路线<select name="route_id" id="noteRouteSelect"><option value="">项目级</option></select></label>
+              <label>关联分支<select name="branch_id" id="noteBranchSelect"><option value="">无</option></select></label>
+              <label>类型<select name="note_type">
+                <option>GENERAL</option><option>INTUITION</option><option>DEFINITION</option>
+                <option>COUNTEREXAMPLE</option><option>ROUTE_PRIORITY</option>
+                <option>SIMPLIFICATION_GOAL</option><option>REDIRECT</option>
+              </select></label>
+              <label>内容<textarea name="content" required rows="5"></textarea></label>
+              <button type="submit">加入研究轨迹</button>
+            </form>
+
+            <hr />
+            <h3>上传工件</h3>
+            <form id="artifactForm" class="stack">
+              <label>文件<input name="file" type="file" required /></label>
+              <label>工件类型<select name="artifact_type">
+                <option>OTHER</option><option>TEXT</option><option>IMAGE</option>
+                <option>HAND_DRAWING</option><option>CODE</option><option>GRAPH</option>
+                <option>COUNTEREXAMPLE</option><option>PROOF_SOURCE</option>
+              </select></label>
+              <button type="submit">保存原始工件</button>
+            </form>
+            <div id="artifactList" class="artifact-list"></div>
+          </div>
+
+          <div class="panel timeline-panel">
+            <div class="section-title"><h2>可观察研究轨迹</h2><button id="refreshCurrent" class="ghost">刷新</button></div>
+            <div id="timeline" class="timeline"></div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="routeDialog">
+    <form method="dialog" id="routeForm" class="stack dialog-form">
+      <h2>新建路线</h2>
+      <label>标题<input name="title" required /></label>
+      <label>说明<textarea name="description" rows="5"></textarea></label>
+      <label>初始状态<select name="initial_state"><option>SEED</option><option>ACTIVE</option></select></label>
+      <div class="actions"><button value="cancel" class="ghost">取消</button><button value="default">保存</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="branchDialog">
+    <form method="dialog" id="branchForm" class="stack dialog-form">
+      <h2>新建分支</h2>
+      <label>所属路线<select name="route_id" id="branchRouteSelect" required></select></label>
+      <label>标题<input name="title" required /></label>
+      <label>说明<textarea name="description" rows="5"></textarea></label>
+      <label>初始状态<select name="initial_state"><option>SEED</option><option>ACTIVE</option></select></label>
+      <div class="actions"><button value="cancel" class="ghost">取消</button><button value="default">保存</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="packetDialog">
+    <div class="packet-dialog">
+      <div class="section-title"><h2>Research Packet</h2><button id="closePacket" class="ghost">关闭</button></div>
+      <textarea id="packetOutput" rows="28" readonly></textarea>
+      <button id="copyPacket">复制到剪贴板</button>
+    </div>
+  </dialog>
+
+  <dialog id="chatImportDialog">
+    <div class="packet-dialog wide-dialog">
+      <div class="section-title"><h2>会话候选节点</h2><button id="closeChatImport" class="ghost">关闭</button></div>
+      <p class="minor">每条候选默认只是模型笔记。你可以改成挑战、桥接结果、新分支或检查点，也可以忽略。</p>
+      <div id="chatCandidateList" class="chat-candidate-list"></div>
+      <button id="confirmChatImport">确认所选节点</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="./app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "ProblemContract": {
+      "additionalProperties": false,
+      "properties": {
+        "source_text": {
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "source_uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Uri"
+        },
+        "source_version": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Version"
+        },
+        "author_notes": {
+          "default": "",
+          "title": "Author Notes",
+          "type": "string"
+        },
+        "definitions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Definitions",
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_text"
+      ],
+      "title": "ProblemContract",
+      "type": "object"
+    },
+    "ProjectStatus": {
+      "enum": [
+        "UNRESOLVED",
+        "CLARIFIED",
+        "REFORMULATED",
+        "PARTIAL_RESULT",
+        "BRIDGE_RESULT",
+        "ROUTE_OBSTRUCTION",
+        "COMPUTATIONAL_PATTERN",
+        "COUNTEREXAMPLE_CANDIDATE",
+        "CANDIDATE_PROOF",
+        "FORMAL_TARGET_ENCODED",
+        "KERNEL_ACCEPTED",
+        "HUMAN_REVIEWED",
+        "INDEPENDENTLY_RE_DERIVED",
+        "WITHDRAWN"
+      ],
+      "title": "ProjectStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "0.4",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "original_problem": {
+      "$ref": "#/$defs/ProblemContract"
+    },
+    "current_goal_id": {
+      "format": "uuid",
+      "title": "Current Goal Id",
+      "type": "string"
+    },
+    "project_status": {
+      "items": {
+        "$ref": "#/$defs/ProjectStatus"
+      },
+      "title": "Project Status",
+      "type": "array"
+    },
+    "event_stream": {
+      "default": "events/events.jsonl",
+      "title": "Event Stream",
+      "type": "string"
+    },
+    "artifact_store": {
+      "default": "blobs/sha256",
+      "title": "Artifact Store",
+      "type": "string"
+    },
+    "plugins_lock": {
+      "default": "plugins/plugins.lock.json",
+      "title": "Plugins Lock",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id",
+    "title",
+    "created_at",
+    "updated_at",
+    "original_problem",
+    "current_goal_id"
+  ],
+  "title": "ProjectManifest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/project.schema.json"
+}

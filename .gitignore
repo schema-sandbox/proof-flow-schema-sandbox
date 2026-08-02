@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+node_modules/
+dist/
+.vite/
+.DS_Store
+*.smath/
+*.smath.zip
+.schemamath-workspace/
+runtime-workspaces/
+runtime-plugins/
+.idea/
+.vscode/
+*.log
+# Release artifacts are built from the single source tree by scripts/build_release.py
+ProofFlow_Schema_Sandbox_*/
+SchemaMath_Experimental_Sandbox_*/
+SchemaMath_Experimental_Sandbox_Design_*/
+*.zip

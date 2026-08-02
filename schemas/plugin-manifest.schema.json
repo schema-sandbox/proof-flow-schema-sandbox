@@ -1,0 +1,261 @@
+{
+  "$defs": {
+    "PluginCategory": {
+      "enum": [
+        "COMPUTE",
+        "SEARCH",
+        "FORMALIZE",
+        "VISUALIZE",
+        "VIDEO",
+        "IMPORTER",
+        "EXPORTER"
+      ],
+      "title": "PluginCategory",
+      "type": "string"
+    },
+    "PluginInstallSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "default": "bundled",
+          "enum": [
+            "bundled",
+            "local_command",
+            "python_venv",
+            "oci_container"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "package": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package"
+        },
+        "image": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image"
+        },
+        "dependency_lock": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dependency Lock",
+          "type": "array"
+        },
+        "allow_network_install": {
+          "default": false,
+          "title": "Allow Network Install",
+          "type": "boolean"
+        }
+      },
+      "title": "PluginInstallSpec",
+      "type": "object"
+    },
+    "PluginPermissions": {
+      "additionalProperties": false,
+      "properties": {
+        "network": {
+          "default": false,
+          "title": "Network",
+          "type": "boolean"
+        },
+        "filesystem_read": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Filesystem Read",
+          "type": "array"
+        },
+        "filesystem_write": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Filesystem Write",
+          "type": "array"
+        },
+        "environment_variables": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Environment Variables",
+          "type": "array"
+        },
+        "subprocess": {
+          "default": true,
+          "title": "Subprocess",
+          "type": "boolean"
+        }
+      },
+      "title": "PluginPermissions",
+      "type": "object"
+    },
+    "PluginResources": {
+      "additionalProperties": false,
+      "properties": {
+        "max_cpu_seconds": {
+          "default": 60,
+          "maximum": 3600,
+          "minimum": 1,
+          "title": "Max Cpu Seconds",
+          "type": "integer"
+        },
+        "max_memory_mb": {
+          "default": 1024,
+          "maximum": 65536,
+          "minimum": 64,
+          "title": "Max Memory Mb",
+          "type": "integer"
+        },
+        "max_output_mb": {
+          "default": 10,
+          "maximum": 4096,
+          "minimum": 1,
+          "title": "Max Output Mb",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 20,
+          "maximum": 3600,
+          "minimum": 1,
+          "title": "Timeout Seconds",
+          "type": "integer"
+        }
+      },
+      "title": "PluginResources",
+      "type": "object"
+    },
+    "PluginRunnerType": {
+      "enum": [
+        "python",
+        "local_command",
+        "oci"
+      ],
+      "title": "PluginRunnerType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "0.4",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "plugin_id": {
+      "maxLength": 160,
+      "minLength": 3,
+      "title": "Plugin Id",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 80,
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "maxLength": 4000,
+      "title": "Description",
+      "type": "string"
+    },
+    "category": {
+      "$ref": "#/$defs/PluginCategory",
+      "default": "COMPUTE"
+    },
+    "runner_type": {
+      "$ref": "#/$defs/PluginRunnerType",
+      "default": "python"
+    },
+    "capabilities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "install": {
+      "$ref": "#/$defs/PluginInstallSpec"
+    },
+    "entrypoint": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Entrypoint",
+      "type": "array"
+    },
+    "healthcheck": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Healthcheck",
+      "type": "array"
+    },
+    "permissions": {
+      "$ref": "#/$defs/PluginPermissions"
+    },
+    "resources": {
+      "$ref": "#/$defs/PluginResources"
+    },
+    "isolation_level": {
+      "default": "process-only",
+      "enum": [
+        "process-only",
+        "container",
+        "external"
+      ],
+      "title": "Isolation Level",
+      "type": "string"
+    },
+    "default_timeout_seconds": {
+      "default": 20,
+      "maximum": 300,
+      "minimum": 1,
+      "title": "Default Timeout Seconds",
+      "type": "integer"
+    },
+    "maximum_timeout_seconds": {
+      "default": 60,
+      "maximum": 600,
+      "minimum": 1,
+      "title": "Maximum Timeout Seconds",
+      "type": "integer"
+    },
+    "enabled_by_default": {
+      "default": false,
+      "title": "Enabled By Default",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "plugin_id",
+    "version",
+    "name"
+  ],
+  "title": "PluginManifestRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/plugin-manifest.schema.json"
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "0.1",
+  "project_id": "11111111-1111-4111-8111-111111111111",
+  "title": "示例：一个未解决的组合结构问题",
+  "status": "UNRESOLVED",
+  "created_at": "2026-07-30T00:00:00Z",
+  "updated_at": "2026-07-30T00:00:00Z",
+  "problem_contract": {
+    "original_problem": "给定某类有限结构，研究是否存在满足约束 X 的构造。",
+    "source_refs": [],
+    "current_interpretation": "先研究小规模反例和一个几何表示。",
+    "definitions": [
+      "约束 X 需在后续由研究者固定"
+    ],
+    "researcher_notes": "本项目允许长期未解。"
+  },
+  "tags": [
+    "demo",
+    "combinatorics"
+  ],
+  "required_plugins": [
+    "org.schemamath.python",
+    "org.schemamath.graphviz"
+  ]
+}

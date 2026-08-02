@@ -1,0 +1,96 @@
+{
+  "$defs": {
+    "BranchState": {
+      "enum": [
+        "SEED",
+        "ACTIVE",
+        "CHALLENGED",
+        "DORMANT",
+        "REVIVED",
+        "BRIDGE_RESULT",
+        "SUPERSEDED",
+        "COMPLETED"
+      ],
+      "title": "BranchState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "branch_id": {
+      "format": "uuid",
+      "title": "Branch Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "route_id": {
+      "format": "uuid",
+      "title": "Route Id",
+      "type": "string"
+    },
+    "parent_branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Branch Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "state": {
+      "$ref": "#/$defs/BranchState"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "branch_id",
+    "project_id",
+    "route_id",
+    "title",
+    "state",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "BranchRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/branch.schema.json"
+}

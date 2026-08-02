@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.1",
+  "plugin_id": "org.schemamath.python-basic",
+  "name": "Python Basic Runner",
+  "version": "0.1.0",
+  "category": "COMPUTE",
+  "description": "Run a project-scoped Python script and capture all outputs.",
+  "license": "Apache-2.0",
+  "install": {
+    "type": "python_venv",
+    "package": "schemamath-python-basic"
+  },
+  "entrypoint": [
+    "python",
+    "-m",
+    "schemamath_python_basic"
+  ],
+  "permissions": {
+    "network": false,
+    "filesystem_read": [
+      "project_inputs"
+    ],
+    "filesystem_write": [
+      "run_workspace"
+    ],
+    "max_cpu_seconds": 600,
+    "max_memory_mb": 2048,
+    "max_output_mb": 256
+  },
+  "inputs": [
+    "text/x-python",
+    "application/json"
+  ],
+  "outputs": [
+    "application/json",
+    "text/plain",
+    "image/png",
+    "image/svg+xml"
+  ],
+  "deterministic": false,
+  "healthcheck": [
+    "python",
+    "-c",
+    "print(\"ok\")"
+  ]
+}

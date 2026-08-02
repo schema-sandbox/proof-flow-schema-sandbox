@@ -1,0 +1,137 @@
+{
+  "$defs": {
+    "ChatMessageCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "format": "uuid",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "role": {
+          "enum": [
+            "user",
+            "assistant",
+            "system",
+            "tool",
+            "unknown"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "content": {
+          "minLength": 1,
+          "title": "Content",
+          "type": "string"
+        },
+        "suggested_disposition": {
+          "$ref": "#/$defs/ImportDisposition",
+          "default": "MODEL_NOTE"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "sequence",
+        "role",
+        "content"
+      ],
+      "title": "ChatMessageCandidate",
+      "type": "object"
+    },
+    "ImportDisposition": {
+      "enum": [
+        "MODEL_NOTE",
+        "RESEARCH_CHECKPOINT",
+        "CHALLENGE",
+        "BRIDGE_RESULT",
+        "NEW_BRANCH",
+        "IGNORE"
+      ],
+      "title": "ImportDisposition",
+      "type": "string"
+    },
+    "ImportFormat": {
+      "enum": [
+        "MARKDOWN",
+        "HTML",
+        "JSON",
+        "PLAIN_TEXT"
+      ],
+      "title": "ImportFormat",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "import_id": {
+      "format": "uuid",
+      "title": "Import Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "artifact_id": {
+      "format": "uuid",
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "source_filename": {
+      "title": "Source Filename",
+      "type": "string"
+    },
+    "import_format": {
+      "$ref": "#/$defs/ImportFormat"
+    },
+    "parser_name": {
+      "title": "Parser Name",
+      "type": "string"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/ChatMessageCandidate"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "confirmed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confirmed At"
+    }
+  },
+  "required": [
+    "import_id",
+    "project_id",
+    "artifact_id",
+    "source_filename",
+    "import_format",
+    "parser_name",
+    "candidates",
+    "created_at"
+  ],
+  "title": "ChatImportPreviewRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/chat-import-preview.schema.json"
+}

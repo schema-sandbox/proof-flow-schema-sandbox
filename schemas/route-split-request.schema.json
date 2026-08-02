@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "RouteSplitChild": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 8000,
+          "title": "Description",
+          "type": "string"
+        },
+        "initial_state": {
+          "$ref": "#/$defs/RouteState",
+          "default": "SEED"
+        },
+        "revival_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Revival Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "RouteSplitChild",
+      "type": "object"
+    },
+    "RouteState": {
+      "enum": [
+        "SEED",
+        "ACTIVE",
+        "CHALLENGED",
+        "CONDITIONAL",
+        "DORMANT",
+        "REVIVED",
+        "BRIDGE_RESULT",
+        "SUPERSEDED",
+        "CERTIFIED_CLOSED"
+      ],
+      "title": "RouteState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "children": {
+      "items": {
+        "$ref": "#/$defs/RouteSplitChild"
+      },
+      "maxItems": 20,
+      "minItems": 2,
+      "title": "Children",
+      "type": "array"
+    },
+    "reason": {
+      "maxLength": 8000,
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    }
+  },
+  "required": [
+    "children",
+    "reason"
+  ],
+  "title": "RouteSplitRequest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/route-split-request.schema.json"
+}

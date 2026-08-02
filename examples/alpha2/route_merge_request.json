@@ -1,0 +1,11 @@
+{
+  "source_route_ids": [
+    "00000000-0000-0000-0000-000000000001",
+    "00000000-0000-0000-0000-000000000002"
+  ],
+  "title": "Invariant plus construction synthesis",
+  "description": "Use the algebraic invariant to certify the combinatorial construction.",
+  "reason": "The two routes supplied complementary components.",
+  "supersede_sources": true,
+  "actor": {"type": "human", "id": "local-researcher"}
+}

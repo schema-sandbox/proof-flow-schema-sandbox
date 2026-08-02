@@ -1,0 +1,18 @@
+{
+  "children": [
+    {
+      "title": "Algebraic representation",
+      "description": "Develop the invariant using generating functions.",
+      "initial_state": "ACTIVE",
+      "revival_conditions": []
+    },
+    {
+      "title": "Combinatorial representation",
+      "description": "Search for a direct injection or finite obstruction.",
+      "initial_state": "SEED",
+      "revival_conditions": ["a small-case pattern suggests a construction"]
+    }
+  ],
+  "reason": "The source route contains two non-equivalent mechanisms.",
+  "actor": {"type": "human", "id": "local-researcher"}
+}

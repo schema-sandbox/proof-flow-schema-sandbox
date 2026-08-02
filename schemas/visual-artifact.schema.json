@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/v0.1/visual-artifact.schema.json",
+  "title": "Visual Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "visual_id",
+    "original_artifact_ref",
+    "mapping_status"
+  ],
+  "properties": {
+    "visual_id": {
+      "type": "string"
+    },
+    "original_artifact_ref": {
+      "type": "string"
+    },
+    "author_description": {
+      "type": "string"
+    },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "derived_representation_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mapping_status": {
+      "enum": [
+        "CONFIRMED",
+        "PARTIAL",
+        "AMBIGUOUS",
+        "UNMAPPED"
+      ]
+    },
+    "confirmed_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$defs": {
+    "PluginLifecycleStatus": {
+      "enum": [
+        "DISCOVERED",
+        "INSPECTED",
+        "INSTALLED",
+        "HEALTHY",
+        "UNHEALTHY",
+        "ENABLED_FOR_PROJECT",
+        "DISABLED",
+        "UNINSTALLED"
+      ],
+      "title": "PluginLifecycleStatus",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "plugin_id": {
+      "title": "Plugin Id",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    },
+    "enabled": {
+      "title": "Enabled",
+      "type": "boolean"
+    },
+    "lifecycle_status": {
+      "$ref": "#/$defs/PluginLifecycleStatus",
+      "default": "DISCOVERED"
+    },
+    "installed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Installed At"
+    },
+    "enabled_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Enabled At"
+    },
+    "last_healthcheck_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Healthcheck At"
+    },
+    "health_message": {
+      "default": "",
+      "title": "Health Message",
+      "type": "string"
+    }
+  },
+  "required": [
+    "plugin_id",
+    "version",
+    "enabled"
+  ],
+  "title": "ProjectPluginRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/project-plugin.schema.json"
+}

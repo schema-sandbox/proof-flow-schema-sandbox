@@ -1,0 +1,44 @@
+{
+  "schema_version": "0.3",
+  "plugin_id": "graphviz.local",
+  "version": "1.0.0",
+  "name": "Graphviz Local SVG Renderer",
+  "description": "Runs a user-installed Graphviz dot executable to render DOT input as an immutable SVG artifact. ProofFlow never installs Graphviz silently.",
+  "category": "VISUALIZE",
+  "runner_type": "local_command",
+  "capabilities": [
+    "graph_layout",
+    "dot_to_svg",
+    "route_map_visualization"
+  ],
+  "install": {
+    "type": "local_command",
+    "dependency_lock": ["graphviz:dot"],
+    "allow_network_install": false
+  },
+  "entrypoint": [
+    "dot",
+    "-Tsvg",
+    "{input}",
+    "-o",
+    "{output_dir}/graph.svg"
+  ],
+  "healthcheck": ["dot", "-V"],
+  "permissions": {
+    "network": false,
+    "filesystem_read": ["project_inputs"],
+    "filesystem_write": ["run_workspace"],
+    "environment_variables": [],
+    "subprocess": true
+  },
+  "resources": {
+    "max_cpu_seconds": 60,
+    "max_memory_mb": 1024,
+    "max_output_mb": 64,
+    "timeout_seconds": 30
+  },
+  "isolation_level": "process-only",
+  "default_timeout_seconds": 30,
+  "maximum_timeout_seconds": 120,
+  "enabled_by_default": false
+}

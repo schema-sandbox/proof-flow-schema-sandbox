@@ -1,0 +1,84 @@
+{
+  "properties": {
+    "kind": {
+      "enum": [
+        "route",
+        "challenge",
+        "bridge_result",
+        "dead_end",
+        "checkpoint",
+        "handoff",
+        "event"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "object_id": {
+      "title": "Object Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "excerpt": {
+      "title": "Excerpt",
+      "type": "string"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "score": {
+      "minimum": 0,
+      "title": "Score",
+      "type": "number"
+    },
+    "reopen_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reopen Conditions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "kind",
+    "object_id",
+    "title",
+    "excerpt",
+    "created_at",
+    "score"
+  ],
+  "title": "HistoricalSearchHit",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/historical-search-hit.schema.json"
+}

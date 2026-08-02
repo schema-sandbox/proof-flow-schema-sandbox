@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/model-session-0.1.json",
+  "title": "ProofFlow Model Session",
+  "type": "object",
+  "required": [
+    "session_id",
+    "project_id",
+    "source",
+    "role",
+    "started_at",
+    "completeness"
+  ],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "source": {
+      "enum": [
+        "CHATGPT_WEB",
+        "OPENAI_API",
+        "IMPORTED_FILE",
+        "OTHER"
+      ]
+    },
+    "reported_model_label": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "context_snapshot_ref": {
+      "type": "string"
+    },
+    "prompt_version_ref": {
+      "type": "string"
+    },
+    "visible_turn_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "completeness": {
+      "enum": [
+        "COMPLETE",
+        "PARTIAL",
+        "UNKNOWN"
+      ]
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "cost_estimate": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    }
+  },
+  "additionalProperties": true
+}

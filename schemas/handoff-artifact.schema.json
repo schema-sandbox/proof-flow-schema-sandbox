@@ -1,0 +1,121 @@
+{
+  "$defs": {
+    "HandoffArtifactType": {
+      "enum": [
+        "FAILED_ROUTE_NOTES",
+        "SCRIPT",
+        "COUNTEREXAMPLE",
+        "PARTIAL_CONSTRUCTION",
+        "SOURCE_MAP",
+        "OPEN_OBLIGATION",
+        "BRIDGE_RESULT"
+      ],
+      "title": "HandoffArtifactType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "handoff_id": {
+      "format": "uuid",
+      "title": "Handoff Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "producing_session_ref": {
+      "format": "uuid",
+      "title": "Producing Session Ref",
+      "type": "string"
+    },
+    "receiving_session_refs": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Receiving Session Refs",
+      "type": "array"
+    },
+    "artifact_type": {
+      "$ref": "#/$defs/HandoffArtifactType"
+    },
+    "established_facts": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Established Facts",
+      "type": "array"
+    },
+    "rejected_directions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rejected Directions",
+      "type": "array"
+    },
+    "unresolved_items": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Items",
+      "type": "array"
+    },
+    "artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Refs",
+      "type": "array"
+    },
+    "receiving_impact": {
+      "default": "",
+      "title": "Receiving Impact",
+      "type": "string"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "handoff_id",
+    "project_id",
+    "producing_session_ref",
+    "artifact_type",
+    "created_at"
+  ],
+  "title": "HandoffArtifactRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/handoff-artifact.schema.json"
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "plugin_id": "org.schemamath.python",
+  "name": "Python Runner",
+  "version": "0.1.0",
+  "plugin_type": "COMPUTE",
+  "execution_mode": "container",
+  "capabilities": [
+    "python_script"
+  ],
+  "entrypoint": [
+    "python",
+    "/plugin/run.py"
+  ],
+  "permissions": {
+    "network": false,
+    "project_read": "selected_artifacts_only",
+    "project_write": "output_directory_only",
+    "environment_variables": []
+  },
+  "resources": {
+    "cpu_seconds": 60,
+    "memory_mb": 1024,
+    "output_mb": 100,
+    "timeout_seconds": 90
+  },
+  "license": "MIT"
+}

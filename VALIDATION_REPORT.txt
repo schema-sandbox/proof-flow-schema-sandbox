@@ -1,0 +1,50 @@
+ProofFlow Schema Sandbox 0.1.0-alpha.4
+Validation date: 2026-07-30
+
+Validation was executed from the active repository root. Adjacent Alpha.2,
+Alpha.3, Alpha.4, Design Package, and theory materials are preserved as
+reference-only inputs and excluded from the release manifest and checksums.
+
+Validated scope
+===============
+
+Core Python/API
+- 33 pytest service and FastAPI integration tests: PASS
+- Ruff lint and format checks for apps/api, scripts and tests: PASS
+- Production /app/ HTTP mount and redirect smoke test: PASS
+- Alpha.2 /prototype/ retained: PASS
+- OpenAPI generated and parsed: 47 paths
+
+Schemas, import and recovery
+- Runtime Pydantic schemas exported: 25
+- JSON Schema documents meta-validated: 29
+- Alpha.2 `.smath.zip` read-only preflight and import: PASS
+- Preflight rejects unsafe ZIP paths and detects tampered event chains: PASS
+- Preflight does not create a project or mutate a workspace: PASS
+- Missing content-addressed blobs are reported before import: PASS
+- Registered SQLite migration from a legacy projection: PASS
+- Invalid canonical JSONL locks new appends in read-only recovery state: PASS
+- No Alpha.1 source was merged; Alpha.2 and Alpha.3 remain untouched baselines.
+
+Research-state behavior
+- JSONL remains canonical and SQLite remains rebuildable: PASS
+- Event SHA-256 chain integrity checks: PASS
+- High-threshold route/dead-end closure still requires human evidence: PASS
+- UNRESOLVED remains valid; no automatic solved state exists: PASS
+- Raw artifacts remain immutable and content-addressed: PASS
+- Human intervention, model-session, handoff, Arena preview and canvas tests: PASS
+
+Interface and packaging
+- TypeScript compilation and Vite production build: PASS
+- npm audit at high severity: 0 vulnerabilities
+- React Flow and lazily loaded Excalidraw dual canvas: PASS
+- Release Manifest and SHA-256 generation: PASS
+
+Known boundaries
+===============
+
+- Import preflight is diagnostic and does not repair damaged archives.
+- Excalidraw and diagram-related lazy chunks remain large; Vite reports a size warning.
+- Starlette TestClient emits an httpx2 migration warning; tests still pass.
+- Local plugins are not an OS security sandbox.
+- No mathematical correctness, completeness, novelty or guaranteed-solution claim follows from these tests.

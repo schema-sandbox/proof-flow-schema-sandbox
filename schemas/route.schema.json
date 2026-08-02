@@ -1,0 +1,100 @@
+{
+  "$defs": {
+    "RouteState": {
+      "enum": [
+        "SEED",
+        "ACTIVE",
+        "CHALLENGED",
+        "CONDITIONAL",
+        "DORMANT",
+        "REVIVED",
+        "BRIDGE_RESULT",
+        "SUPERSEDED",
+        "CERTIFIED_CLOSED"
+      ],
+      "title": "RouteState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "route_id": {
+      "format": "uuid",
+      "title": "Route Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "parent_route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Route Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/RouteState"
+    },
+    "objections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Objections",
+      "type": "array"
+    },
+    "revival_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Revival Conditions",
+      "type": "array"
+    },
+    "closure_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Closure Evidence Refs",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "route_id",
+    "project_id",
+    "title",
+    "state",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "RouteRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/route.schema.json"
+}

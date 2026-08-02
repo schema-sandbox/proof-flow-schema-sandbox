@@ -1,0 +1,133 @@
+{
+  "description": "Read-only compatibility and safety diagnosis for a .smath archive.",
+  "properties": {
+    "archive_name": {
+      "title": "Archive Name",
+      "type": "string"
+    },
+    "archive_bytes": {
+      "minimum": 0,
+      "title": "Archive Bytes",
+      "type": "integer"
+    },
+    "file_count": {
+      "minimum": 0,
+      "title": "File Count",
+      "type": "integer"
+    },
+    "compressed_bytes": {
+      "minimum": 0,
+      "title": "Compressed Bytes",
+      "type": "integer"
+    },
+    "uncompressed_bytes": {
+      "minimum": 0,
+      "title": "Uncompressed Bytes",
+      "type": "integer"
+    },
+    "schema_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schema Version"
+    },
+    "project_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Project Id"
+    },
+    "event_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Event Count",
+      "type": "integer"
+    },
+    "event_chain_valid": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Chain Valid"
+    },
+    "first_invalid_event_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Invalid Event Index"
+    },
+    "event_chain_error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Chain Error"
+    },
+    "missing_artifact_paths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Artifact Paths",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    },
+    "errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Errors",
+      "type": "array"
+    },
+    "can_import": {
+      "title": "Can Import",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "archive_name",
+    "archive_bytes",
+    "file_count",
+    "compressed_bytes",
+    "uncompressed_bytes",
+    "can_import"
+  ],
+  "title": "ImportPreflightReport",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/import-preflight.schema.json"
+}

@@ -1,0 +1,4912 @@
+openapi: 3.1.0
+info:
+  title: ProofFlow Schema Sandbox Local API
+  description: Local-first experimental research workspace. It does not promise solutions
+    and does not automatically label results as solved.
+  version: 0.1.0-alpha.4
+paths:
+  /api/v1/projects:
+    get:
+      summary: List Projects
+      operationId: list_projects_api_v1_projects_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ProjectSummary'
+                type: array
+                title: Response List Projects Api V1 Projects Get
+    post:
+      summary: Create Project
+      operationId: create_project_api_v1_projects_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}:
+    get:
+      summary: Get Project
+      operationId: get_project_api_v1_projects__project_id__get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/routes:
+    post:
+      summary: Create Route
+      operationId: create_route_api_v1_projects__project_id__routes_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Routes
+      operationId: list_routes_api_v1_projects__project_id__routes_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RouteRecord'
+                title: Response List Routes Api V1 Projects  Project Id  Routes Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/routes/similar:
+    get:
+      summary: Similar Routes
+      description: Return route-only retrieval hints; callers decide whether to reuse
+        or fork.
+      operationId: similar_routes_api_v1_projects__project_id__routes_similar_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          title: Q
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 50
+          minimum: 1
+          default: 10
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoricalSearchHit'
+                title: Response Similar Routes Api V1 Projects  Project Id  Routes
+                  Similar Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/routes/{route_id}/split:
+    post:
+      summary: Split Route
+      operationId: split_route_api_v1_projects__project_id__routes__route_id__split_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: route_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Route Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteSplitRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteSplitResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/routes/merge:
+    post:
+      summary: Merge Routes
+      operationId: merge_routes_api_v1_projects__project_id__routes_merge_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteMergeRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteMergeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/routes/{route_id}/state:
+    patch:
+      summary: Change Route State
+      operationId: change_route_state_api_v1_projects__project_id__routes__route_id__state_patch
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: route_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Route Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteStateChange'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/branches:
+    post:
+      summary: Create Branch
+      operationId: create_branch_api_v1_projects__project_id__branches_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Branches
+      operationId: list_branches_api_v1_projects__project_id__branches_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: route_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchRecord'
+                title: Response List Branches Api V1 Projects  Project Id  Branches
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/branches/{branch_id}/state:
+    patch:
+      summary: Change Branch State
+      operationId: change_branch_state_api_v1_projects__project_id__branches__branch_id__state_patch
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: branch_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Branch Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchStateChange'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/challenges:
+    post:
+      summary: Create Challenge
+      operationId: create_challenge_api_v1_projects__project_id__challenges_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengeCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Challenges
+      operationId: list_challenges_api_v1_projects__project_id__challenges_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChallengeRecord'
+                title: Response List Challenges Api V1 Projects  Project Id  Challenges
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/challenges/{challenge_id}/status:
+    patch:
+      summary: Change Challenge Status
+      operationId: change_challenge_status_api_v1_projects__project_id__challenges__challenge_id__status_patch
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: challenge_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Challenge Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChallengeStatusChange'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChallengeRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/bridge-results:
+    post:
+      summary: Create Bridge Result
+      operationId: create_bridge_result_api_v1_projects__project_id__bridge_results_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BridgeResultCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BridgeResultRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Bridge Results
+      operationId: list_bridge_results_api_v1_projects__project_id__bridge_results_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BridgeResultRecord'
+                title: Response List Bridge Results Api V1 Projects  Project Id  Bridge
+                  Results Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/dead-ends:
+    post:
+      summary: Create Dead End
+      operationId: create_dead_end_api_v1_projects__project_id__dead_ends_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeadEndConstraintCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeadEndConstraintRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Dead Ends
+      operationId: list_dead_ends_api_v1_projects__project_id__dead_ends_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeadEndConstraintRecord'
+                title: Response List Dead Ends Api V1 Projects  Project Id  Dead Ends
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/checkpoints:
+    post:
+      summary: Create Checkpoint
+      operationId: create_checkpoint_api_v1_projects__project_id__checkpoints_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchCheckpointCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchCheckpointRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Checkpoints
+      operationId: list_checkpoints_api_v1_projects__project_id__checkpoints_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResearchCheckpointRecord'
+                title: Response List Checkpoints Api V1 Projects  Project Id  Checkpoints
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/notes:
+    post:
+      summary: Add Note
+      operationId: add_note_api_v1_projects__project_id__notes_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HumanNoteCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/events:
+    post:
+      summary: Append Event
+      operationId: append_event_api_v1_projects__project_id__events_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericEventCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Events
+      operationId: list_events_api_v1_projects__project_id__events_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventRecord'
+                title: Response List Events Api V1 Projects  Project Id  Events Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/artifacts:
+    post:
+      summary: Add Artifact
+      operationId: add_artifact_api_v1_projects__project_id__artifacts_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_add_artifact_api_v1_projects__project_id__artifacts_post'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Artifacts
+      operationId: list_artifacts_api_v1_projects__project_id__artifacts_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArtifactRecord'
+                title: Response List Artifacts Api V1 Projects  Project Id  Artifacts
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/artifacts/{artifact_id}/content:
+    get:
+      summary: Get Artifact Content
+      operationId: get_artifact_content_api_v1_projects__project_id__artifacts__artifact_id__content_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: artifact_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Artifact Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/chat-imports:
+    post:
+      summary: Create Chat Import
+      operationId: create_chat_import_api_v1_projects__project_id__chat_imports_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_chat_import_api_v1_projects__project_id__chat_imports_post'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatImportPreviewRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Chat Imports
+      operationId: list_chat_imports_api_v1_projects__project_id__chat_imports_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChatImportPreviewRecord'
+                title: Response List Chat Imports Api V1 Projects  Project Id  Chat
+                  Imports Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/chat-imports/preview:
+    post:
+      summary: Create Chat Import
+      operationId: create_chat_import_api_v1_projects__project_id__chat_imports_preview_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_chat_import_api_v1_projects__project_id__chat_imports_preview_post'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatImportPreviewRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/chat-imports/{import_id}/confirm:
+    post:
+      summary: Confirm Chat Import
+      operationId: confirm_chat_import_api_v1_projects__project_id__chat_imports__import_id__confirm_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: import_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Import Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatImportConfirmRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatImportConfirmationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/plugins:
+    get:
+      summary: Available Plugins
+      operationId: available_plugins_api_v1_plugins_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PluginManifestRecord'
+                type: array
+                title: Response Available Plugins Api V1 Plugins Get
+  /api/v1/projects/{project_id}/plugins:
+    get:
+      summary: List Project Plugins
+      operationId: list_project_plugins_api_v1_projects__project_id__plugins_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProjectPluginRecord'
+                title: Response List Project Plugins Api V1 Projects  Project Id  Plugins
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/{plugin_id}/install:
+    post:
+      summary: Install Plugin
+      operationId: install_plugin_api_v1_projects__project_id__plugins__plugin_id__install_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: plugin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PluginInstallRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPluginRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/{plugin_id}/health:
+    post:
+      summary: Check Plugin Health
+      operationId: check_plugin_health_api_v1_projects__project_id__plugins__plugin_id__health_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: plugin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginHealthRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/{plugin_id}/enable:
+    post:
+      summary: Enable Plugin
+      operationId: enable_plugin_api_v1_projects__project_id__plugins__plugin_id__enable_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: plugin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPluginRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/{plugin_id}/uninstall:
+    post:
+      summary: Uninstall Plugin
+      operationId: uninstall_plugin_api_v1_projects__project_id__plugins__plugin_id__uninstall_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: plugin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPluginRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/{plugin_id}/disable:
+    post:
+      summary: Disable Plugin
+      operationId: disable_plugin_api_v1_projects__project_id__plugins__plugin_id__disable_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: plugin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Actor'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectPluginRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/python.local/runs:
+    post:
+      summary: Run Python Plugin
+      operationId: run_python_plugin_api_v1_projects__project_id__plugins_python_local_runs_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PythonPluginRunRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginRunRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugin-runs/python:
+    post:
+      summary: Run Python Plugin
+      operationId: run_python_plugin_api_v1_projects__project_id__plugin_runs_python_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PythonPluginRunRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginRunRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugins/{plugin_id}/runs:
+    post:
+      summary: Run Plugin
+      operationId: run_plugin_api_v1_projects__project_id__plugins__plugin_id__runs_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: plugin_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericPluginRunRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PluginRunRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/plugin-runs:
+    get:
+      summary: List Plugin Runs
+      operationId: list_plugin_runs_api_v1_projects__project_id__plugin_runs_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PluginRunRecord'
+                title: Response List Plugin Runs Api V1 Projects  Project Id  Plugin
+                  Runs Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/sessions:
+    post:
+      summary: Create Model Session
+      operationId: create_model_session_api_v1_projects__project_id__sessions_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelSessionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelSessionRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Model Sessions
+      operationId: list_model_sessions_api_v1_projects__project_id__sessions_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelSessionRecord'
+                title: Response List Model Sessions Api V1 Projects  Project Id  Sessions
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/handoffs:
+    post:
+      summary: Create Handoff Artifact
+      operationId: create_handoff_artifact_api_v1_projects__project_id__handoffs_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HandoffArtifactCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HandoffArtifactRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Handoff Artifacts
+      operationId: list_handoff_artifacts_api_v1_projects__project_id__handoffs_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HandoffArtifactRecord'
+                title: Response List Handoff Artifacts Api V1 Projects  Project Id  Handoffs
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/arena-recipes:
+    post:
+      summary: Create Arena Recipe
+      operationId: create_arena_recipe_api_v1_projects__project_id__arena_recipes_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArenaRecipeCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArenaRecipeRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Arena Recipes
+      operationId: list_arena_recipes_api_v1_projects__project_id__arena_recipes_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArenaRecipeRecord'
+                title: Response List Arena Recipes Api V1 Projects  Project Id  Arena
+                  Recipes Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/arena-recipes/{recipe_id}/preview:
+    get:
+      summary: Preview Arena Recipe
+      operationId: preview_arena_recipe_api_v1_projects__project_id__arena_recipes__recipe_id__preview_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: recipe_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Recipe Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArenaPreviewRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/search:
+    get:
+      summary: Search History
+      operationId: search_history_api_v1_projects__project_id__search_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          title: Q
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistoricalSearchHit'
+                title: Response Search History Api V1 Projects  Project Id  Search
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/epistemic-deltas:
+    get:
+      summary: Epistemic Deltas
+      operationId: epistemic_deltas_api_v1_projects__project_id__epistemic_deltas_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EpistemicDeltaSummary'
+                title: Response Epistemic Deltas Api V1 Projects  Project Id  Epistemic
+                  Deltas Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/canvas/snapshots:
+    post:
+      summary: Create Canvas Snapshot
+      operationId: create_canvas_snapshot_api_v1_projects__project_id__canvas_snapshots_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CanvasSnapshotCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanvasSnapshotRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Canvas Snapshots
+      operationId: list_canvas_snapshots_api_v1_projects__project_id__canvas_snapshots_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CanvasSnapshotRecord'
+                title: Response List Canvas Snapshots Api V1 Projects  Project Id  Canvas
+                  Snapshots Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/canvas/latest:
+    get:
+      summary: Latest Canvas Snapshot
+      operationId: latest_canvas_snapshot_api_v1_projects__project_id__canvas_latest_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/CanvasSnapshotResponse'
+                - type: 'null'
+                title: Response Latest Canvas Snapshot Api V1 Projects  Project Id  Canvas
+                  Latest Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/research-packets:
+    post:
+      summary: Build Research Packet
+      operationId: build_research_packet_api_v1_projects__project_id__research_packets_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResearchPacketRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResearchPacketResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/integrity:
+    get:
+      summary: Integrity Report
+      operationId: integrity_report_api_v1_projects__project_id__integrity_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrityReport'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/rebuild-projection:
+    post:
+      summary: Rebuild Projection
+      operationId: rebuild_projection_api_v1_projects__project_id__rebuild_projection_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                title: Response Rebuild Projection Api V1 Projects  Project Id  Rebuild
+                  Projection Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/projects/{project_id}/export:
+    get:
+      summary: Export Project
+      operationId: export_project_api_v1_projects__project_id__export_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/imports:
+    post:
+      summary: Import Project
+      operationId: import_project_api_v1_imports_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_import_project_api_v1_imports_post'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManifest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/imports/preflight:
+    post:
+      summary: Preflight Project Import
+      operationId: preflight_project_import_api_v1_imports_preflight_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_preflight_project_import_api_v1_imports_preflight_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportPreflightReport'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Health Get
+components:
+  schemas:
+    Actor:
+      properties:
+        type:
+          $ref: '#/components/schemas/ActorType'
+        id:
+          type: string
+          maxLength: 160
+          minLength: 1
+          title: Id
+        display_name:
+          anyOf:
+          - type: string
+            maxLength: 240
+          - type: 'null'
+          title: Display Name
+      additionalProperties: false
+      type: object
+      required:
+      - type
+      - id
+      title: Actor
+    ActorType:
+      type: string
+      enum:
+      - human
+      - model
+      - tool
+      - runtime
+      title: ActorType
+    ArenaComputeMode:
+      type: string
+      enum:
+      - conservative
+      - manual_parallel
+      - custom
+      title: ArenaComputeMode
+    ArenaPreviewRecord:
+      properties:
+        recipe:
+          $ref: '#/components/schemas/ArenaRecipeRecord'
+        requires_human_confirmation:
+          type: boolean
+          title: Requires Human Confirmation
+        correlated_review_warnings:
+          items:
+            type: string
+          type: array
+          title: Correlated Review Warnings
+        execution_started:
+          type: boolean
+          title: Execution Started
+          default: false
+        note:
+          type: string
+          title: Note
+          default: Preview only. ProofFlow does not use role voting to determine mathematical
+            truth.
+      type: object
+      required:
+      - recipe
+      - requires_human_confirmation
+      title: ArenaPreviewRecord
+    ArenaRecipeCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 4000
+          title: Description
+          default: ''
+        compute_mode:
+          $ref: '#/components/schemas/ArenaComputeMode'
+          default: conservative
+        parallel_workers:
+          type: integer
+          maximum: 16.0
+          minimum: 0.0
+          title: Parallel Workers
+          default: 0
+        stages:
+          items:
+            $ref: '#/components/schemas/ArenaStage'
+          type: array
+          maxItems: 32
+          minItems: 1
+          title: Stages
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - stages
+      title: ArenaRecipeCreate
+    ArenaRecipeRecord:
+      properties:
+        recipe_id:
+          type: string
+          format: uuid
+          title: Recipe Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        name:
+          type: string
+          title: Name
+        description:
+          type: string
+          title: Description
+          default: ''
+        compute_mode:
+          $ref: '#/components/schemas/ArenaComputeMode'
+        parallel_workers:
+          type: integer
+          title: Parallel Workers
+          default: 0
+        stages:
+          items:
+            $ref: '#/components/schemas/ArenaStage'
+          type: array
+          title: Stages
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - recipe_id
+      - project_id
+      - name
+      - compute_mode
+      - stages
+      - created_at
+      title: ArenaRecipeRecord
+    ArenaRole:
+      type: string
+      enum:
+      - explorer
+      - builder
+      - rival_theorist
+      - counterexample_hunter
+      - skeptic
+      - bridge_builder
+      - simplifier
+      - visual_thinker
+      - formalizer
+      - historian
+      - expositor
+      title: ArenaRole
+    ArenaStage:
+      properties:
+        stage_id:
+          type: string
+          maxLength: 160
+          minLength: 1
+          title: Stage Id
+        role:
+          $ref: '#/components/schemas/ArenaRole'
+        connector_id:
+          anyOf:
+          - type: string
+            maxLength: 240
+          - type: 'null'
+          title: Connector Id
+        input_selection:
+          items:
+            type: string
+          type: array
+          title: Input Selection
+        output_kind:
+          type: string
+          maxLength: 240
+          title: Output Kind
+          default: research_checkpoint
+        human_gate_after:
+          type: boolean
+          title: Human Gate After
+          default: true
+      additionalProperties: false
+      type: object
+      required:
+      - stage_id
+      - role
+      title: ArenaStage
+    ArtifactOrigin:
+      type: string
+      enum:
+      - HUMAN
+      - MODEL
+      - PLUGIN
+      - IMPORT
+      - DERIVED
+      title: ArtifactOrigin
+    ArtifactRecord:
+      properties:
+        artifact_id:
+          type: string
+          format: uuid
+          title: Artifact Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        artifact_type:
+          $ref: '#/components/schemas/ArtifactType'
+        sha256:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Sha256
+        media_type:
+          type: string
+          title: Media Type
+        size_bytes:
+          type: integer
+          minimum: 0.0
+          title: Size Bytes
+        origin:
+          $ref: '#/components/schemas/ArtifactOrigin'
+        original_filename:
+          type: string
+          title: Original Filename
+        blob_relpath:
+          type: string
+          title: Blob Relpath
+        source_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Ref
+        interpretation_status:
+          $ref: '#/components/schemas/InterpretationStatus'
+          default: RAW
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - artifact_id
+      - project_id
+      - artifact_type
+      - sha256
+      - media_type
+      - size_bytes
+      - origin
+      - original_filename
+      - blob_relpath
+      - created_at
+      title: ArtifactRecord
+    ArtifactType:
+      type: string
+      enum:
+      - TEXT
+      - FORMULA
+      - IMAGE
+      - HAND_DRAWING
+      - VIDEO
+      - CODE
+      - TABLE
+      - GRAPH
+      - PROOF_SOURCE
+      - PROOF_BUILD_LOG
+      - COUNTEREXAMPLE
+      - DATASET
+      - EXECUTION_LOG
+      - CHAT_TRANSCRIPT
+      - CHECKPOINT
+      - OTHER
+      title: ArtifactType
+    Body_add_artifact_api_v1_projects__project_id__artifacts_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        artifact_type:
+          $ref: '#/components/schemas/ArtifactType'
+          default: OTHER
+        origin:
+          $ref: '#/components/schemas/ArtifactOrigin'
+          default: IMPORT
+        interpretation_status:
+          $ref: '#/components/schemas/InterpretationStatus'
+          default: RAW
+        actor_id:
+          type: string
+          title: Actor Id
+          default: local-researcher
+        actor_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Display Name
+        source_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Ref
+      type: object
+      required:
+      - file
+      title: Body_add_artifact_api_v1_projects__project_id__artifacts_post
+    Body_create_chat_import_api_v1_projects__project_id__chat_imports_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        actor_id:
+          type: string
+          title: Actor Id
+          default: local-researcher
+        actor_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Display Name
+      type: object
+      required:
+      - file
+      title: Body_create_chat_import_api_v1_projects__project_id__chat_imports_post
+    Body_create_chat_import_api_v1_projects__project_id__chat_imports_preview_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+        actor_id:
+          type: string
+          title: Actor Id
+          default: local-researcher
+        actor_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Actor Display Name
+      type: object
+      required:
+      - file
+      title: Body_create_chat_import_api_v1_projects__project_id__chat_imports_preview_post
+    Body_import_project_api_v1_imports_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_import_project_api_v1_imports_post
+    Body_preflight_project_import_api_v1_imports_preflight_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+      type: object
+      required:
+      - file
+      title: Body_preflight_project_import_api_v1_imports_preflight_post
+    BranchCreate:
+      properties:
+        route_id:
+          type: string
+          format: uuid
+          title: Route Id
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        description:
+          type: string
+          maxLength: 8000
+          title: Description
+          default: ''
+        parent_branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Parent Branch Id
+        assumptions:
+          items:
+            type: string
+          type: array
+          title: Assumptions
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        initial_state:
+          $ref: '#/components/schemas/BranchState'
+          default: SEED
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - route_id
+      - title
+      title: BranchCreate
+    BranchRecord:
+      properties:
+        branch_id:
+          type: string
+          format: uuid
+          title: Branch Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        route_id:
+          type: string
+          format: uuid
+          title: Route Id
+        parent_branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Parent Branch Id
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+          default: ''
+        assumptions:
+          items:
+            type: string
+          type: array
+          title: Assumptions
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        state:
+          $ref: '#/components/schemas/BranchState'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      additionalProperties: false
+      type: object
+      required:
+      - branch_id
+      - project_id
+      - route_id
+      - title
+      - state
+      - created_at
+      - updated_at
+      title: BranchRecord
+    BranchState:
+      type: string
+      enum:
+      - SEED
+      - ACTIVE
+      - CHALLENGED
+      - DORMANT
+      - REVIVED
+      - BRIDGE_RESULT
+      - SUPERSEDED
+      - COMPLETED
+      title: BranchState
+    BranchStateChange:
+      properties:
+        new_state:
+          $ref: '#/components/schemas/BranchState'
+        reason:
+          type: string
+          maxLength: 8000
+          minLength: 1
+          title: Reason
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - new_state
+      - reason
+      title: BranchStateChange
+    BridgeResultCreate:
+      properties:
+        route_id:
+          type: string
+          format: uuid
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        summary:
+          type: string
+          maxLength: 16000
+          minLength: 1
+          title: Summary
+        enabled_route_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Enabled Route Ids
+        artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Artifact Refs
+        retained_value:
+          items:
+            type: string
+          type: array
+          title: Retained Value
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - route_id
+      - title
+      - summary
+      title: BridgeResultCreate
+    BridgeResultRecord:
+      properties:
+        bridge_result_id:
+          type: string
+          format: uuid
+          title: Bridge Result Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        route_id:
+          type: string
+          format: uuid
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        title:
+          type: string
+          title: Title
+        summary:
+          type: string
+          title: Summary
+        enabled_route_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Enabled Route Ids
+        artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Artifact Refs
+        retained_value:
+          items:
+            type: string
+          type: array
+          title: Retained Value
+        status:
+          $ref: '#/components/schemas/BridgeResultStatus'
+          default: ACTIVE
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      additionalProperties: false
+      type: object
+      required:
+      - bridge_result_id
+      - project_id
+      - route_id
+      - title
+      - summary
+      - created_at
+      - updated_at
+      title: BridgeResultRecord
+    BridgeResultStatus:
+      type: string
+      enum:
+      - ACTIVE
+      - REUSED
+      - SUPERSEDED
+      title: BridgeResultStatus
+    CanvasSnapshotCreate:
+      properties:
+        scene:
+          additionalProperties: true
+          type: object
+          title: Scene
+        author_description:
+          type: string
+          maxLength: 16000
+          title: Author Description
+          default: ''
+        machine_interpretation:
+          type: string
+          maxLength: 16000
+          title: Machine Interpretation
+          default: ''
+        mapping_status:
+          $ref: '#/components/schemas/VisualMappingStatus'
+          default: UNMAPPED
+        element_links:
+          additionalProperties:
+            type: string
+          type: object
+          title: Element Links
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - scene
+      title: CanvasSnapshotCreate
+    CanvasSnapshotRecord:
+      properties:
+        visual_id:
+          type: string
+          format: uuid
+          title: Visual Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        original_artifact_ref:
+          type: string
+          title: Original Artifact Ref
+        author_description:
+          type: string
+          title: Author Description
+          default: ''
+        machine_interpretation:
+          type: string
+          title: Machine Interpretation
+          default: ''
+        machine_interpretation_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Machine Interpretation Ref
+        mapping_status:
+          $ref: '#/components/schemas/VisualMappingStatus'
+        element_links:
+          additionalProperties:
+            type: string
+          type: object
+          title: Element Links
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        confirmed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Confirmed By
+      additionalProperties: false
+      type: object
+      required:
+      - visual_id
+      - project_id
+      - original_artifact_ref
+      - mapping_status
+      - created_at
+      title: CanvasSnapshotRecord
+    CanvasSnapshotResponse:
+      properties:
+        visual_artifact:
+          $ref: '#/components/schemas/CanvasSnapshotRecord'
+        scene:
+          additionalProperties: true
+          type: object
+          title: Scene
+      type: object
+      required:
+      - visual_artifact
+      - scene
+      title: CanvasSnapshotResponse
+    ChallengeCreate:
+      properties:
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        challenge_type:
+          $ref: '#/components/schemas/ChallengeType'
+          default: OBJECTION
+        statement:
+          type: string
+          maxLength: 16000
+          minLength: 1
+          title: Statement
+        test_plan:
+          type: string
+          maxLength: 16000
+          title: Test Plan
+          default: ''
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - statement
+      title: ChallengeCreate
+    ChallengeRecord:
+      properties:
+        challenge_id:
+          type: string
+          format: uuid
+          title: Challenge Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        challenge_type:
+          $ref: '#/components/schemas/ChallengeType'
+        status:
+          $ref: '#/components/schemas/ChallengeStatus'
+        statement:
+          type: string
+          title: Statement
+        test_plan:
+          type: string
+          title: Test Plan
+          default: ''
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        resolution_summary:
+          type: string
+          title: Resolution Summary
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      additionalProperties: false
+      type: object
+      required:
+      - challenge_id
+      - project_id
+      - challenge_type
+      - status
+      - statement
+      - created_at
+      - updated_at
+      title: ChallengeRecord
+    ChallengeStatus:
+      type: string
+      enum:
+      - OPEN
+      - TESTING
+      - RESOLVED
+      - DEFERRED
+      - WITHDRAWN
+      title: ChallengeStatus
+    ChallengeStatusChange:
+      properties:
+        new_status:
+          $ref: '#/components/schemas/ChallengeStatus'
+        resolution_summary:
+          type: string
+          maxLength: 16000
+          title: Resolution Summary
+          default: ''
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - new_status
+      title: ChallengeStatusChange
+    ChallengeType:
+      type: string
+      enum:
+      - OBJECTION
+      - COUNTEREXAMPLE_SEARCH
+      - SOURCE_CHECK
+      - QUANTIFIER_CHECK
+      - FORMALIZATION_TEST
+      - COMPUTATIONAL_TEST
+      - BOUNDARY_CASE
+      - OTHER
+      title: ChallengeType
+    ChatImportConfirmRequest:
+      properties:
+        selections:
+          items:
+            $ref: '#/components/schemas/ChatImportSelection'
+          type: array
+          title: Selections
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - selections
+      title: ChatImportConfirmRequest
+    ChatImportConfirmationResponse:
+      properties:
+        import_id:
+          type: string
+          format: uuid
+          title: Import Id
+        created_event_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Created Event Ids
+        created_object_refs:
+          items:
+            type: string
+          type: array
+          title: Created Object Refs
+        ignored_count:
+          type: integer
+          title: Ignored Count
+          default: 0
+      type: object
+      required:
+      - import_id
+      title: ChatImportConfirmationResponse
+    ChatImportPreviewRecord:
+      properties:
+        import_id:
+          type: string
+          format: uuid
+          title: Import Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        artifact_id:
+          type: string
+          format: uuid
+          title: Artifact Id
+        source_filename:
+          type: string
+          title: Source Filename
+        import_format:
+          $ref: '#/components/schemas/ImportFormat'
+        parser_name:
+          type: string
+          title: Parser Name
+        candidates:
+          items:
+            $ref: '#/components/schemas/ChatMessageCandidate'
+          type: array
+          title: Candidates
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        confirmed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Confirmed At
+      additionalProperties: false
+      type: object
+      required:
+      - import_id
+      - project_id
+      - artifact_id
+      - source_filename
+      - import_format
+      - parser_name
+      - candidates
+      - created_at
+      title: ChatImportPreviewRecord
+    ChatImportSelection:
+      properties:
+        candidate_id:
+          type: string
+          format: uuid
+          title: Candidate Id
+        disposition:
+          $ref: '#/components/schemas/ImportDisposition'
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        title:
+          anyOf:
+          - type: string
+            maxLength: 240
+          - type: 'null'
+          title: Title
+        content_override:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Override
+        structured_payload:
+          additionalProperties: true
+          type: object
+          title: Structured Payload
+      additionalProperties: false
+      type: object
+      required:
+      - candidate_id
+      - disposition
+      title: ChatImportSelection
+    ChatMessageCandidate:
+      properties:
+        candidate_id:
+          type: string
+          format: uuid
+          title: Candidate Id
+        sequence:
+          type: integer
+          minimum: 0.0
+          title: Sequence
+        role:
+          type: string
+          enum:
+          - user
+          - assistant
+          - system
+          - tool
+          - unknown
+          title: Role
+        content:
+          type: string
+          minLength: 1
+          title: Content
+        suggested_disposition:
+          $ref: '#/components/schemas/ImportDisposition'
+          default: MODEL_NOTE
+      additionalProperties: false
+      type: object
+      required:
+      - candidate_id
+      - sequence
+      - role
+      - content
+      title: ChatMessageCandidate
+    CheckpointConfidence:
+      type: string
+      enum:
+      - UNSPECIFIED
+      - LOW
+      - MEDIUM
+      - HIGH
+      title: CheckpointConfidence
+    ConnectorType:
+      type: string
+      enum:
+      - manual_chatgpt
+      - openai_api
+      - imported_transcript
+      - tool_session
+      - future_plugin
+      title: ConnectorType
+    DeadEndConstraintCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        description:
+          type: string
+          maxLength: 16000
+          minLength: 1
+          title: Description
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        applicability_scope:
+          items:
+            type: string
+          type: array
+          title: Applicability Scope
+        prior_attempt_refs:
+          items:
+            type: string
+          type: array
+          title: Prior Attempt Refs
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        strength:
+          $ref: '#/components/schemas/DeadEndStrength'
+          default: OBSERVED
+        reopen_conditions:
+          items:
+            type: string
+          type: array
+          title: Reopen Conditions
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      - description
+      title: DeadEndConstraintCreate
+    DeadEndConstraintRecord:
+      properties:
+        dead_end_id:
+          type: string
+          format: uuid
+          title: Dead End Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+        applicability_scope:
+          items:
+            type: string
+          type: array
+          title: Applicability Scope
+        prior_attempt_refs:
+          items:
+            type: string
+          type: array
+          title: Prior Attempt Refs
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        strength:
+          $ref: '#/components/schemas/DeadEndStrength'
+        reopen_conditions:
+          items:
+            type: string
+          type: array
+          title: Reopen Conditions
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      additionalProperties: false
+      type: object
+      required:
+      - dead_end_id
+      - project_id
+      - title
+      - description
+      - strength
+      - created_at
+      - updated_at
+      title: DeadEndConstraintRecord
+    DeadEndStrength:
+      type: string
+      enum:
+      - OBSERVED
+      - REPEATED
+      - CERTIFIED
+      title: DeadEndStrength
+    EpistemicDeltaSummary:
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        delta_type:
+          $ref: '#/components/schemas/EpistemicDeltaType'
+        description:
+          type: string
+          title: Description
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+      type: object
+      required:
+      - event_id
+      - event_type
+      - delta_type
+      - description
+      - timestamp
+      title: EpistemicDeltaSummary
+    EpistemicDeltaType:
+      type: string
+      enum:
+      - TARGET_CLARIFIED
+      - ASSUMPTION_CHANGED
+      - ROUTE_CREATED
+      - ROUTE_OBSTRUCTED
+      - ROUTE_REVIVED
+      - COUNTEREXAMPLE_FOUND
+      - BRIDGE_RESULT_CREATED
+      - TOOL_EVIDENCE_ADDED
+      - HANDOFF_REUSED
+      - VISUAL_PATTERN_NOTED
+      - HUMAN_INTERVENTION
+      - SESSION_RECORDED
+      - NO_STATE_CHANGE
+      title: EpistemicDeltaType
+    EventRecord:
+      properties:
+        schema_version:
+          type: string
+          title: Schema Version
+          default: '0.4'
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+        event_type:
+          type: string
+          title: Event Type
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        actor:
+          $ref: '#/components/schemas/Actor'
+        caused_by:
+          items:
+            type: string
+          type: array
+          title: Caused By
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Artifact Refs
+        payload:
+          additionalProperties: true
+          type: object
+          title: Payload
+        epistemic_delta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Epistemic Delta
+        epistemic_delta_type:
+          anyOf:
+          - $ref: '#/components/schemas/EpistemicDeltaType'
+          - type: 'null'
+        previous_event_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Previous Event Hash
+        event_hash:
+          type: string
+          title: Event Hash
+      additionalProperties: true
+      type: object
+      required:
+      - event_id
+      - event_type
+      - project_id
+      - timestamp
+      - actor
+      - event_hash
+      title: EventRecord
+    GenericEventCreate:
+      properties:
+        event_type:
+          type: string
+          maxLength: 120
+          minLength: 3
+          title: Event Type
+        actor:
+          $ref: '#/components/schemas/Actor'
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Artifact Refs
+        caused_by:
+          items:
+            type: string
+          type: array
+          title: Caused By
+        epistemic_delta:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Epistemic Delta
+        epistemic_delta_type:
+          anyOf:
+          - $ref: '#/components/schemas/EpistemicDeltaType'
+          - type: 'null'
+        payload:
+          additionalProperties: true
+          type: object
+          title: Payload
+      additionalProperties: false
+      type: object
+      required:
+      - event_type
+      - actor
+      title: GenericEventCreate
+    GenericPluginRunRequest:
+      properties:
+        input_text:
+          type: string
+          maxLength: 2000000
+          minLength: 1
+          title: Input Text
+        input_filename:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Input Filename
+          default: input.txt
+        arguments:
+          items:
+            type: string
+          type: array
+          maxItems: 32
+          title: Arguments
+        timeout_seconds:
+          type: integer
+          maximum: 600.0
+          minimum: 1.0
+          title: Timeout Seconds
+          default: 20
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        input_artifact_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 32
+          title: Input Artifact Ids
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - input_text
+      title: GenericPluginRunRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HandoffArtifactCreate:
+      properties:
+        producing_session_ref:
+          type: string
+          format: uuid
+          title: Producing Session Ref
+        receiving_session_refs:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Receiving Session Refs
+        artifact_type:
+          $ref: '#/components/schemas/HandoffArtifactType'
+        established_facts:
+          items:
+            type: string
+          type: array
+          title: Established Facts
+        rejected_directions:
+          items:
+            type: string
+          type: array
+          title: Rejected Directions
+        unresolved_items:
+          items:
+            type: string
+          type: array
+          title: Unresolved Items
+        artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Artifact Refs
+        receiving_impact:
+          type: string
+          maxLength: 16000
+          title: Receiving Impact
+          default: ''
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - producing_session_ref
+      - artifact_type
+      title: HandoffArtifactCreate
+    HandoffArtifactRecord:
+      properties:
+        handoff_id:
+          type: string
+          format: uuid
+          title: Handoff Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        producing_session_ref:
+          type: string
+          format: uuid
+          title: Producing Session Ref
+        receiving_session_refs:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Receiving Session Refs
+        artifact_type:
+          $ref: '#/components/schemas/HandoffArtifactType'
+        established_facts:
+          items:
+            type: string
+          type: array
+          title: Established Facts
+        rejected_directions:
+          items:
+            type: string
+          type: array
+          title: Rejected Directions
+        unresolved_items:
+          items:
+            type: string
+          type: array
+          title: Unresolved Items
+        artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Artifact Refs
+        receiving_impact:
+          type: string
+          title: Receiving Impact
+          default: ''
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - handoff_id
+      - project_id
+      - producing_session_ref
+      - artifact_type
+      - created_at
+      title: HandoffArtifactRecord
+    HandoffArtifactType:
+      type: string
+      enum:
+      - FAILED_ROUTE_NOTES
+      - SCRIPT
+      - COUNTEREXAMPLE
+      - PARTIAL_CONSTRUCTION
+      - SOURCE_MAP
+      - OPEN_OBLIGATION
+      - BRIDGE_RESULT
+      title: HandoffArtifactType
+    HistoricalSearchHit:
+      properties:
+        kind:
+          type: string
+          enum:
+          - route
+          - challenge
+          - bridge_result
+          - dead_end
+          - checkpoint
+          - handoff
+          - event
+          title: Kind
+        object_id:
+          type: string
+          title: Object Id
+        title:
+          type: string
+          title: Title
+        excerpt:
+          type: string
+          title: Excerpt
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        score:
+          type: number
+          minimum: 0.0
+          title: Score
+        reopen_conditions:
+          items:
+            type: string
+          type: array
+          title: Reopen Conditions
+      type: object
+      required:
+      - kind
+      - object_id
+      - title
+      - excerpt
+      - created_at
+      - score
+      title: HistoricalSearchHit
+    HumanNoteCreate:
+      properties:
+        content:
+          type: string
+          minLength: 1
+          title: Content
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        note_type:
+          type: string
+          enum:
+          - INTUITION
+          - DEFINITION
+          - COUNTEREXAMPLE
+          - ROUTE_PRIORITY
+          - VISUAL_ANNOTATION
+          - SOURCE
+          - SIMPLIFICATION_GOAL
+          - FREEZE
+          - REVIVE
+          - MERGE
+          - REDIRECT
+          - GENERAL
+          title: Note Type
+          default: GENERAL
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - content
+      title: HumanNoteCreate
+    ImportDisposition:
+      type: string
+      enum:
+      - MODEL_NOTE
+      - RESEARCH_CHECKPOINT
+      - CHALLENGE
+      - BRIDGE_RESULT
+      - NEW_BRANCH
+      - IGNORE
+      title: ImportDisposition
+    ImportFormat:
+      type: string
+      enum:
+      - MARKDOWN
+      - HTML
+      - JSON
+      - PLAIN_TEXT
+      title: ImportFormat
+    ImportPreflightReport:
+      properties:
+        archive_name:
+          type: string
+          title: Archive Name
+        archive_bytes:
+          type: integer
+          minimum: 0.0
+          title: Archive Bytes
+        file_count:
+          type: integer
+          minimum: 0.0
+          title: File Count
+        compressed_bytes:
+          type: integer
+          minimum: 0.0
+          title: Compressed Bytes
+        uncompressed_bytes:
+          type: integer
+          minimum: 0.0
+          title: Uncompressed Bytes
+        schema_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Schema Version
+        project_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Project Id
+        event_count:
+          type: integer
+          minimum: 0.0
+          title: Event Count
+          default: 0
+        event_chain_valid:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Event Chain Valid
+        first_invalid_event_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: First Invalid Event Index
+        event_chain_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Event Chain Error
+        missing_artifact_paths:
+          items:
+            type: string
+          type: array
+          title: Missing Artifact Paths
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+        errors:
+          items:
+            type: string
+          type: array
+          title: Errors
+        can_import:
+          type: boolean
+          title: Can Import
+      type: object
+      required:
+      - archive_name
+      - archive_bytes
+      - file_count
+      - compressed_bytes
+      - uncompressed_bytes
+      - can_import
+      title: ImportPreflightReport
+      description: Read-only compatibility and safety diagnosis for a .smath archive.
+    IntegrityReport:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        event_count:
+          type: integer
+          title: Event Count
+        valid:
+          type: boolean
+          title: Valid
+        projection_schema_version:
+          type: integer
+          minimum: 0.0
+          title: Projection Schema Version
+          default: 0
+        first_invalid_index:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: First Invalid Index
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - project_id
+      - event_count
+      - valid
+      title: IntegrityReport
+    InterpretationStatus:
+      type: string
+      enum:
+      - RAW
+      - ANNOTATED
+      - INTERPRETED
+      - STRUCTURED
+      - PARTIAL
+      - AMBIGUOUS
+      - UNMAPPED
+      title: InterpretationStatus
+    ModelSessionCreate:
+      properties:
+        connector_type:
+          $ref: '#/components/schemas/ConnectorType'
+        display_label:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Display Label
+        reported_model:
+          type: string
+          maxLength: 240
+          title: Reported Model
+          default: ''
+        model_family:
+          type: string
+          maxLength: 240
+          title: Model Family
+          default: ''
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ArenaRole'
+          - type: 'null'
+        context_packet_refs:
+          items:
+            type: string
+          type: array
+          title: Context Packet Refs
+        output_artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Output Artifact Refs
+        completeness:
+          $ref: '#/components/schemas/SessionCompleteness'
+          default: UNKNOWN
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        notes:
+          type: string
+          maxLength: 16000
+          title: Notes
+          default: ''
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - connector_type
+      - display_label
+      title: ModelSessionCreate
+    ModelSessionRecord:
+      properties:
+        session_id:
+          type: string
+          format: uuid
+          title: Session Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        connector_type:
+          $ref: '#/components/schemas/ConnectorType'
+        display_label:
+          type: string
+          title: Display Label
+        reported_model:
+          type: string
+          title: Reported Model
+          default: ''
+        model_family:
+          type: string
+          title: Model Family
+          default: ''
+        role:
+          anyOf:
+          - $ref: '#/components/schemas/ArenaRole'
+          - type: 'null'
+        context_packet_refs:
+          items:
+            type: string
+          type: array
+          title: Context Packet Refs
+        output_artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Output Artifact Refs
+        completeness:
+          $ref: '#/components/schemas/SessionCompleteness'
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        notes:
+          type: string
+          title: Notes
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - session_id
+      - project_id
+      - connector_type
+      - display_label
+      - completeness
+      - created_at
+      title: ModelSessionRecord
+    PluginCategory:
+      type: string
+      enum:
+      - COMPUTE
+      - SEARCH
+      - FORMALIZE
+      - VISUALIZE
+      - VIDEO
+      - IMPORTER
+      - EXPORTER
+      title: PluginCategory
+    PluginHealthRecord:
+      properties:
+        plugin_id:
+          type: string
+          title: Plugin Id
+        version:
+          type: string
+          title: Version
+        healthy:
+          type: boolean
+          title: Healthy
+        checked_at:
+          type: string
+          format: date-time
+          title: Checked At
+        message:
+          type: string
+          title: Message
+        runner_type:
+          $ref: '#/components/schemas/PluginRunnerType'
+      type: object
+      required:
+      - plugin_id
+      - version
+      - healthy
+      - checked_at
+      - message
+      - runner_type
+      title: PluginHealthRecord
+    PluginInstallRequest:
+      properties:
+        expected_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expected Version
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      title: PluginInstallRequest
+    PluginInstallSpec:
+      properties:
+        type:
+          type: string
+          enum:
+          - bundled
+          - local_command
+          - python_venv
+          - oci_container
+          title: Type
+          default: bundled
+        package:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Package
+        image:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image
+        dependency_lock:
+          items:
+            type: string
+          type: array
+          title: Dependency Lock
+        allow_network_install:
+          type: boolean
+          title: Allow Network Install
+          default: false
+      additionalProperties: false
+      type: object
+      title: PluginInstallSpec
+    PluginLifecycleStatus:
+      type: string
+      enum:
+      - DISCOVERED
+      - INSPECTED
+      - INSTALLED
+      - HEALTHY
+      - UNHEALTHY
+      - ENABLED_FOR_PROJECT
+      - DISABLED
+      - UNINSTALLED
+      title: PluginLifecycleStatus
+    PluginManifestRecord:
+      properties:
+        schema_version:
+          type: string
+          title: Schema Version
+          default: '0.4'
+        plugin_id:
+          type: string
+          maxLength: 160
+          minLength: 3
+          title: Plugin Id
+        version:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Version
+        name:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Name
+        description:
+          type: string
+          maxLength: 4000
+          title: Description
+          default: ''
+        category:
+          $ref: '#/components/schemas/PluginCategory'
+          default: COMPUTE
+        runner_type:
+          $ref: '#/components/schemas/PluginRunnerType'
+          default: python
+        capabilities:
+          items:
+            type: string
+          type: array
+          title: Capabilities
+        install:
+          $ref: '#/components/schemas/PluginInstallSpec'
+        entrypoint:
+          items:
+            type: string
+          type: array
+          title: Entrypoint
+        healthcheck:
+          items:
+            type: string
+          type: array
+          title: Healthcheck
+        permissions:
+          $ref: '#/components/schemas/PluginPermissions'
+        resources:
+          $ref: '#/components/schemas/PluginResources'
+        isolation_level:
+          type: string
+          enum:
+          - process-only
+          - container
+          - external
+          title: Isolation Level
+          default: process-only
+        default_timeout_seconds:
+          type: integer
+          maximum: 300.0
+          minimum: 1.0
+          title: Default Timeout Seconds
+          default: 20
+        maximum_timeout_seconds:
+          type: integer
+          maximum: 600.0
+          minimum: 1.0
+          title: Maximum Timeout Seconds
+          default: 60
+        enabled_by_default:
+          type: boolean
+          title: Enabled By Default
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - plugin_id
+      - version
+      - name
+      title: PluginManifestRecord
+    PluginPermissions:
+      properties:
+        network:
+          type: boolean
+          title: Network
+          default: false
+        filesystem_read:
+          items:
+            type: string
+          type: array
+          title: Filesystem Read
+        filesystem_write:
+          items:
+            type: string
+          type: array
+          title: Filesystem Write
+        environment_variables:
+          items:
+            type: string
+          type: array
+          title: Environment Variables
+        subprocess:
+          type: boolean
+          title: Subprocess
+          default: true
+      additionalProperties: false
+      type: object
+      title: PluginPermissions
+    PluginResources:
+      properties:
+        max_cpu_seconds:
+          type: integer
+          maximum: 3600.0
+          minimum: 1.0
+          title: Max Cpu Seconds
+          default: 60
+        max_memory_mb:
+          type: integer
+          maximum: 65536.0
+          minimum: 64.0
+          title: Max Memory Mb
+          default: 1024
+        max_output_mb:
+          type: integer
+          maximum: 4096.0
+          minimum: 1.0
+          title: Max Output Mb
+          default: 10
+        timeout_seconds:
+          type: integer
+          maximum: 3600.0
+          minimum: 1.0
+          title: Timeout Seconds
+          default: 20
+      additionalProperties: false
+      type: object
+      title: PluginResources
+    PluginRunRecord:
+      properties:
+        run_id:
+          type: string
+          format: uuid
+          title: Run Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        plugin_id:
+          type: string
+          title: Plugin Id
+        plugin_version:
+          type: string
+          title: Plugin Version
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        status:
+          $ref: '#/components/schemas/PluginRunStatus'
+        command:
+          items:
+            type: string
+          type: array
+          title: Command
+        runtime_version:
+          type: string
+          title: Runtime Version
+        isolation_level:
+          type: string
+          title: Isolation Level
+        timeout_seconds:
+          type: integer
+          title: Timeout Seconds
+        exit_code:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Exit Code
+        source_artifact_ref:
+          type: string
+          title: Source Artifact Ref
+        input_artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Input Artifact Refs
+        stdout_artifact_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stdout Artifact Ref
+        stderr_artifact_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stderr Artifact Ref
+        produced_artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Produced Artifact Refs
+        output_truncated:
+          type: boolean
+          title: Output Truncated
+          default: false
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        completed_at:
+          type: string
+          format: date-time
+          title: Completed At
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      additionalProperties: false
+      type: object
+      required:
+      - run_id
+      - project_id
+      - plugin_id
+      - plugin_version
+      - status
+      - command
+      - runtime_version
+      - isolation_level
+      - timeout_seconds
+      - source_artifact_ref
+      - started_at
+      - completed_at
+      title: PluginRunRecord
+    PluginRunStatus:
+      type: string
+      enum:
+      - SUCCEEDED
+      - FAILED
+      - TIMED_OUT
+      - CANCELLED
+      title: PluginRunStatus
+    PluginRunnerType:
+      type: string
+      enum:
+      - python
+      - local_command
+      - oci
+      title: PluginRunnerType
+    ProblemContract:
+      properties:
+        source_text:
+          type: string
+          minLength: 1
+          title: Source Text
+        source_uri:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Source Uri
+        source_version:
+          anyOf:
+          - type: string
+            maxLength: 160
+          - type: 'null'
+          title: Source Version
+        author_notes:
+          type: string
+          title: Author Notes
+          default: ''
+        definitions:
+          items:
+            type: string
+          type: array
+          title: Definitions
+        assumptions:
+          items:
+            type: string
+          type: array
+          title: Assumptions
+      additionalProperties: false
+      type: object
+      required:
+      - source_text
+      title: ProblemContract
+    ProjectCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        description:
+          type: string
+          maxLength: 4000
+          title: Description
+          default: ''
+        problem:
+          $ref: '#/components/schemas/ProblemContract'
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      - problem
+      title: ProjectCreate
+    ProjectManifest:
+      properties:
+        schema_version:
+          type: string
+          title: Schema Version
+          default: '0.4'
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        original_problem:
+          $ref: '#/components/schemas/ProblemContract'
+        current_goal_id:
+          type: string
+          format: uuid
+          title: Current Goal Id
+        project_status:
+          items:
+            $ref: '#/components/schemas/ProjectStatus'
+          type: array
+          title: Project Status
+        event_stream:
+          type: string
+          title: Event Stream
+          default: events/events.jsonl
+        artifact_store:
+          type: string
+          title: Artifact Store
+          default: blobs/sha256
+        plugins_lock:
+          type: string
+          title: Plugins Lock
+          default: plugins/plugins.lock.json
+      additionalProperties: false
+      type: object
+      required:
+      - project_id
+      - title
+      - created_at
+      - updated_at
+      - original_problem
+      - current_goal_id
+      title: ProjectManifest
+    ProjectPluginRecord:
+      properties:
+        plugin_id:
+          type: string
+          title: Plugin Id
+        version:
+          type: string
+          title: Version
+        enabled:
+          type: boolean
+          title: Enabled
+        lifecycle_status:
+          $ref: '#/components/schemas/PluginLifecycleStatus'
+          default: DISCOVERED
+        installed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Installed At
+        enabled_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Enabled At
+        last_healthcheck_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Healthcheck At
+        health_message:
+          type: string
+          title: Health Message
+          default: ''
+      type: object
+      required:
+      - plugin_id
+      - version
+      - enabled
+      title: ProjectPluginRecord
+    ProjectStatus:
+      type: string
+      enum:
+      - UNRESOLVED
+      - CLARIFIED
+      - REFORMULATED
+      - PARTIAL_RESULT
+      - BRIDGE_RESULT
+      - ROUTE_OBSTRUCTION
+      - COMPUTATIONAL_PATTERN
+      - COUNTEREXAMPLE_CANDIDATE
+      - CANDIDATE_PROOF
+      - FORMAL_TARGET_ENCODED
+      - KERNEL_ACCEPTED
+      - HUMAN_REVIEWED
+      - INDEPENDENTLY_RE_DERIVED
+      - WITHDRAWN
+      title: ProjectStatus
+    ProjectSummary:
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        project_status:
+          items:
+            $ref: '#/components/schemas/ProjectStatus'
+          type: array
+          title: Project Status
+      type: object
+      required:
+      - project_id
+      - title
+      - description
+      - updated_at
+      - project_status
+      title: ProjectSummary
+    PythonPluginRunRequest:
+      properties:
+        source_code:
+          type: string
+          maxLength: 500000
+          minLength: 1
+          title: Source Code
+        stdin:
+          type: string
+          maxLength: 2000000
+          title: Stdin
+          default: ''
+        arguments:
+          items:
+            type: string
+          type: array
+          maxItems: 32
+          title: Arguments
+        timeout_seconds:
+          type: integer
+          maximum: 60.0
+          minimum: 1.0
+          title: Timeout Seconds
+          default: 20
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        input_artifact_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 32
+          title: Input Artifact Ids
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - source_code
+      title: PythonPluginRunRequest
+    ResearchCheckpointCreate:
+      properties:
+        current_target:
+          type: string
+          maxLength: 16000
+          minLength: 1
+          title: Current Target
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        intended_move:
+          type: string
+          maxLength: 16000
+          title: Intended Move
+          default: ''
+        assumptions_used:
+          items:
+            type: string
+          type: array
+          title: Assumptions Used
+        expected_result:
+          type: string
+          maxLength: 16000
+          title: Expected Result
+          default: ''
+        produced_artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Produced Artifact Refs
+        observed_failure_or_gain:
+          type: string
+          maxLength: 16000
+          title: Observed Failure Or Gain
+          default: ''
+        confidence:
+          $ref: '#/components/schemas/CheckpointConfidence'
+          default: UNSPECIFIED
+        unresolved_obligations:
+          items:
+            type: string
+          type: array
+          title: Unresolved Obligations
+        next_route_suggestions:
+          items:
+            type: string
+          type: array
+          title: Next Route Suggestions
+        source_session_ref:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Source Session Ref
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - current_target
+      - actor
+      title: ResearchCheckpointCreate
+    ResearchCheckpointRecord:
+      properties:
+        checkpoint_id:
+          type: string
+          format: uuid
+          title: Checkpoint Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        current_target:
+          type: string
+          title: Current Target
+        route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Route Id
+        branch_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Branch Id
+        intended_move:
+          type: string
+          title: Intended Move
+          default: ''
+        assumptions_used:
+          items:
+            type: string
+          type: array
+          title: Assumptions Used
+        expected_result:
+          type: string
+          title: Expected Result
+          default: ''
+        produced_artifact_refs:
+          items:
+            type: string
+          type: array
+          title: Produced Artifact Refs
+        observed_failure_or_gain:
+          type: string
+          title: Observed Failure Or Gain
+          default: ''
+        confidence:
+          $ref: '#/components/schemas/CheckpointConfidence'
+        unresolved_obligations:
+          items:
+            type: string
+          type: array
+          title: Unresolved Obligations
+        next_route_suggestions:
+          items:
+            type: string
+          type: array
+          title: Next Route Suggestions
+        source_session_ref:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Session Ref
+        actor:
+          $ref: '#/components/schemas/Actor'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - checkpoint_id
+      - project_id
+      - current_target
+      - confidence
+      - actor
+      - created_at
+      title: ResearchCheckpointRecord
+    ResearchPacketRequest:
+      properties:
+        route_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Route Ids
+        include_recent_events:
+          type: integer
+          maximum: 500.0
+          minimum: 0.0
+          title: Include Recent Events
+          default: 30
+        include_checkpoints:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Include Checkpoints
+          default: 8
+        purpose:
+          type: string
+          title: Purpose
+          default: Continue open mathematical exploration
+        special_instructions:
+          type: string
+          title: Special Instructions
+          default: ''
+      additionalProperties: false
+      type: object
+      title: ResearchPacketRequest
+    ResearchPacketResponse:
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+        markdown:
+          type: string
+          title: Markdown
+      type: object
+      required:
+      - generated_at
+      - markdown
+      title: ResearchPacketResponse
+    RouteCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        description:
+          type: string
+          maxLength: 8000
+          title: Description
+          default: ''
+        parent_route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Parent Route Id
+        initial_state:
+          $ref: '#/components/schemas/RouteState'
+          default: SEED
+        revival_conditions:
+          items:
+            type: string
+          type: array
+          title: Revival Conditions
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      title: RouteCreate
+    RouteMergeRequest:
+      properties:
+        source_route_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          maxItems: 20
+          minItems: 2
+          title: Source Route Ids
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        description:
+          type: string
+          maxLength: 8000
+          title: Description
+          default: ''
+        reason:
+          type: string
+          maxLength: 8000
+          minLength: 1
+          title: Reason
+        supersede_sources:
+          type: boolean
+          title: Supersede Sources
+          default: true
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - source_route_ids
+      - title
+      - reason
+      title: RouteMergeRequest
+    RouteMergeResponse:
+      properties:
+        merged_route:
+          $ref: '#/components/schemas/RouteRecord'
+        source_route_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Source Route Ids
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+      type: object
+      required:
+      - merged_route
+      - source_route_ids
+      - event_id
+      title: RouteMergeResponse
+    RouteRecord:
+      properties:
+        route_id:
+          type: string
+          format: uuid
+          title: Route Id
+        project_id:
+          type: string
+          format: uuid
+          title: Project Id
+        parent_route_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Parent Route Id
+        title:
+          type: string
+          title: Title
+        description:
+          type: string
+          title: Description
+          default: ''
+        state:
+          $ref: '#/components/schemas/RouteState'
+        objections:
+          items:
+            type: string
+          type: array
+          title: Objections
+        revival_conditions:
+          items:
+            type: string
+          type: array
+          title: Revival Conditions
+        closure_evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Closure Evidence Refs
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      additionalProperties: false
+      type: object
+      required:
+      - route_id
+      - project_id
+      - title
+      - state
+      - created_at
+      - updated_at
+      title: RouteRecord
+    RouteSplitChild:
+      properties:
+        title:
+          type: string
+          maxLength: 240
+          minLength: 1
+          title: Title
+        description:
+          type: string
+          maxLength: 8000
+          title: Description
+          default: ''
+        initial_state:
+          $ref: '#/components/schemas/RouteState'
+          default: SEED
+        revival_conditions:
+          items:
+            type: string
+          type: array
+          title: Revival Conditions
+      additionalProperties: false
+      type: object
+      required:
+      - title
+      title: RouteSplitChild
+    RouteSplitRequest:
+      properties:
+        children:
+          items:
+            $ref: '#/components/schemas/RouteSplitChild'
+          type: array
+          maxItems: 20
+          minItems: 2
+          title: Children
+        reason:
+          type: string
+          maxLength: 8000
+          minLength: 1
+          title: Reason
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - children
+      - reason
+      title: RouteSplitRequest
+    RouteSplitResponse:
+      properties:
+        source_route_id:
+          type: string
+          format: uuid
+          title: Source Route Id
+        created_routes:
+          items:
+            $ref: '#/components/schemas/RouteRecord'
+          type: array
+          title: Created Routes
+        event_id:
+          type: string
+          format: uuid
+          title: Event Id
+      type: object
+      required:
+      - source_route_id
+      - created_routes
+      - event_id
+      title: RouteSplitResponse
+    RouteState:
+      type: string
+      enum:
+      - SEED
+      - ACTIVE
+      - CHALLENGED
+      - CONDITIONAL
+      - DORMANT
+      - REVIVED
+      - BRIDGE_RESULT
+      - SUPERSEDED
+      - CERTIFIED_CLOSED
+      title: RouteState
+    RouteStateChange:
+      properties:
+        new_state:
+          $ref: '#/components/schemas/RouteState'
+        reason:
+          type: string
+          maxLength: 8000
+          minLength: 1
+          title: Reason
+        evidence_refs:
+          items:
+            type: string
+          type: array
+          title: Evidence Refs
+        human_confirmed:
+          type: boolean
+          title: Human Confirmed
+          default: false
+        actor:
+          $ref: '#/components/schemas/Actor'
+      additionalProperties: false
+      type: object
+      required:
+      - new_state
+      - reason
+      title: RouteStateChange
+    SessionCompleteness:
+      type: string
+      enum:
+      - COMPLETE_VISIBLE
+      - PARTIAL_VISIBLE
+      - AUTHOR_ATTESTED
+      - UNKNOWN
+      title: SessionCompleteness
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VisualMappingStatus:
+      type: string
+      enum:
+      - CONFIRMED
+      - PARTIAL
+      - AMBIGUOUS
+      - UNMAPPED
+      title: VisualMappingStatus

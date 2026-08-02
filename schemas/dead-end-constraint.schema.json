@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "DeadEndStrength": {
+      "enum": [
+        "OBSERVED",
+        "REPEATED",
+        "CERTIFIED"
+      ],
+      "title": "DeadEndStrength",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dead_end_id": {
+      "format": "uuid",
+      "title": "Dead End Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "applicability_scope": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Applicability Scope",
+      "type": "array"
+    },
+    "prior_attempt_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prior Attempt Refs",
+      "type": "array"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "strength": {
+      "$ref": "#/$defs/DeadEndStrength"
+    },
+    "reopen_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reopen Conditions",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dead_end_id",
+    "project_id",
+    "title",
+    "description",
+    "strength",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "DeadEndConstraintRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/dead-end-constraint.schema.json"
+}

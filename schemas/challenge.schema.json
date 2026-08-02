@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "ChallengeStatus": {
+      "enum": [
+        "OPEN",
+        "TESTING",
+        "RESOLVED",
+        "DEFERRED",
+        "WITHDRAWN"
+      ],
+      "title": "ChallengeStatus",
+      "type": "string"
+    },
+    "ChallengeType": {
+      "enum": [
+        "OBJECTION",
+        "COUNTEREXAMPLE_SEARCH",
+        "SOURCE_CHECK",
+        "QUANTIFIER_CHECK",
+        "FORMALIZATION_TEST",
+        "COMPUTATIONAL_TEST",
+        "BOUNDARY_CASE",
+        "OTHER"
+      ],
+      "title": "ChallengeType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "challenge_id": {
+      "format": "uuid",
+      "title": "Challenge Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "challenge_type": {
+      "$ref": "#/$defs/ChallengeType"
+    },
+    "status": {
+      "$ref": "#/$defs/ChallengeStatus"
+    },
+    "statement": {
+      "title": "Statement",
+      "type": "string"
+    },
+    "test_plan": {
+      "default": "",
+      "title": "Test Plan",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "resolution_summary": {
+      "default": "",
+      "title": "Resolution Summary",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "challenge_id",
+    "project_id",
+    "challenge_type",
+    "status",
+    "statement",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "ChallengeRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/challenge.schema.json"
+}

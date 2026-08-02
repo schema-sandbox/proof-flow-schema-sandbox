@@ -1,0 +1,23 @@
+{
+  "selections": [
+    {
+      "candidate_id": "00000000-0000-0000-0000-000000000010",
+      "disposition": "NEW_BRANCH",
+      "route_id": "00000000-0000-0000-0000-000000000001",
+      "title": "Parity split",
+      "structured_payload": {
+        "assumptions": ["objects admit a parity classification"]
+      }
+    },
+    {
+      "candidate_id": "00000000-0000-0000-0000-000000000011",
+      "disposition": "CHALLENGE",
+      "route_id": "00000000-0000-0000-0000-000000000001",
+      "structured_payload": {
+        "challenge_type": "BOUNDARY_CASE",
+        "test_plan": "Check empty and singleton objects exactly."
+      }
+    }
+  ],
+  "actor": {"type": "human", "id": "local-researcher"}
+}

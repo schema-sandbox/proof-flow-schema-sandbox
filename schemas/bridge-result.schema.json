@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "BridgeResultStatus": {
+      "enum": [
+        "ACTIVE",
+        "REUSED",
+        "SUPERSEDED"
+      ],
+      "title": "BridgeResultStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bridge_result_id": {
+      "format": "uuid",
+      "title": "Bridge Result Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "route_id": {
+      "format": "uuid",
+      "title": "Route Id",
+      "type": "string"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "enabled_route_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Enabled Route Ids",
+      "type": "array"
+    },
+    "artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Artifact Refs",
+      "type": "array"
+    },
+    "retained_value": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Retained Value",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/BridgeResultStatus",
+      "default": "ACTIVE"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "bridge_result_id",
+    "project_id",
+    "route_id",
+    "title",
+    "summary",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "BridgeResultRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/bridge-result.schema.json"
+}

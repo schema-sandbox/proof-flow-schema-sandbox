@@ -1,0 +1,178 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "CheckpointConfidence": {
+      "enum": [
+        "UNSPECIFIED",
+        "LOW",
+        "MEDIUM",
+        "HIGH"
+      ],
+      "title": "CheckpointConfidence",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checkpoint_id": {
+      "format": "uuid",
+      "title": "Checkpoint Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "current_target": {
+      "title": "Current Target",
+      "type": "string"
+    },
+    "route_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Id"
+    },
+    "branch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Branch Id"
+    },
+    "intended_move": {
+      "default": "",
+      "title": "Intended Move",
+      "type": "string"
+    },
+    "assumptions_used": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions Used",
+      "type": "array"
+    },
+    "expected_result": {
+      "default": "",
+      "title": "Expected Result",
+      "type": "string"
+    },
+    "produced_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Produced Artifact Refs",
+      "type": "array"
+    },
+    "observed_failure_or_gain": {
+      "default": "",
+      "title": "Observed Failure Or Gain",
+      "type": "string"
+    },
+    "confidence": {
+      "$ref": "#/$defs/CheckpointConfidence"
+    },
+    "unresolved_obligations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Obligations",
+      "type": "array"
+    },
+    "next_route_suggestions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Next Route Suggestions",
+      "type": "array"
+    },
+    "source_session_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Session Ref"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "checkpoint_id",
+    "project_id",
+    "current_target",
+    "confidence",
+    "actor",
+    "created_at"
+  ],
+  "title": "ResearchCheckpointRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/research-checkpoint.schema.json"
+}

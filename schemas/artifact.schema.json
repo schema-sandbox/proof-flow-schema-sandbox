@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "ArtifactOrigin": {
+      "enum": [
+        "HUMAN",
+        "MODEL",
+        "PLUGIN",
+        "IMPORT",
+        "DERIVED"
+      ],
+      "title": "ArtifactOrigin",
+      "type": "string"
+    },
+    "ArtifactType": {
+      "enum": [
+        "TEXT",
+        "FORMULA",
+        "IMAGE",
+        "HAND_DRAWING",
+        "VIDEO",
+        "CODE",
+        "TABLE",
+        "GRAPH",
+        "PROOF_SOURCE",
+        "PROOF_BUILD_LOG",
+        "COUNTEREXAMPLE",
+        "DATASET",
+        "EXECUTION_LOG",
+        "CHAT_TRANSCRIPT",
+        "CHECKPOINT",
+        "OTHER"
+      ],
+      "title": "ArtifactType",
+      "type": "string"
+    },
+    "InterpretationStatus": {
+      "enum": [
+        "RAW",
+        "ANNOTATED",
+        "INTERPRETED",
+        "STRUCTURED",
+        "PARTIAL",
+        "AMBIGUOUS",
+        "UNMAPPED"
+      ],
+      "title": "InterpretationStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "format": "uuid",
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "artifact_type": {
+      "$ref": "#/$defs/ArtifactType"
+    },
+    "sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Sha256",
+      "type": "string"
+    },
+    "media_type": {
+      "title": "Media Type",
+      "type": "string"
+    },
+    "size_bytes": {
+      "minimum": 0,
+      "title": "Size Bytes",
+      "type": "integer"
+    },
+    "origin": {
+      "$ref": "#/$defs/ArtifactOrigin"
+    },
+    "original_filename": {
+      "title": "Original Filename",
+      "type": "string"
+    },
+    "blob_relpath": {
+      "title": "Blob Relpath",
+      "type": "string"
+    },
+    "source_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Ref"
+    },
+    "interpretation_status": {
+      "$ref": "#/$defs/InterpretationStatus",
+      "default": "RAW"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "project_id",
+    "artifact_type",
+    "sha256",
+    "media_type",
+    "size_bytes",
+    "origin",
+    "original_filename",
+    "blob_relpath",
+    "created_at"
+  ],
+  "title": "ArtifactRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/artifact.schema.json"
+}

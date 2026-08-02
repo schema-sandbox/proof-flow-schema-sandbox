@@ -1,0 +1,51 @@
+{
+  "$defs": {
+    "PluginRunnerType": {
+      "enum": [
+        "python",
+        "local_command",
+        "oci"
+      ],
+      "title": "PluginRunnerType",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "plugin_id": {
+      "title": "Plugin Id",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    },
+    "healthy": {
+      "title": "Healthy",
+      "type": "boolean"
+    },
+    "checked_at": {
+      "format": "date-time",
+      "title": "Checked At",
+      "type": "string"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "runner_type": {
+      "$ref": "#/$defs/PluginRunnerType"
+    }
+  },
+  "required": [
+    "plugin_id",
+    "version",
+    "healthy",
+    "checked_at",
+    "message",
+    "runner_type"
+  ],
+  "title": "PluginHealthRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/plugin-health.schema.json"
+}

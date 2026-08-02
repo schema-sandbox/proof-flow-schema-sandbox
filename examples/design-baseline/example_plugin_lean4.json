@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1",
+  "plugin_id": "org.schemamath.lean4",
+  "name": "Lean 4 Runner",
+  "version": "0.1.0",
+  "category": "FORMALIZE",
+  "description": "Optional Lean 4 project builder.",
+  "license": "Apache-2.0",
+  "install": {
+    "type": "oci_container",
+    "image": "ghcr.io/example/schemamath-lean4:0.1"
+  },
+  "entrypoint": [
+    "/runner/build.sh"
+  ],
+  "permissions": {
+    "network": false,
+    "filesystem_read": [
+      "project_inputs"
+    ],
+    "filesystem_write": [
+      "run_workspace"
+    ],
+    "max_cpu_seconds": 1800,
+    "max_memory_mb": 8192,
+    "max_output_mb": 512
+  },
+  "inputs": [
+    "application/x-tar",
+    "text/plain"
+  ],
+  "outputs": [
+    "text/plain",
+    "application/json"
+  ],
+  "deterministic": true,
+  "healthcheck": [
+    "lean",
+    "--version"
+  ]
+}
