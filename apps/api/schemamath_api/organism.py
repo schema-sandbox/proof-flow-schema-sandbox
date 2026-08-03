@@ -8,7 +8,7 @@ child sandbox instances when load exceeds safe thresholds.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from schemamath_api.sip import ComposedSandbox, compose, createFence, createGate, createPartition
 

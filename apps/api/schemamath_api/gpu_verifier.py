@@ -40,7 +40,7 @@ class GpuVerifierKernel:
         results: list[VerificationResult] = []
         start = time.perf_counter()
 
-        for idx, item in enumerate(assertions):
+        for _, item in enumerate(assertions):
             # Evaluate expression in high-performance context
             valid = True
             details = f"SIMD accelerated check passed for '{item.assertion_id}'"

@@ -8,8 +8,7 @@ and sub-millisecond tactic completion caching for formal proof assistants.
 from __future__ import annotations
 
 import logging
-import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

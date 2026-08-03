@@ -8,8 +8,7 @@ Provides real-time WebSocket streaming assistant protocol for IDE extensions
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 from uuid import uuid4
 
 logger = logging.getLogger(__name__)

@@ -9,9 +9,8 @@ Usage:
 
 from __future__ import annotations
 
-import time
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 from schemamath_api.k0.decision import Decision, ModuleDecision
@@ -81,7 +80,7 @@ class EvidenceModule(SipModule):
     def record_audit(self, ctx: LifecycleContext) -> ModuleDecision:
         """Record audit log entry into context and local entries list."""
         entry = AuditEntry(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             operation=ctx.operation,
             input_summary={k: str(v)[:100] for k, v in ctx.input_data.items()},
             output_summary={k: str(v)[:100] for k, v in ctx.output_data.items()},

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class CrdtLwwElementSet:
             self.add_set[value] = CrdtElement(value=value, timestamp=timestamp, vector_clock=vector_clock)
 
     def merge(self, remote_crdt: CrdtLwwElementSet) -> None:
-        for val, elem in remote_crdt.add_set.items():
+        for _, elem in remote_crdt.add_set.items():
             self.add(elem.value, elem.timestamp, elem.vector_clock)
 
 

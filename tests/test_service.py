@@ -812,6 +812,34 @@ def test_corrupt_event_tail_locks_project_against_new_writes(
         )
 
 
+def test_corrupt_event_history_blocks_middle_event_tampering(
+    service: SchemaMathService,
+) -> None:
+    """A non-tail (early) tamper must also refuse further appends.
+
+    Regression for a bug where only the tail record was checked on append: an
+    attacker/process that altered an earlier event could keep writing even though
+    the chain was already invalid.
+    """
+    project = make_project(service)
+    event_path = service.project_dir(project.project_id) / "events" / "events.jsonl"
+    records = event_path.read_text(encoding="utf-8").splitlines()
+    record = json.loads(records[0])
+    record["event_type"] = "EARLY_TAMPERED_EVENT"
+    records[0] = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+    event_path.write_text("\n".join(records) + "\n", encoding="utf-8")
+
+    report = service.integrity_report(project.project_id)
+    assert report.valid is False
+    with pytest.raises(ValueError, match="read-only until recovery"):
+        service.create_route(
+            project.project_id,
+            RouteCreate(
+                title="Must not append after early corruption", initial_state=RouteState.ACTIVE
+            ),
+        )
+
+
 def test_projection_migrations_upgrade_legacy_database(tmp_path: Path) -> None:
     database_path = tmp_path / "legacy.sqlite3"
     import sqlite3

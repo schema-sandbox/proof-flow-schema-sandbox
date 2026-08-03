@@ -7,10 +7,10 @@ Bottleneck & Wasserstein distance metrics, and Topological Data Analysis (TDA) b
 
 from __future__ import annotations
 
-import math
 import logging
-from dataclasses import dataclass, field
-from typing import Sequence
+import math
+from collections.abc import Sequence
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class VietorisRipsComplexBuilder:
         n = len(points)
 
         # H0 components: all points born at 0.0
-        for i in range(n):
+        for _ in range(n):
             pairs.append(BirthDeathPair(dimension=0, birth=0.0, death=max_radius * 0.8))
 
         # Pairwise edges for H1 cycles

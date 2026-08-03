@@ -7,7 +7,6 @@ and automated completeness self-checking across 100+ standard mathematical domai
 
 from __future__ import annotations
 
-import re
 import logging
 from dataclasses import dataclass, field
 from typing import Any

@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.benchmark_engine import TournamentBenchmarkEngine
 from schemamath_api.organism import AutonomicOrganism
 from schemamath_api.quantum_mesh import QuantumLatticeMesh

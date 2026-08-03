@@ -54,6 +54,10 @@ npm run build --prefix apps/web
 Open `http://127.0.0.1:8000/app/`. API docs are at `/docs`; the Alpha.2
 dependency-free prototype remains available at `/prototype/`.
 
+The API resolves the frontend from both a source checkout and a bundled wheel
+(`schemamath_api/_ui`). If no frontend bundle is present the root route serves a
+plain-text note pointing here rather than redirecting to a missing page.
+
 For the hardened container profile, copy `.env.production.example` to a protected
 `.env.production` file, replace both placeholders, and run:
 

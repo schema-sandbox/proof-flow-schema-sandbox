@@ -15,7 +15,7 @@ single-campaign releases (e.g., OpenAI Astra C17):
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

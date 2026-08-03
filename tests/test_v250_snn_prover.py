@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.snn_prover import (
     SnnTacticGenerator,
     SpikingNeuronModel,

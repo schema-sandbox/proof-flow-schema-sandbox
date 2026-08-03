@@ -8,8 +8,7 @@ and zero-copy VRAM memory pool allocation with async stream synchronization.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Sequence
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

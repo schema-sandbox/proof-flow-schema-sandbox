@@ -8,11 +8,10 @@ that chains multiple SIP modules into a K0-compatible scheduler context.
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Protocol, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
-from schemamath_api.k0.decision import Decision, DecisionMerger, ModuleDecision
 from schemamath_api.k0.lifecycle import (
-    HookType,
     LifecycleContext,
     LifecyclePhase,
     LifecycleResult,
@@ -20,9 +19,7 @@ from schemamath_api.k0.lifecycle import (
 )
 from schemamath_api.k0.manifest import (
     CapabilityDeclaration,
-    CriticalityLevel,
     FailureSemantics,
-    LifecycleHook,
     ModuleKind,
     ModuleManifest,
 )

@@ -1,8 +1,8 @@
 """Tests for Comparator Protocol (v49.0)."""
 
-import pytest
 from schemamath_api.comparator_protocol import (
-    ComparatorProtocol, DEFAULT_AXIOM_CEILING, DefinitionHole,
+    DEFAULT_AXIOM_CEILING,
+    ComparatorProtocol,
 )
 
 

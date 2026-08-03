@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.axiom_engine import AxiomSynthesizerEngine
 from schemamath_api.fields_evaluator import FieldsCandidateSynthesizer
 from schemamath_api.knowledge_graph import EpistemicKnowledgeGraph
@@ -31,7 +29,7 @@ class TestEpistemicKnowledgeGraph:
     def test_add_and_connect_concepts(self):
         graph = EpistemicKnowledgeGraph()
         n1 = graph.add_concept("c1", "Riemann Zeta Function", "NumberTheory")
-        n2 = graph.add_concept("c2", "Spectral Operators", "FunctionalAnalysis")
+        graph.add_concept("c2", "Spectral Operators", "FunctionalAnalysis")
 
         connected = graph.connect_concepts("c1", "c2")
         assert connected is True

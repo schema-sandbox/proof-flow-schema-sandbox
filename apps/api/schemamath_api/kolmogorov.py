@@ -6,8 +6,8 @@ Estimates string Kolmogorov complexity K(s), incompressible randomness bounds, a
 
 from __future__ import annotations
 
-import zlib
 import logging
+import zlib
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

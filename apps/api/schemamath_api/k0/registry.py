@@ -22,7 +22,6 @@ from pathlib import Path
 from typing import Any
 
 from schemamath_api.k0.manifest import (
-    CapabilityDeclaration,
     LifecycleHook,
     LifecyclePhase,
     ModuleKind,

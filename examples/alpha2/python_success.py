@@ -1,6 +1,6 @@
-from pathlib import Path
 import json
 import os
+from pathlib import Path
 
 values = [{"n": n, "parity": n % 2} for n in range(12)]
 print(f"generated {len(values)} rows")

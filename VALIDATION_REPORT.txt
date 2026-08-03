@@ -57,3 +57,17 @@ Remediation verification (2026-08-01)
 - `npm audit`: NOT RUN by the offline release builder; the release manifest records `not_run_by_offline_builder` rather than manufacturing a clean result.
 - Production remediation: API-key/HMAC authentication is fail-closed, local process plugins are disabled by default, imports stream to bounded temporary files, project imports stage and atomically replace destinations, and the development Compose port binds to loopback.
 - Experimental proof/solver integrations now report unavailable or unverified states when their external verifier/runtime is absent; they do not claim success from canned fallback output.
+
+Remediation verification (2026-08-03)
+=====================================
+
+- Full pytest suite re-run in-venue on the promoted repository root: PASS (398 tests).
+- Ruff lint over the entire tree (apps/api, apps/web, scripts, tests, root modules): PASS (0 errors).
+- Event-store append now verifies the full chain under lock and refuses writes when an event at any position (not only the tail) is invalid: PASS (new tampering test).
+- Lean 4 gatekeeper: run through `lake env lean`, detects unmet `sorry`/`admit` goals as invalid despite exit 0, and matches explicit SMT status tokens so `sat` no longer satisfies an `unsat` query: PASS (new tests).
+- Python/SIP default verifier: replaced unconditional `valid=True, mutation_tested=True` with real SHA-256 + constant-time comparison; a target without an expected hash is reported unverified (not valid): PASS (new tests).
+- Symbolic rewrite engine now routes through real SymPy (`x**2+5` integral and `x**20` derivative corrected) and returns `unavailable` when SymPy is missing instead of a canned result.
+- Release builder now packages only git-tracked files; manifest regenerated for 322 files (16 uncommitted narrative documents correctly excluded), SHA256SUMS and package_manifest regenerated, pytest-collected 398, OpenAPI 47 paths, runtime schemas 25.
+- Schemas and OpenAPI re-exported to align with code `SCHEMA_VERSION="0.5"` (meta-validation of exported documents: PASS).
+
+Known boundaries remain unchanged: import preflight is diagnostic, local plugins are not an OS sandbox, Excalidraw chunks are large, httpX2 migration warning persists, and no mathematical-correctness/solved guarantee is claimed from these tests.

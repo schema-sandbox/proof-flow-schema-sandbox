@@ -11,7 +11,6 @@ Covers:
 from __future__ import annotations
 
 import hashlib
-import pytest
 
 from schemamath_api.cloud_gateway import (
     CloudClusterLoadBalancer,

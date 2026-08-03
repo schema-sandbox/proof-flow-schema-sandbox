@@ -4,7 +4,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from . import __version__
@@ -12,6 +12,37 @@ from . import api as api_module
 from .auth import APIKeyAuthMiddleware
 from .config import Settings
 from .service import SchemaMathService
+
+
+def _resolve_ui_dirs() -> tuple[Path | None, Path | None]:
+    """Locate the HTTP frontend bundles across source and wheel layouts.
+
+    When installed from a source checkout the static directories live next to
+    the repository root.  When installed as a wheel they may be shipped under
+    ``schemamath_api/_ui`` as package data.  Either layout failing to resolve
+    is reported as ``None`` so the API can degrade gracefully instead of
+    importing a non-existent package path.
+    """
+    source_root = Path(__file__).resolve().parents[3]
+    source_prototype = source_root / "prototype"
+    source_web = source_root / "apps" / "web" / "dist"
+
+    from importlib.resources import files as _package_files
+
+    packaged_root: Path | None = None
+    try:
+        packaged_root = Path(_package_files("schemamath_api").joinpath("_ui"))
+    except (ImportError, TypeError, FileNotFoundError):
+        packaged_root = None
+    if source_prototype.is_dir():
+        prototype = source_prototype
+    elif packaged_root is not None and (packaged_root / "prototype").is_dir():
+        prototype = packaged_root / "prototype"
+    if source_web.is_dir():
+        web_dist = source_web
+    elif packaged_root is not None and (packaged_root / "web_dist").is_dir():
+        web_dist = packaged_root / "web_dist"
+    return prototype, web_dist
 
 
 def create_app(workspace_root: Path | None = None, plugin_root: Path | None = None) -> FastAPI:
@@ -52,13 +83,24 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
     app.dependency_overrides[api_module.get_service] = lambda: service
     app.include_router(api_module.router)
 
-    repository_root = Path(__file__).resolve().parents[3]
-    prototype_path = repository_root / "prototype"
-    web_dist_path = repository_root / "apps" / "web" / "dist"
-    if prototype_path.exists():
+    prototype_path, web_dist_path = _resolve_ui_dirs()
+
+    if prototype_path is not None:
         app.mount("/prototype", StaticFiles(directory=prototype_path, html=True), name="prototype")
-    if web_dist_path.exists():
-        app.mount("/app", StaticFiles(directory=web_dist_path, html=True), name="app")
+    if web_dist_path is not None:
+        app.mount("/app", StaticFiles(directory=web_dist_path, html=True), name="web")
+
+    if not web_dist_path and not prototype_path:
+        @app.get("/", include_in_schema=False)
+        def root_unbundled() -> Response:
+            body = (
+                b"ProofFlow API is running. "
+                b"The HTTP frontend bundle is not present in this installation; "
+                b"see README 'Running the frontend'."
+            )
+            return Response(content=body, media_type="text/plain")
+
+        return app
 
     @app.get("/health")
     def health() -> dict[str, str]:
@@ -71,7 +113,7 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
 
     @app.get("/", include_in_schema=False)
     def root() -> RedirectResponse:
-        return RedirectResponse(url="/app/" if web_dist_path.exists() else "/prototype/")
+        return RedirectResponse(url="/app/" if web_dist_path is not None else "/prototype/")
 
     return app
 

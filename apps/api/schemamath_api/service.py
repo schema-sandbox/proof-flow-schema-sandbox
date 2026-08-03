@@ -1107,6 +1107,10 @@ class SchemaMathService:
     def available_plugins(self) -> list[PluginManifestRecord]:
         return self._plugin_host().available_manifests()
 
+    def health_available_plugins(self) -> list[PluginHealthRecord]:
+        host = self._plugin_host()
+        return [host.healthcheck(manifest) for manifest in host.available_manifests()]
+
     def install_plugin(
         self, project_id: UUID, plugin_id: str, request: PluginInstallRequest
     ) -> ProjectPluginRecord:

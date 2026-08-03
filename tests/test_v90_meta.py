@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.counterfactual import CounterfactualUniverse, LogicFramework
 from schemamath_api.inconsistency_detector import InconsistencyDetector
 from schemamath_api.meta_theorem import MetaTheoremGenerator

@@ -7,8 +7,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.e5_rebuild_packer import E5RebuildPacker
 
 

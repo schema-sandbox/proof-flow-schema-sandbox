@@ -11,13 +11,10 @@ import hashlib
 import json
 import logging
 import sqlite3
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 from uuid import UUID, uuid4
 
-from schemamath_api.domain import Actor, ActorType, EpistemicDeltaType, EventRecord
+from schemamath_api.domain import Actor, EpistemicDeltaType, EventRecord
 from schemamath_api.event_store import SCHEMA_VERSION, canonical_json, utc_now
 
 logger = logging.getLogger(__name__)

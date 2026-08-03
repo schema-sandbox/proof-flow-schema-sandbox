@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 from schemamath_api.k0.decision import Decision, ModuleDecision
 from schemamath_api.k0.lifecycle import (
@@ -36,7 +36,7 @@ class TrajectoryStep:
     route_id: str | None
     status: str
     failure_asset: dict[str, Any] | None = None
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
 class TrajectoryModule(SipModule):

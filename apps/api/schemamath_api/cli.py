@@ -19,8 +19,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 from uuid import UUID
 
 from schemamath_api.config import Settings
@@ -150,7 +150,7 @@ def main(args: Sequence[str] | None = None) -> int:
                 print(json.dumps(data, indent=2))
             else:
                 status_icon = "✅" if report.valid else "❌"
-                print(f"{status_icon} Event Chain Integrity: valid={report.valid}, total_events={report.total_events}")
+                print(f"{status_icon} Event Chain Integrity: valid={report.valid}, event_count={report.event_count}")
 
         elif parsed.command == "rebuild":
             project_id = UUID(parsed.project_id)
@@ -202,6 +202,16 @@ def main(args: Sequence[str] | None = None) -> int:
                     print(f"Available plugins ({len(plugins)}):")
                     for p in plugins:
                         print(f"  - {p.name} v{p.version} [{p.runner_type.value}]")
+            elif parsed.action == "health":
+                health = service.health_available_plugins()
+                data = [h.model_dump(mode="json") for h in health]
+                if parsed.json:
+                    print(json.dumps(data, indent=2))
+                else:
+                    print(f"Plugin health ({len(health)}):")
+                    for h in health:
+                        marker = "OK" if h.healthy else "MISSING"
+                        print(f"  - {h.plugin_id} v{h.version}: {marker} - {h.message}")
 
         elif parsed.command == "replay":
             project_id = UUID(parsed.project_id)

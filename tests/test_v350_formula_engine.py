@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.formula_engine import (
     FormulaCompletenessSelfChecker,
     MultiFormatFormulaRenderer,

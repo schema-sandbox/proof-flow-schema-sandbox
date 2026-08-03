@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.web_dashboard_api import (
     DashboardMetricsStream,
     EpistemicGraphQLRouter,

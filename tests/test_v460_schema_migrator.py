@@ -1,10 +1,9 @@
 """Tests for Schema Migrator (v46.0)."""
 
 import json
-import pytest
-from pathlib import Path
 
-from schemamath_api.schema_migrator import SchemaMigrator, V05_NEW_FIELDS
+import pytest
+from schemamath_api.schema_migrator import SchemaMigrator
 
 
 class TestMigrateRecord:
@@ -91,7 +90,7 @@ class TestMigrateJsonlFile:
         assert result.success
         assert result.records_migrated == 2
 
-        migrated = [json.loads(l) for l in source.read_text().strip().splitlines()]
+        migrated = [json.loads(line) for line in source.read_text().strip().splitlines()]
         assert all(r["schema_version"] == "0.5" for r in migrated)
 
     def test_file_to_new_target(self, tmp_path):

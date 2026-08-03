@@ -22,8 +22,9 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 from schemamath_api.k0.decision import (
     Decision,
@@ -34,7 +35,6 @@ from schemamath_api.k0.decision import (
 from schemamath_api.k0.manifest import (
     HookType,
     LifecyclePhase,
-    ModuleManifest,
 )
 from schemamath_api.k0.registry import ManifestRegistry
 
@@ -336,7 +336,7 @@ class LifecycleScheduler:
 
         # 1. PRE hooks
         pre_hooks = self._collect_hooks(phase, HookType.PRE)
-        for module_name, priority, fn in pre_hooks:
+        for module_name, _, fn in pre_hooks:
             result = self._run_hook(phase, HookType.PRE, module_name, fn, ctx)
             if result is not None:
                 decisions.append(result)
@@ -357,7 +357,7 @@ class LifecycleScheduler:
 
         # 3. POST hooks
         post_hooks = self._collect_hooks(phase, HookType.POST)
-        for module_name, priority, fn in post_hooks:
+        for module_name, _, fn in post_hooks:
             result = self._run_hook(phase, HookType.POST, module_name, fn, ctx)
             if result is not None:
                 decisions.append(result)
@@ -535,7 +535,7 @@ class LifecycleScheduler:
     def phases_with_hooks(self) -> set[LifecyclePhase]:
         """Return the set of phases that have at least one hook registered."""
         phases = set()
-        for mod_name, phase, hook_type in self._hooks:
+        for _, phase, _ in self._hooks:
             phases.add(phase)
         return phases
 

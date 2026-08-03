@@ -13,18 +13,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EXCLUDED_PARTS = {
-    ".git",
-    ".pytest_cache",
-    ".ruff_cache",
-    "__pycache__",
-    ".venv",
-    "node_modules",
-    ".schemamath-workspace",
-    ".schemamath-plugins",
-    "runtime-workspaces",
-    "runtime-plugins",
-}
 EXCLUDED_NAMES = {
     ".coverage",
     "package_manifest.json",
@@ -41,20 +29,40 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def git_tracked_files() -> list[Path]:
+    """Return the files currently tracked by git.
+
+    Restricting release packaging to git-tracked files guarantees the manifest,
+    checksums and ZIP never leak build artifacts, temporary files, or uncommitted
+    narrative documents that are not part of the shipped tree.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", "ls-files", "-z"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+    except Exception:
+        return []
+    tracked = (ROOT / p for p in proc.stdout.split("\0") if p)
+    return sorted(
+        (p for p in tracked if p.is_file()),
+        key=lambda item: item.relative_to(ROOT).as_posix(),
+    )
+
+
 def included_files(*, include_generated: bool = False) -> list[Path]:
     result: list[Path] = []
-    for path in ROOT.rglob("*"):
-        if not path.is_file():
-            continue
-        relative = path.relative_to(ROOT)
-        if any(part in EXCLUDED_PARTS for part in relative.parts):
-            continue
+    for path in git_tracked_files():
         if not include_generated and path.name in EXCLUDED_NAMES:
             continue
         if include_generated and path.name == "SHA256SUMS.txt":
             continue
         result.append(path)
-    return sorted(result, key=lambda item: item.relative_to(ROOT).as_posix())
+    return result
 
 
 def project_version() -> str:
@@ -189,16 +197,11 @@ def write_checksums() -> None:
 
 def zip_files() -> list[Path]:
     result: list[Path] = []
-    for path in ROOT.rglob("*"):
-        if not path.is_file():
-            continue
-        relative = path.relative_to(ROOT)
-        if any(part in EXCLUDED_PARTS for part in relative.parts):
-            continue
+    for path in git_tracked_files():
         if path.name in {".coverage", "tsconfig.tsbuildinfo"}:
             continue
         result.append(path)
-    return sorted(result, key=lambda item: item.relative_to(ROOT).as_posix())
+    return result
 
 
 def write_zip(destination: Path) -> None:

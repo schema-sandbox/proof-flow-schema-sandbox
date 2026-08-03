@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.desci_token import DesciGovernanceToken
 from schemamath_api.grant_distributor import AutonomousGrantDistributor
 from schemamath_api.peer_review_staking import PeerReviewStaking

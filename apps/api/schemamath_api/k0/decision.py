@@ -24,7 +24,6 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 # ---------------------------------------------------------------------------
 # Core Decision Type
 # ---------------------------------------------------------------------------

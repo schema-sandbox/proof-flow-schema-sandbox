@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import logging
 import time
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Callable, Protocol
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Protocol
 
 from schemamath_api.domain import EventRecord
 from schemamath_api.event_store import EventStore

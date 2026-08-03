@@ -1,8 +1,7 @@
 """Tests for Campaign Auditor & updated Failure Auditor (v47.0)."""
 
-import pytest
-from schemamath_api.failure_auditor import FailureModeAuditor
 from schemamath_api.campaign_auditor import CampaignAuditor
+from schemamath_api.failure_auditor import FailureModeAuditor
 
 
 class TestFailureModeAuditorV47:

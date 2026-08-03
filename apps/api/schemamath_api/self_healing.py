@@ -9,10 +9,9 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any
 
-from schemamath_api.verifiers import Lean4Adapter, Lean4VerificationRequest
 from schemamath_api.sip.verifier import VerificationResult
+from schemamath_api.verifiers import Lean4Adapter, Lean4VerificationRequest
 
 logger = logging.getLogger(__name__)
 

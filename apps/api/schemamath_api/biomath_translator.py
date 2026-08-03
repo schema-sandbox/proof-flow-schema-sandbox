@@ -7,9 +7,8 @@ computes CHARMM/AMBER potential energies, and bridges structural geometry into L
 
 from __future__ import annotations
 
-import math
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +37,8 @@ class PdbStructureParser:
         """Simulate extracting (phi, psi) dihedral angles from PDB lines."""
         lines = pdb_content.strip().split("\n")
         angles = []
-        for idx, l in enumerate(lines):
-            if l.startswith("ATOM"):
+        for idx, line in enumerate(lines):
+            if line.startswith("ATOM"):
                 phi = -60.0 + (idx % 10)
                 psi = -45.0 + (idx % 10)
                 angles.append((phi, psi))

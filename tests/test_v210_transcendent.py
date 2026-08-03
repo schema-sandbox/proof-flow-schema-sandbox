@@ -8,8 +8,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.transcendent import SingularityMatrix, TranscendentProofKernel
 
 

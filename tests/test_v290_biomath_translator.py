@@ -10,8 +10,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.biomath_translator import (
     EnergyLandscapeOptimizer,
     Lean4BioGeometryBridge,

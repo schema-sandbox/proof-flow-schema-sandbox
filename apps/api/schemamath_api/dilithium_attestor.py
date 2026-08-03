@@ -11,7 +11,6 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass
-from typing import Any
 
 from schemamath_api.domain import EventRecord
 

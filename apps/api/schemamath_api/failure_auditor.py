@@ -16,7 +16,7 @@ Scans research workflows for the nine failure modes identified in v0.13 AI math 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

@@ -23,7 +23,7 @@ from starlette.responses import JSONResponse, Response
 
 logger = logging.getLogger(__name__)
 
-_CURRENT_AUTH_USER: ContextVar["AuthUser | None"] = ContextVar(
+_CURRENT_AUTH_USER: ContextVar[AuthUser | None] = ContextVar(
     "proofflow_current_auth_user", default=None
 )
 

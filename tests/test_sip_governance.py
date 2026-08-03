@@ -12,7 +12,6 @@ Covers:
 from __future__ import annotations
 
 import pytest
-
 from schemamath_api.k0.decision import Decision
 from schemamath_api.sip import (
     ClaimStatus,
@@ -106,15 +105,52 @@ class TestSipTrajectoryG3:
 
 
 class TestSipVerifierG4:
-    def test_verifier_pass_and_fail(self):
+    def test_verifier_unverified_without_expected_hash(self):
         verifier = createVerifier()
         sandbox = compose(verifier)
 
-        # Pass default verifiers
-        res1 = sandbox.run("verify_op", input_data={"verification_target": {"data": 123}})
-        assert res1.success is True
+        # A target without an expected_hash cannot be claimed valid (no false success).
+        res = sandbox.run("verify_op", input_data={"verification_target": {"data": 123}})
+        assert res.success is False
+        assert "unverified" in res.abort_reason
 
-        # Register custom failing verifier
+    def test_verifier_passes_on_matching_hash(self):
+        verifier = createVerifier()
+        sandbox = compose(verifier)
+        import hashlib
+        import json
+
+        expected_hash = hashlib.sha256(
+            json.dumps({"data": 123}, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        res = sandbox.run(
+            "verify_op",
+            input_data={
+                "verification_target": {"data": 123, "expected_hash": expected_hash}
+            },
+        )
+        assert res.success is True
+
+    def test_verifier_fails_on_hash_mismatch(self):
+        verifier = createVerifier()
+        sandbox = compose(verifier)
+        res = sandbox.run(
+            "verify_op",
+            input_data={
+                "verification_target": {
+                    "data": 123,
+                    "expected_hash": "0" * 64,
+                }
+            },
+        )
+        assert res.success is False
+
+    def test_verifier_fails_on_registered_strict_check(self):
+        verifier = createVerifier()
+        sandbox = compose(verifier)
+        import hashlib
+        import json
+
         from schemamath_api.sip.verifier import VerificationResult
 
         def failing_v(payload):
@@ -122,9 +158,17 @@ class TestSipVerifierG4:
 
         verifier.register_verifier("strict_v", failing_v)
 
-        res2 = sandbox.run("verify_op", input_data={"verification_target": {"data": 123}})
-        assert res2.success is False
-        assert "Verifier 'strict_v' failed" in res2.abort_reason
+        # A hash-correct target passes the default check, so the registered
+        # strict verifier is reached and correctly blocks the operation.
+        expected_hash = hashlib.sha256(
+            json.dumps({"data": 1}, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()
+        res = sandbox.run(
+            "verify_op",
+            input_data={"verification_target": {"data": 1, "expected_hash": expected_hash}},
+        )
+        assert res.success is False
+        assert "Verifier 'strict_v' failed" in res.abort_reason
 
 
 class TestFullGovernanceRecipe:

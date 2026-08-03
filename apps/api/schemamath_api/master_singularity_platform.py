@@ -8,7 +8,7 @@ Unifies all 40 system version milestones into an impenetrable, self-checking,
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from schemamath_api.alphaproof_mcts import MctsProofTreeSearch
 from schemamath_api.enterprise_suite import EnterpriseProductionSuite

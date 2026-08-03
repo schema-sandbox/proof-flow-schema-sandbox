@@ -10,7 +10,7 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
+import sys
 
 from schemamath_api.sip import createVerifier
 from schemamath_api.verifiers import (
@@ -19,6 +19,14 @@ from schemamath_api.verifiers import (
     Z3Adapter,
     Z3VerificationRequest,
 )
+from schemamath_api.verifiers import lean4 as lean4_module
+
+
+class _FakeProc:
+    def __init__(self, returncode: int, stdout: str = "", stderr: str = "") -> None:
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
 
 
 class TestFormalVerifiers:
@@ -52,3 +60,60 @@ class TestFormalVerifiers:
 
         res = verifier_mod._verifiers["lean4_formal"]({"code": "def x := 1"})
         assert res.valid is False
+
+    def test_z3_unsat_is_not_reported_as_sat(self, monkeypatch):
+        """'sat' must NOT be considered present inside 'unsat'."""
+        adapter = Z3Adapter(z3_executable=sys.executable)
+
+        def fake_run(_cmd, **_kw):
+            return _FakeProc(returncode=0, stdout="unsat\n")
+
+        monkeypatch.setattr(lean4_module.subprocess, "run", fake_run)
+        res = adapter.verify_smt(Z3VerificationRequest(smtlib2_code="(check-sat)"))
+        assert res.valid is False
+
+    def test_z3_sat_is_reported_as_sat(self, monkeypatch):
+        adapter = Z3Adapter(z3_executable=sys.executable)
+
+        def fake_run(_cmd, **_kw):
+            return _FakeProc(returncode=0, stdout="sat\n")
+
+        monkeypatch.setattr(lean4_module.subprocess, "run", fake_run)
+        res = adapter.verify_smt(Z3VerificationRequest(smtlib2_code="(check-sat)"))
+        assert res.valid is True
+
+    def test_lean_sorry_is_not_reported_as_verified(self, monkeypatch):
+        """Exit 0 with a 'sorry'/'admit' must not be treated as a verified theorem."""
+        adapter = Lean4Adapter(lean_executable=sys.executable)
+
+        def fake_run(_cmd, **_kw):
+            return _FakeProc(
+                returncode=0,
+                stdout="",
+                stderr="declaration uses 'sorry'\n",
+            )
+
+        monkeypatch.setattr(lean4_module.subprocess, "run", fake_run)
+        res = adapter.verify_theorem(
+            Lean4VerificationRequest(code="theorem t : True := by sorry")
+        )
+        assert res.valid is False
+        assert "sorry" in res.details.lower()
+
+    def test_lean_lake_uses_lake_env_lean(self, monkeypatch, tmp_path):
+        captured: list[list[str]] = []
+
+        def fake_run(cmd, **_kwargs):
+            captured.append(list(cmd))
+            return _FakeProc(returncode=0, stdout="", stderr="")
+
+        monkeypatch.setattr(lean4_module.subprocess, "run", fake_run)
+        fake_lake = tmp_path / "lake"
+        fake_lake.write_bytes(b"#!/bin/sh\n")
+        adapter = Lean4Adapter(lean_executable=str(fake_lake))
+        res = adapter.verify_theorem(
+            Lean4VerificationRequest(code="theorem t : True := by trivial")
+        )
+        assert captured and captured[0][0] == "lake"
+        assert captured[0][1:3] == ["env", "lean"]
+        assert res.valid is True

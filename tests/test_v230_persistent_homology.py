@@ -10,8 +10,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.persistent_homology import (
     BottleneckDistanceCalculator,
     PersistentDiagramEngine,

@@ -1,6 +1,5 @@
 import pytest
 from pydantic import ValidationError
-
 from schemamath_api.k0.decision import (
     Decision,
     DecisionMerger,

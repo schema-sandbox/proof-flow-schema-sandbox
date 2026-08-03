@@ -15,12 +15,12 @@ Core Principles:
 from __future__ import annotations
 
 import logging
-import os
 import shutil
 import tempfile
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID, uuid4
 
 from schemamath_api.event_store import EventStore

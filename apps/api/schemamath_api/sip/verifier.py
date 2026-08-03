@@ -6,9 +6,13 @@ Adapts formal and computational verifiers, running hardening checks in P7.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 from schemamath_api.k0.decision import Decision, ModuleDecision
 from schemamath_api.k0.lifecycle import (
@@ -100,12 +104,45 @@ class VerifierModule(SipModule):
         )
 
     def _verify_hash_consistency(self, payload: Any) -> VerificationResult:
-        """Built-in default hash consistency check."""
+        """Genuine hash-consistency check (default verifier).
+
+        Verifies a supplied ``expected_hash`` against a canonical serialization of the
+        rest of the payload. A target WITHOUT a hash to check is reported as
+        ``unverified`` (never passed), and no result claims mutation testing.
+        """
+        if not isinstance(payload, dict):
+            return VerificationResult(
+                valid=False,
+                verifier_name="hash_consistency",
+                details="verification target is not a dictionary; nothing to verify",
+                mutation_tested=False,
+            )
+        expected = payload.get("expected_hash") or payload.get("hash")
+        if expected is None:
+            return VerificationResult(
+                valid=False,
+                verifier_name="hash_consistency",
+                details="no expected_hash supplied; target is unverified, not valid",
+                mutation_tested=False,
+            )
+        body = {key: value for key, value in payload.items() if key not in {"expected_hash", "hash"}}
+        actual = hashlib.sha256(
+            json.dumps(
+                body, sort_keys=True, separators=(",", ":"), default=str
+            ).encode("utf-8")
+        ).hexdigest()
+        if not hmac.compare_digest(actual, str(expected)):
+            return VerificationResult(
+                valid=False,
+                verifier_name="hash_consistency",
+                details="computed hash does not match expected_hash",
+                mutation_tested=False,
+            )
         return VerificationResult(
             valid=True,
             verifier_name="hash_consistency",
-            details="Default hash check passed",
-            mutation_tested=True,
+            details="hash consistency verified",
+            mutation_tested=False,
         )
 
 

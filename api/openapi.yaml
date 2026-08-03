@@ -3108,7 +3108,7 @@ components:
         schema_version:
           type: string
           title: Schema Version
-          default: '0.4'
+          default: '0.5'
         event_id:
           type: string
           format: uuid
@@ -3902,7 +3902,7 @@ components:
         schema_version:
           type: string
           title: Schema Version
-          default: '0.4'
+          default: '0.5'
         plugin_id:
           type: string
           maxLength: 160
@@ -4224,7 +4224,7 @@ components:
         schema_version:
           type: string
           title: Schema Version
-          default: '0.4'
+          default: '0.5'
         project_id:
           type: string
           format: uuid

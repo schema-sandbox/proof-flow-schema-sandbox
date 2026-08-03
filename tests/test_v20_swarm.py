@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.config import Settings
 from schemamath_api.domain import Actor, ActorType, ProblemContract, ProjectCreate
 from schemamath_api.meta_sandbox import MetaSandboxEngine, RuleAmendmentProposal

@@ -25,6 +25,7 @@ dev = [
   "pytest-cov>=5,<7",
   "ruff>=0.8,<1",
   "pyyaml>=6,<7",
+  "sympy>=1.12,<2",
 ]
 
 [tool.pytest.ini_options]
@@ -54,3 +55,10 @@ package-dir = {"" = "apps/api"}
 [tool.setuptools.packages.find]
 where = ["apps/api"]
 include = ["schemamath_api*"]
+
+# Any HTTP frontend bundle placed under apps/api/schemamath_api/_ui (prototype/
+# and web_dist/) is shipped inside the wheel and served by main.py. Building it
+# requires the Vite toolchain and is intentionally optional: the offline builder
+# does not fabricate a bundle, so the API serves a plain-text fallback instead.
+[tool.setuptools.package-data]
+schemamath_api = ["_ui/*", "_ui/*/*", "_ui/*/*/*"]

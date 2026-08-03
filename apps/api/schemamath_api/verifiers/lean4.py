@@ -14,11 +14,23 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from schemamath_api.sip.verifier import VerificationResult
 
 logger = logging.getLogger(__name__)
+
+# Lean prints these when a proof is incomplete ("sorry"/"admit" compile with exit 0
+# but do NOT constitute a proof); we must NOT report such a build as verified.
+_UNTRUSTED_LEAN_MARKERS = ("sorry", "admit", "unsolved goals", "declaration uses 'sorry'", "failed to synthesize")
+
+
+def _lean_is_untrusted(output: str) -> bool:
+    lowered = output.lower()
+    return any(marker in lowered for marker in _UNTRUSTED_LEAN_MARKERS)
+
+
+def _lean_has_error(output: str) -> bool:
+    return "error:" in output.lower()
 
 
 @dataclass
@@ -53,6 +65,18 @@ class Lean4Adapter:
         p = Path(self.lean_executable)
         return p.exists() or shutil.which(self.lean_executable) is not None
 
+    def _build_command(self, file_path: Path) -> list[str]:
+        """Run ``lake env lean file.lean`` when the executable is ``lake``,
+        otherwise ``<lean> file.lean``. Running ``lake <file>.lean`` directly is not
+        the documented invocation."""
+        executable_name = Path(self.lean_executable or "").name
+        if executable_name == "lake":
+            return ["lake", "env", "lean", str(file_path)]
+        if executable_name == "lean":
+            return [self.lean_executable, str(file_path)]
+        # Fall back to the configured/which-resolved path as-is.
+        return [self.lean_executable, str(file_path)]
+
     def verify_theorem(self, req: Lean4VerificationRequest) -> VerificationResult:
         """Verify a Lean4 theorem script."""
         if not self.is_available:
@@ -69,28 +93,34 @@ class Lean4Adapter:
             file_path.write_text(req.code, encoding="utf-8")
 
             try:
-                cmd = [self.lean_executable, str(file_path)]
+                cmd = self._build_command(file_path)
                 proc = subprocess.run(
                     cmd,
                     capture_output=True,
                     text=True,
                     timeout=req.timeout_sec,
                 )
-
-                if proc.returncode == 0 and "error:" not in proc.stderr.lower():
+                combined = f"{proc.stdout}\n{proc.stderr}"
+                if proc.returncode == 0 and not _lean_has_error(combined) and not _lean_is_untrusted(combined):
                     return VerificationResult(
                         valid=True,
                         verifier_name="Lean4",
                         details=f"Lean4 theorem verification succeeded: {proc.stdout.strip()[:200]}",
                         mutation_tested=True,
                     )
-                else:
+                if _lean_is_untrusted(combined):
                     return VerificationResult(
                         valid=False,
                         verifier_name="Lean4",
-                        details=f"Lean4 verification failed: {proc.stderr.strip()[:300]}",
+                        details="Lean4 build contains 'sorry'/'admit' or unsolved goals; theorem is NOT verified",
                         mutation_tested=True,
                     )
+                return VerificationResult(
+                    valid=False,
+                    verifier_name="Lean4",
+                    details=f"Lean4 verification failed: {proc.stderr.strip()[:300]}",
+                    mutation_tested=True,
+                )
             except subprocess.TimeoutExpired:
                 return VerificationResult(
                     valid=False,
@@ -145,21 +175,22 @@ class Z3Adapter:
                     timeout=req.timeout_sec,
                 )
 
-                output = proc.stdout.strip().lower()
-                if req.expected_status in output:
+                # Match on whole tokens: a substring test would report "sat" as
+                # found inside "unsat", a false-positive success for an unsat system.
+                tokens = set(proc.stdout.lower().split())
+                if req.expected_status in tokens:
                     return VerificationResult(
                         valid=True,
                         verifier_name="Z3",
                         details=f"Z3 check matched expected status '{req.expected_status}'",
                         mutation_tested=True,
                     )
-                else:
-                    return VerificationResult(
-                        valid=False,
-                        verifier_name="Z3",
-                        details=f"Z3 output '{output}' did not match expected '{req.expected_status}'",
-                        mutation_tested=True,
-                    )
+                return VerificationResult(
+                    valid=False,
+                    verifier_name="Z3",
+                    details=f"Z3 output '{proc.stdout.strip()[:200]}' did not match expected '{req.expected_status}'",
+                    mutation_tested=True,
+                )
             except Exception as exc:
                 return VerificationResult(
                     valid=False,

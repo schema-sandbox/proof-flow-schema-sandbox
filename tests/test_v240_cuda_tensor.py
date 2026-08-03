@@ -10,8 +10,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.cuda_tensor_engine import (
     CudaKernelDispatcher,
     GpuMemoryPoolManager,

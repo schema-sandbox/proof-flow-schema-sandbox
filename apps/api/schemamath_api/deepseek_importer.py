@@ -9,8 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from schemamath_api.domain import Actor, ActorType, ProblemContract, ProjectCreate
 from schemamath_api.service import SchemaMathService

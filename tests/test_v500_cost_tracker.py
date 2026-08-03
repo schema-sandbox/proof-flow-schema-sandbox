@@ -1,6 +1,5 @@
 """Tests for Cost Tracker (v50.0)."""
 
-import pytest
 from schemamath_api.cost_tracker import CostTracker
 
 

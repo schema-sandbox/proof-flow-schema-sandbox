@@ -11,12 +11,9 @@ Covers:
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
 from uuid import uuid4
 
 import pytest
-
 from schemamath_api.event_store import EventStore
 from schemamath_api.k0.decision import Decision, MergedDecision, RiskLevel
 from schemamath_api.k0.lifecycle import LifecycleContext

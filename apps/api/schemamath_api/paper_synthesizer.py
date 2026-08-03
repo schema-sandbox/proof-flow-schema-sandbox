@@ -8,11 +8,10 @@ directly into publication-ready LaTeX paper source files (`paper.tex`).
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from uuid import UUID
 
-from schemamath_api.domain import ProjectManifest
 from schemamath_api.service import SchemaMathService
 
 logger = logging.getLogger(__name__)
@@ -74,7 +73,7 @@ class PaperSynthesizer:
         ]
 
         if certified_claims:
-            for idx, claim in enumerate(certified_claims, start=1):
+            for _, claim in enumerate(certified_claims, start=1):
                 latex_parts.extend([
                     r"\begin{theorem}",
                     rf"{claim}",

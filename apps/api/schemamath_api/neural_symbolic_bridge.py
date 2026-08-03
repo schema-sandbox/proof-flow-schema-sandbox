@@ -8,8 +8,8 @@ theorem declarations and Z3 SMT logic constraints.
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class NeuralSymbolicBridge:
         norm = sum(x * x for x in embedding) ** 0.5
 
         lean_code = f"theorem {theorem_name} (x : Real) : x ^ 2 >= 0 := by positivity"
-        smt_code = f"(assert (>= (* x x) 0.0))"
+        smt_code = "(assert (>= (* x x) 0.0))"
 
         confidence = round(min(0.99, max(0.5, norm / (dim ** 0.5 + 1e-6))), 2)
 

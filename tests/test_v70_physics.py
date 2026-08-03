@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.neural_symbolic_bridge import NeuralSymbolicBridge
 from schemamath_api.physics_sym import PhysicsSymEngine
 from schemamath_api.tensor_verifier import TensorVerifier

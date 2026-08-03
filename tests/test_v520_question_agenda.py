@@ -1,8 +1,8 @@
 """Tests for Question Agenda Generator (v52.0)."""
 
-import pytest
 from schemamath_api.question_agenda import (
-    QuestionAgendaGenerator, CATEGORY_TEMPLATES, QuestionAgenda,
+    CATEGORY_TEMPLATES,
+    QuestionAgendaGenerator,
 )
 
 

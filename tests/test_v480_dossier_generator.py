@@ -1,9 +1,11 @@
 """Tests for Dossier Generator (v48.0)."""
 
 import json
-import pytest
+
 from schemamath_api.dossier_generator import (
-    DossierGenerator, EvidenceCardScores, CostBoundary, ResearchEpisodeDossier,
+    CostBoundary,
+    DossierGenerator,
+    EvidenceCardScores,
 )
 
 

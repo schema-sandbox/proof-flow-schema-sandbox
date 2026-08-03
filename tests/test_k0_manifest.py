@@ -16,12 +16,9 @@ Covers:
 from __future__ import annotations
 
 import json
-import tempfile
 from pathlib import Path
-from uuid import uuid4
 
 import pytest
-
 from schemamath_api.k0.manifest import (
     CapabilityDeclaration,
     CriticalityLevel,
@@ -39,7 +36,6 @@ from schemamath_api.k0.registry import (
     ManifestRegistry,
     ManifestRegistryError,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

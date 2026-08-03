@@ -7,7 +7,6 @@ and hallucination-free verification guarantees.
 
 from __future__ import annotations
 
-import random
 import logging
 from dataclasses import dataclass, field
 

@@ -9,7 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
 from uuid import uuid4
 
 from schemamath_api.copilot_server import CopilotWorkspaceServer

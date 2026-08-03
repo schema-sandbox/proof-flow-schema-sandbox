@@ -1,6 +1,6 @@
-from pathlib import Path
 import json
 import os
+from pathlib import Path
 
 values = [{"n": n, "parity": n % 2} for n in range(12)]
 output_dir = Path(os.environ["SCHEMAMATH_OUTPUT_DIR"])

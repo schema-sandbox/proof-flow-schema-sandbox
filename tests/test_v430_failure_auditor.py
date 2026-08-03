@@ -7,8 +7,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.failure_auditor import FailureModeAuditor
 
 

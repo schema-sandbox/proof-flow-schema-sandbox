@@ -10,8 +10,8 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -183,8 +183,8 @@ class ResearchEpisodeDossier:
             f"## 12. Evidence Tier: {self.evidence_tier}",
             "",
             "## 13. Six-Dimensional Evidence Card",
-            f"| Dimension | Score |",
-            f"|:---|:---:|",
+            "| Dimension | Score |",
+            "|:---|:---:|",
             f"| Process Provenance | {self.evidence_card.process_provenance}/5 |",
             f"| Artifact Availability | {self.evidence_card.artifact_availability}/5 |",
             f"| Deterministic Verification | {self.evidence_card.deterministic_verification}/5 |",
@@ -198,7 +198,7 @@ class ResearchEpisodeDossier:
             "## 15. Artifact Correlations",
             *([f"- {c}" for c in self.artifact_correlations] if self.artifact_correlations else ["- Independent sources"]),
             "",
-            f"## 16. Trusted Challenge Boundary",
+            "## 16. Trusted Challenge Boundary",
             f"{self.trusted_challenge_boundary}",
             "",
             "## 17. Cost Boundary",

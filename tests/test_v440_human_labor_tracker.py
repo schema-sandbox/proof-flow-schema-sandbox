@@ -7,8 +7,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.human_labor_tracker import HumanLaborTracker
 
 

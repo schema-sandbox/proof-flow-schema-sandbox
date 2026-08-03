@@ -8,8 +8,7 @@ and verifies de Rham exterior calculus differential forms (d^2 = 0).
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
-from typing import Sequence
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

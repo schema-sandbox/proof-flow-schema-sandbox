@@ -11,19 +11,15 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.k0.decision import Decision
 from schemamath_api.sip import (
-    AgentRole,
     CorrelatedReviewDetector,
-    HandoffType,
     compose,
     createCampaign,
     createCapacity,
     createClaim,
-    createFence,
     createFederation,
+    createFence,
     createGate,
     createLedger,
     createPartition,

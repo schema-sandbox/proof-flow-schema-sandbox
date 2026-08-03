@@ -8,8 +8,8 @@ and Riemann curvature tensor symmetries (R_abcd = -R_bacd).
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
 
 logger = logging.getLogger(__name__)
 

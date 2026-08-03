@@ -14,8 +14,8 @@ Usage:
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 from schemamath_api.k0.decision import Decision, ModuleDecision, RiskLevel
 from schemamath_api.k0.lifecycle import (

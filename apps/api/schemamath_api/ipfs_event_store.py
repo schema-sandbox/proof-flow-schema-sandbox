@@ -8,11 +8,9 @@ providing immutable decentralized distribution across planetary research network
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
 from dataclasses import dataclass
 from typing import Any
-from uuid import UUID
 
 from schemamath_api.domain import EventRecord
 from schemamath_api.event_store import canonical_json

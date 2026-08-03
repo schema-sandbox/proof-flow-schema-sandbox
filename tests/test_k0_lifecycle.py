@@ -15,31 +15,24 @@ Covers:
 from __future__ import annotations
 
 import pytest
-
 from schemamath_api.k0.decision import (
     Decision,
-    DecisionMerger,
     ModuleDecision,
 )
 from schemamath_api.k0.lifecycle import (
     LifecycleContext,
-    LifecycleResult,
     LifecycleScheduler,
-    PhaseLogEntry,
 )
 from schemamath_api.k0.manifest import (
     CapabilityDeclaration,
-    CriticalityLevel,
     DegradationSpec,
     FailureSemantics,
     HookType,
-    LifecycleHook,
     LifecyclePhase,
     ModuleKind,
     ModuleManifest,
 )
 from schemamath_api.k0.registry import ManifestRegistry
-
 
 # ---------------------------------------------------------------------------
 # Helpers & Fixtures

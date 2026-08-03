@@ -7,9 +7,9 @@ counterexample minimization, and AST branch coverage guided mutation loops.
 
 from __future__ import annotations
 
-import random
 import logging
-from dataclasses import dataclass, field
+import random
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class PropertyBasedFuzzer:
         inputs_count = 0
         counterexample = None
 
-        for i in range(1, max_iterations + 1):
+        for _ in range(1, max_iterations + 1):
             inputs_count += 1
             # Random candidate simulation
             val = random.randint(-1000, 1000)

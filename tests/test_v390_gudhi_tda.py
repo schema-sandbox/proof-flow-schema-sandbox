@@ -8,8 +8,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.gudhi_tda_suite import (
     PersistentBettiCurveEngine,
     SimplicialFiltrationBuilder,

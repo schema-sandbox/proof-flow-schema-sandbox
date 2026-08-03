@@ -9,8 +9,6 @@ Covers:
 
 from __future__ import annotations
 
-import pytest
-
 from schemamath_api.lean4_compiler_gateway import (
     Lean4CompilerService,
     ProofStateStreamer,
