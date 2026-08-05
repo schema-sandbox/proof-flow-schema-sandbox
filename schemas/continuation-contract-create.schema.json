@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "ContinuationDecision": {
+      "enum": [
+        "RUN_NEXT",
+        "WAIT",
+        "REDIRECT",
+        "ASK_HUMAN",
+        "STOP",
+        "NO_CHANGE"
+      ],
+      "title": "ContinuationDecision",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Typed end-of-episode instruction; it never hides an unrecorded action.",
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "decision": {
+      "$ref": "#/$defs/ContinuationDecision"
+    },
+    "scope": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Scope",
+      "type": "string"
+    },
+    "obligation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Obligation Refs",
+      "type": "array"
+    },
+    "handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Handoff Refs",
+      "type": "array"
+    },
+    "reason": {
+      "default": "",
+      "maxLength": 4000,
+      "title": "Reason",
+      "type": "string"
+    },
+    "human_confirmed": {
+      "default": false,
+      "title": "Human Confirmed",
+      "type": "boolean"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "decision",
+    "scope",
+    "actor"
+  ],
+  "title": "ContinuationContractCreate",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/continuation-contract-create.schema.json"
+}

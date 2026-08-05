@@ -18,6 +18,10 @@ from .domain import (
     ArtifactOrigin,
     ArtifactRecord,
     ArtifactType,
+    AttemptRecord,
+    AttemptRecordCreate,
+    BenchmarkBindingCreate,
+    BenchmarkBindingRecord,
     BranchCreate,
     BranchRecord,
     BranchStateChange,
@@ -32,19 +36,38 @@ from .domain import (
     ChatImportConfirmationResponse,
     ChatImportConfirmRequest,
     ChatImportPreviewRecord,
+    ClaimAtomCreate,
+    ClaimAtomRecord,
+    ClaimRelationCreate,
+    ClaimRelationRecord,
+    CommandReceipt,
+    ContinuationContractCreate,
+    ContinuationContractRecord,
+    CostVectorCreate,
+    CostVectorRecord,
     DeadEndConstraintCreate,
     DeadEndConstraintRecord,
     EpistemicDeltaSummary,
     EventRecord,
+    EvidenceCardCreate,
+    EvidenceCardRecord,
+    FormalCoverageBindingCreate,
+    FormalCoverageBindingRecord,
     GenericEventCreate,
     GenericPluginRunRequest,
     HandoffArtifactCreate,
     HandoffArtifactRecord,
+    HandoffDecisionCreate,
+    HandoffPacketV2Create,
+    HandoffPacketV2Record,
+    HandoffReceipt,
     HistoricalSearchHit,
     HumanNoteCreate,
     ImportPreflightReport,
     IntegrityReport,
     InterpretationStatus,
+    MicroFalsificationPlanCreate,
+    MicroFalsificationPlanRecord,
     ModelSessionCreate,
     ModelSessionRecord,
     PluginHealthRecord,
@@ -56,10 +79,24 @@ from .domain import (
     ProjectPluginRecord,
     ProjectSummary,
     PythonPluginRunRequest,
+    QuestionAgendaCreate,
+    QuestionAgendaRecord,
+    RepairLineageCreate,
+    RepairLineageRecord,
+    RepositorySnapshotCreate,
+    RepositorySnapshotRecord,
     ResearchCheckpointCreate,
     ResearchCheckpointRecord,
+    ResearchEpisodeDossierV2Create,
+    ResearchEpisodeDossierV2Record,
+    ResearchHierarchyNodeCreate,
+    ResearchHierarchyNodeRecord,
     ResearchPacketRequest,
     ResearchPacketResponse,
+    ResearchStateSnapshot,
+    ResearchStateTransitionRecord,
+    ReviewLineageCreate,
+    ReviewLineageRecord,
     RouteCreate,
     RouteMergeRequest,
     RouteMergeResponse,
@@ -67,7 +104,15 @@ from .domain import (
     RouteSplitRequest,
     RouteSplitResponse,
     RouteStateChange,
+    TransitionAcceptanceCreate,
+    TransitionProposalCreate,
+    TransitionProposalRecord,
+    VerificationExecutionManifestCreate,
+    VerificationExecutionManifestRecord,
+    VerificationMutationSetCreate,
+    VerificationMutationSetRecord,
 )
+from .event_store import EventStoreIntegrityError
 from .service import ConflictError, NotFoundError, SchemaMathService
 
 logger = logging.getLogger(__name__)
@@ -84,10 +129,23 @@ def _translate_error(exc: Exception) -> HTTPException:
         return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     if isinstance(exc, ConflictError):
         return HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
+    if isinstance(exc, EventStoreIntegrityError):
+        logger.error("event store integrity failure", exc_info=exc)
+        return HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="event store integrity failure; the project is read-only until recovery",
+        )
     if isinstance(exc, ValueError):
         return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
     logger.exception("internal error while handling request", exc_info=exc)
     return HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="internal server error")
+
+
+def _safe_content_disposition_filename(filename: str) -> str:
+    """Strip characters that could inject or break the Content-Disposition header."""
+    cleaned = Path(filename).name.replace("\r", "").replace("\n", "").replace('"', "")
+    cleaned = "".join(ch for ch in cleaned if ch.isprintable())
+    return cleaned[:200] or "artifact"
 
 
 async def _spool_upload(file: UploadFile, maximum_bytes: int) -> Path:
@@ -414,6 +472,530 @@ def list_events(
         raise _translate_error(exc) from exc
 
 
+@router.get(
+    "/projects/{project_id}/command-receipts",
+    response_model=list[CommandReceipt],
+)
+def list_command_receipts(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[CommandReceipt]:
+    try:
+        return service.list_command_receipts(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/transition-proposals",
+    response_model=TransitionProposalRecord,
+    status_code=201,
+)
+def create_transition_proposal(
+    project_id: UUID,
+    request: TransitionProposalCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> TransitionProposalRecord:
+    try:
+        return service.create_transition_proposal(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/transition-proposals",
+    response_model=list[TransitionProposalRecord],
+)
+def list_transition_proposals(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[TransitionProposalRecord]:
+    try:
+        return service.list_transition_proposals(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/transition-proposals/{proposal_id}/accept",
+    response_model=ResearchStateTransitionRecord,
+    status_code=201,
+)
+def accept_transition_proposal(
+    project_id: UUID,
+    proposal_id: UUID,
+    request: TransitionAcceptanceCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> ResearchStateTransitionRecord:
+    try:
+        return service.accept_transition_proposal(project_id, proposal_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get("/projects/{project_id}/research-state", response_model=ResearchStateSnapshot)
+def get_research_state(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> ResearchStateSnapshot:
+    try:
+        return service.research_state(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/claim-atoms/proposals",
+    response_model=TransitionProposalRecord,
+    status_code=201,
+)
+def propose_claim_atom(
+    project_id: UUID,
+    request: ClaimAtomCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> TransitionProposalRecord:
+    try:
+        return service.propose_claim_atom(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get("/projects/{project_id}/claim-atoms", response_model=list[ClaimAtomRecord])
+def list_claim_atoms(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[ClaimAtomRecord]:
+    try:
+        return service.list_claim_atoms(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/claim-relations",
+    response_model=ClaimRelationRecord,
+    status_code=201,
+)
+def create_claim_relation(
+    project_id: UUID,
+    request: ClaimRelationCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> ClaimRelationRecord:
+    try:
+        return service.create_claim_relation(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/claim-relations",
+    response_model=list[ClaimRelationRecord],
+)
+def list_claim_relations(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[ClaimRelationRecord]:
+    try:
+        return service.list_claim_relations(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/review-lineage",
+    response_model=ReviewLineageRecord,
+    status_code=201,
+)
+def create_review_lineage(
+    project_id: UUID,
+    request: ReviewLineageCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> ReviewLineageRecord:
+    try:
+        return service.create_review_lineage(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/review-lineage",
+    response_model=list[ReviewLineageRecord],
+)
+def list_review_lineage(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[ReviewLineageRecord]:
+    try:
+        return service.list_review_lineage(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/evidence-cards",
+    response_model=EvidenceCardRecord,
+    status_code=201,
+)
+def create_evidence_card(
+    project_id: UUID,
+    request: EvidenceCardCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> EvidenceCardRecord:
+    try:
+        return service.create_evidence_card(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/evidence-cards",
+    response_model=list[EvidenceCardRecord],
+)
+def list_evidence_cards(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[EvidenceCardRecord]:
+    try:
+        return service.list_evidence_cards(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/verification-manifests",
+    response_model=VerificationExecutionManifestRecord,
+    status_code=201,
+)
+def create_verification_manifest(
+    project_id: UUID,
+    request: VerificationExecutionManifestCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> VerificationExecutionManifestRecord:
+    try:
+        return service.create_verification_manifest(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/verification-manifests",
+    response_model=list[VerificationExecutionManifestRecord],
+)
+def list_verification_manifests(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[VerificationExecutionManifestRecord]:
+    try:
+        return service.list_verification_manifests(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/verification-mutation-sets",
+    response_model=VerificationMutationSetRecord,
+    status_code=201,
+)
+def create_mutation_set(
+    project_id: UUID,
+    request: VerificationMutationSetCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> VerificationMutationSetRecord:
+    try:
+        return service.create_mutation_set(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/verification-mutation-sets",
+    response_model=list[VerificationMutationSetRecord],
+)
+def list_mutation_sets(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[VerificationMutationSetRecord]:
+    try:
+        return service.list_mutation_sets(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/coverage-bindings",
+    response_model=FormalCoverageBindingRecord,
+    status_code=201,
+)
+def create_coverage_binding(
+    project_id: UUID,
+    request: FormalCoverageBindingCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> FormalCoverageBindingRecord:
+    try:
+        return service.create_coverage_binding(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/coverage-bindings",
+    response_model=list[FormalCoverageBindingRecord],
+)
+def list_coverage_bindings(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[FormalCoverageBindingRecord]:
+    try:
+        return service.list_coverage_bindings(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/repository-snapshots",
+    response_model=RepositorySnapshotRecord,
+    status_code=201,
+)
+def create_repository_snapshot(
+    project_id: UUID,
+    request: RepositorySnapshotCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> RepositorySnapshotRecord:
+    try:
+        return service.create_repository_snapshot(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/repository-snapshots",
+    response_model=list[RepositorySnapshotRecord],
+)
+def list_repository_snapshots(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[RepositorySnapshotRecord]:
+    try:
+        return service.list_repository_snapshots(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/repair-lineage",
+    response_model=RepairLineageRecord,
+    status_code=201,
+)
+def create_repair_lineage(
+    project_id: UUID,
+    request: RepairLineageCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> RepairLineageRecord:
+    try:
+        return service.create_repair_lineage(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/repair-lineage",
+    response_model=list[RepairLineageRecord],
+)
+def list_repair_lineage(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[RepairLineageRecord]:
+    try:
+        return service.list_repair_lineage(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/hierarchy-nodes",
+    response_model=ResearchHierarchyNodeRecord,
+    status_code=201,
+)
+def create_hierarchy_node(
+    project_id: UUID,
+    request: ResearchHierarchyNodeCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> ResearchHierarchyNodeRecord:
+    try:
+        return service.create_hierarchy_node(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/hierarchy-nodes",
+    response_model=list[ResearchHierarchyNodeRecord],
+)
+def list_hierarchy_nodes(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[ResearchHierarchyNodeRecord]:
+    try:
+        return service.list_hierarchy_nodes(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/attempts",
+    response_model=AttemptRecord,
+    status_code=201,
+)
+def create_attempt_record(
+    project_id: UUID,
+    request: AttemptRecordCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> AttemptRecord:
+    try:
+        return service.create_attempt_record(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get("/projects/{project_id}/attempts", response_model=list[AttemptRecord])
+def list_attempt_records(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[AttemptRecord]:
+    try:
+        return service.list_attempt_records(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/cost-vectors",
+    response_model=CostVectorRecord,
+    status_code=201,
+)
+def create_cost_vector(
+    project_id: UUID,
+    request: CostVectorCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> CostVectorRecord:
+    try:
+        return service.create_cost_vector(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get("/projects/{project_id}/cost-vectors", response_model=list[CostVectorRecord])
+def list_cost_vectors(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[CostVectorRecord]:
+    try:
+        return service.list_cost_vectors(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/falsification-plans",
+    response_model=MicroFalsificationPlanRecord,
+    status_code=201,
+)
+def create_falsification_plan(
+    project_id: UUID,
+    request: MicroFalsificationPlanCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> MicroFalsificationPlanRecord:
+    try:
+        return service.create_falsification_plan(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/falsification-plans",
+    response_model=list[MicroFalsificationPlanRecord],
+)
+def list_falsification_plans(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[MicroFalsificationPlanRecord]:
+    try:
+        return service.list_falsification_plans(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/benchmark-bindings",
+    response_model=BenchmarkBindingRecord,
+    status_code=201,
+)
+def create_benchmark_binding(
+    project_id: UUID,
+    request: BenchmarkBindingCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> BenchmarkBindingRecord:
+    try:
+        return service.create_benchmark_binding(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/benchmark-bindings",
+    response_model=list[BenchmarkBindingRecord],
+)
+def list_benchmark_bindings(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[BenchmarkBindingRecord]:
+    try:
+        return service.list_benchmark_bindings(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/dossiers-v2",
+    response_model=ResearchEpisodeDossierV2Record,
+    status_code=201,
+)
+def create_dossier_v2(
+    project_id: UUID,
+    request: ResearchEpisodeDossierV2Create,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> ResearchEpisodeDossierV2Record:
+    try:
+        return service.create_dossier_v2(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/dossiers-v2",
+    response_model=list[ResearchEpisodeDossierV2Record],
+)
+def list_dossiers_v2(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[ResearchEpisodeDossierV2Record]:
+    try:
+        return service.list_dossiers_v2(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/question-agendas",
+    response_model=QuestionAgendaRecord,
+    status_code=201,
+)
+def create_question_agenda(
+    project_id: UUID,
+    request: QuestionAgendaCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> QuestionAgendaRecord:
+    try:
+        return service.create_question_agenda(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/question-agendas",
+    response_model=list[QuestionAgendaRecord],
+)
+def list_question_agendas(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[QuestionAgendaRecord]:
+    try:
+        return service.list_question_agendas(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
 @router.post("/projects/{project_id}/artifacts", response_model=ArtifactRecord, status_code=201)
 async def add_artifact(
     project_id: UUID,
@@ -465,10 +1047,11 @@ def get_artifact_content(
 ) -> Response:
     try:
         artifact, content = service.artifact_bytes(project_id, artifact_id)
+        safe_name = _safe_content_disposition_filename(artifact.original_filename)
         return Response(
             content=content,
             media_type=artifact.media_type,
-            headers={"Content-Disposition": f'attachment; filename="{artifact.original_filename}"'},
+            headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
         )
     except Exception as exc:
         raise _translate_error(exc) from exc
@@ -730,6 +1313,94 @@ def list_handoff_artifacts(
 ) -> list[HandoffArtifactRecord]:
     try:
         return service.list_handoff_artifacts(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/continuation-contracts",
+    response_model=ContinuationContractRecord,
+    status_code=201,
+)
+def create_continuation_contract(
+    project_id: UUID,
+    request: ContinuationContractCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> ContinuationContractRecord:
+    try:
+        return service.create_continuation_contract(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/continuation-contracts",
+    response_model=list[ContinuationContractRecord],
+)
+def list_continuation_contracts(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[ContinuationContractRecord]:
+    try:
+        return service.list_continuation_contracts(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/handoffs-v2",
+    response_model=HandoffPacketV2Record,
+    status_code=201,
+)
+def create_handoff_packet_v2(
+    project_id: UUID,
+    request: HandoffPacketV2Create,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> HandoffPacketV2Record:
+    try:
+        return service.create_handoff_packet_v2(project_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/handoffs-v2",
+    response_model=list[HandoffPacketV2Record],
+)
+def list_handoff_packets_v2(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[HandoffPacketV2Record]:
+    try:
+        return service.list_handoff_packets_v2(project_id)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.post(
+    "/projects/{project_id}/handoffs-v2/{packet_id}/accept",
+    response_model=HandoffReceipt,
+    status_code=201,
+)
+def accept_handoff_packet_v2(
+    project_id: UUID,
+    packet_id: UUID,
+    request: HandoffDecisionCreate,
+    service: Annotated[SchemaMathService, Depends(get_service)],
+) -> HandoffReceipt:
+    try:
+        return service.accept_handoff_packet_v2(project_id, packet_id, request)
+    except Exception as exc:
+        raise _translate_error(exc) from exc
+
+
+@router.get(
+    "/projects/{project_id}/handoff-receipts",
+    response_model=list[HandoffReceipt],
+)
+def list_handoff_receipts(
+    project_id: UUID, service: Annotated[SchemaMathService, Depends(get_service)]
+) -> list[HandoffReceipt]:
+    try:
+        return service.list_handoff_receipts(project_id)
     except Exception as exc:
         raise _translate_error(exc) from exc
 

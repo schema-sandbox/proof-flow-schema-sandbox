@@ -8,7 +8,7 @@ from schemamath_api.comparator_protocol import (
 
 class TestComparatorVerify:
     def test_matching_statements_pass(self):
-        cp = ComparatorProtocol()
+        cp = ComparatorProtocol(primary_kernel_runner=lambda _code: True)
         result = cp.verify(
             challenge_id="challenge_1",
             challenge_statement="theorem foo : ∀ n, n + 0 = n",
@@ -58,7 +58,7 @@ class TestComparatorVerify:
         assert result.overall_verdict == "FAIL"
 
     def test_permitted_axioms_pass(self):
-        cp = ComparatorProtocol()
+        cp = ComparatorProtocol(primary_kernel_runner=lambda _code: True)
         result = cp.verify(
             challenge_id="c4",
             challenge_statement="theorem x : True",
@@ -71,7 +71,7 @@ class TestComparatorVerify:
         assert result.overall_verdict == "PASS"
 
     def test_definition_hole_gives_provisional(self):
-        cp = ComparatorProtocol()
+        cp = ComparatorProtocol(primary_kernel_runner=lambda _code: True)
         code = "opaque myDef : Nat := 42\ntheorem x : True := trivial"
         result = cp.verify(
             challenge_id="c5",
@@ -107,6 +107,34 @@ class TestComparatorVerify:
             candidate_statement="theorem x : True",
         )
         assert result.secondary_kernel_accepts is None
+        assert result.overall_verdict == "UNAVAILABLE"
+        assert not result.primary_kernel_executed
+
+    def test_static_text_cannot_claim_kernel_success(self):
+        cp = ComparatorProtocol()
+        result = cp.verify(
+            challenge_id="c_static",
+            challenge_statement="theorem x : True",
+            candidate_id="s_static",
+            candidate_code="theorem x : True := by definitely_not_a_lean_tactic",
+            candidate_statement="theorem x : True",
+        )
+        assert result.overall_verdict == "UNAVAILABLE"
+        assert not result.is_verified
+
+    def test_explicit_kernel_execution_can_pass(self):
+        cp = ComparatorProtocol()
+        result = cp.verify(
+            challenge_id="c_exec",
+            challenge_statement="theorem x : True",
+            candidate_id="s_exec",
+            candidate_code="theorem x : True := trivial",
+            candidate_statement="theorem x : True",
+            primary_kernel_accepts=True,
+            independent_reproduction_status="NOT_CONFIGURED",
+        )
+        assert result.overall_verdict == "PASS"
+        assert result.primary_kernel_executed
 
     def test_custom_axiom_ceiling(self):
         cp = ComparatorProtocol(axiom_ceiling=frozenset({"propext"}))

@@ -1,0 +1,92 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Human/mechanism acceptance of a previously proposed transition.",
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "acceptance_actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "acceptance_mechanism": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Acceptance Mechanism",
+      "type": "string"
+    },
+    "accepted": {
+      "default": true,
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "rejection_reason": {
+      "default": "",
+      "maxLength": 4000,
+      "title": "Rejection Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "acceptance_actor",
+    "acceptance_mechanism"
+  ],
+  "title": "TransitionAcceptanceCreate",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/transition-acceptance.schema.json"
+}

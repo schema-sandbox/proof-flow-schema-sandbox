@@ -66,7 +66,7 @@
   "additionalProperties": true,
   "properties": {
     "schema_version": {
-      "default": "0.5",
+      "default": "0.6",
       "title": "Schema Version",
       "type": "string"
     },
@@ -175,6 +175,58 @@
     "event_hash": {
       "title": "Event Hash",
       "type": "string"
+    },
+    "revision": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Revision"
+    },
+    "batch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Batch Id"
+    },
+    "idempotency_key": {
+      "anyOf": [
+        {
+          "maxLength": 240,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Idempotency Key"
+    },
+    "command_id": {
+      "anyOf": [
+        {
+          "maxLength": 240,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Command Id"
     }
   },
   "required": [

@@ -12,7 +12,9 @@ Implements the Lean FRO Comparator verification protocol from v0.13:
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +48,11 @@ class ComparatorResult:
     axioms_used: list[AxiomUsage]
     definition_holes: list[DefinitionHole]
     sorry_count: int
-    primary_kernel_accepts: bool
+    primary_kernel_accepts: bool | None
     secondary_kernel_accepts: bool | None  # None if secondary kernel not available
+    primary_kernel_executed: bool
+    independent_reproduction_status: str
+    kernel_error: str | None
     overall_verdict: str  # PASS, FAIL, PROVISIONAL, UNAVAILABLE
 
     @property
@@ -66,8 +71,10 @@ class ComparatorProtocol:
     def __init__(
         self,
         axiom_ceiling: frozenset[str] | None = None,
+        primary_kernel_runner: Callable[[str], Any] | None = None,
     ) -> None:
         self.axiom_ceiling = axiom_ceiling or DEFAULT_AXIOM_CEILING
+        self.primary_kernel_runner = primary_kernel_runner
 
     def verify(
         self,
@@ -78,6 +85,9 @@ class ComparatorProtocol:
         candidate_statement: str | None = None,
         axioms_declared: list[str] | None = None,
         lean_version: str = "4.32.0",
+        primary_kernel_accepts: bool | None = None,
+        secondary_kernel_accepts: bool | None = None,
+        independent_reproduction_status: str = "UNKNOWN",
     ) -> ComparatorResult:
         """Run the full Comparator verification protocol."""
         # Step 1: Statement identity check
@@ -106,9 +116,26 @@ class ComparatorProtocol:
         # Step 4: Definition-hole detection
         holes = self._detect_definition_holes(candidate_code)
 
-        # Step 5: Kernel acceptance (mock — real invocation requires Lean process)
-        primary_accepts = sorry_count == 0 and ceiling_respected and stmt_match
-        secondary_accepts = None  # nanoda not available in alpha
+        # Step 5: Kernel execution. Static text checks are never kernel evidence.
+        # A runner or an explicit execution result is required before PASS can
+        # be returned. This deliberately makes the old static-only behavior
+        # unavailable instead of silently treating it as a proof.
+        primary_accepts: bool | None = primary_kernel_accepts
+        primary_executed = primary_kernel_accepts is not None
+        kernel_error: str | None = None
+        if primary_accepts is None and self.primary_kernel_runner is not None:
+            primary_executed = True
+            try:
+                runner_result = self.primary_kernel_runner(candidate_code)
+                primary_accepts = (
+                    bool(runner_result.valid)
+                    if hasattr(runner_result, "valid")
+                    else bool(runner_result)
+                )
+            except Exception as exc:  # pragma: no cover - defensive boundary
+                primary_accepts = None
+                kernel_error = f"primary kernel runner failed: {type(exc).__name__}: {exc}"
+        secondary_accepts = secondary_kernel_accepts
 
         # Verdict
         if sorry_count > 0:
@@ -119,10 +146,12 @@ class ComparatorProtocol:
             verdict = "FAIL"
         elif len(holes) > 0:
             verdict = "PROVISIONAL"
+        elif not primary_executed or primary_accepts is None:
+            verdict = "UNAVAILABLE"
         elif primary_accepts:
             verdict = "PASS"
         else:
-            verdict = "UNAVAILABLE"
+            verdict = "FAIL"
 
         logger.info(
             "Comparator %s vs %s: stmt_match=%s, axiom_ok=%s, sorry=%d, holes=%d → %s",
@@ -145,6 +174,9 @@ class ComparatorProtocol:
             sorry_count=sorry_count,
             primary_kernel_accepts=primary_accepts,
             secondary_kernel_accepts=secondary_accepts,
+            primary_kernel_executed=primary_executed,
+            independent_reproduction_status=independent_reproduction_status,
+            kernel_error=kernel_error,
             overall_verdict=verdict,
         )
 

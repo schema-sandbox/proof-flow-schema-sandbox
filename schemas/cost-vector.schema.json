@@ -1,0 +1,166 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "CostVector": {
+      "additionalProperties": false,
+      "properties": {
+        "discovery": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Discovery",
+          "type": "number"
+        },
+        "failed_attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Failed Attempts",
+          "type": "number"
+        },
+        "human_selection": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Human Selection",
+          "type": "number"
+        },
+        "human_binding": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Human Binding",
+          "type": "number"
+        },
+        "human_review": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Human Review",
+          "type": "number"
+        },
+        "compute": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Compute",
+          "type": "number"
+        },
+        "formalization": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Formalization",
+          "type": "number"
+        },
+        "checking": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Checking",
+          "type": "number"
+        },
+        "independent_reproduction": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Independent Reproduction",
+          "type": "number"
+        },
+        "infrastructure": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Infrastructure",
+          "type": "number"
+        }
+      },
+      "title": "CostVector",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cost_id": {
+      "format": "uuid",
+      "title": "Cost Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "scope_ref": {
+      "title": "Scope Ref",
+      "type": "string"
+    },
+    "currency": {
+      "default": "USD",
+      "title": "Currency",
+      "type": "string"
+    },
+    "vector": {
+      "$ref": "#/$defs/CostVector"
+    },
+    "source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Refs",
+      "type": "array"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cost_id",
+    "project_id",
+    "scope_ref",
+    "vector",
+    "actor",
+    "created_at"
+  ],
+  "title": "CostVectorRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/cost-vector.schema.json"
+}

@@ -1,0 +1,85 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "lineage_id": {
+      "format": "uuid",
+      "title": "Lineage Id",
+      "type": "string"
+    },
+    "reviewer_family": {
+      "default": "",
+      "title": "Reviewer Family",
+      "type": "string"
+    },
+    "organization": {
+      "default": "",
+      "title": "Organization",
+      "type": "string"
+    },
+    "editor": {
+      "default": "",
+      "title": "Editor",
+      "type": "string"
+    },
+    "source_material_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Material Refs",
+      "type": "array"
+    },
+    "formatter": {
+      "default": "",
+      "title": "Formatter",
+      "type": "string"
+    },
+    "checker": {
+      "default": "",
+      "title": "Checker",
+      "type": "string"
+    },
+    "scope": {
+      "default": "",
+      "title": "Scope",
+      "type": "string"
+    },
+    "unchecked_items": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unchecked Items",
+      "type": "array"
+    },
+    "independence_group": {
+      "default": "",
+      "title": "Independence Group",
+      "type": "string"
+    },
+    "correlation_flags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Correlation Flags",
+      "type": "array"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "lineage_id",
+    "project_id",
+    "created_at"
+  ],
+  "title": "ReviewLineageRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/review-lineage.schema.json"
+}

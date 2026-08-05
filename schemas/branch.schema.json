@@ -66,6 +66,13 @@
       "title": "Parameters",
       "type": "object"
     },
+    "objections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Objections",
+      "type": "array"
+    },
     "state": {
       "$ref": "#/$defs/BranchState"
     },

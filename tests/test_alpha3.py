@@ -263,6 +263,6 @@ def test_production_app_mount_and_alpha4_openapi(tmp_path: Path) -> None:
         assert page.status_code == 200
         assert "ProofFlow Schema Sandbox" in page.text
         openapi = client.get("/openapi.json").json()
-        assert openapi["info"]["version"] == "0.1.0-alpha.4"
+        assert openapi["info"]["version"] == "0.1.0-alpha.5"
         assert "/api/v1/projects/{project_id}/epistemic-deltas" in openapi["paths"]
         assert "/api/v1/projects/{project_id}/routes/similar" in openapi["paths"]

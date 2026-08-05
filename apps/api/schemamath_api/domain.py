@@ -14,8 +14,8 @@ from pydantic import (
     model_validator,
 )
 
-SCHEMA_VERSION = "0.5"
-SUPPORTED_SCHEMA_VERSIONS = {"0.1", "0.2", "0.3", "0.4", "0.5"}
+SCHEMA_VERSION = "0.6"
+SUPPORTED_SCHEMA_VERSIONS = {"0.1", "0.2", "0.3", "0.4", "0.5", "0.6"}
 
 
 class TraceDerivationClass(StrEnum):
@@ -146,6 +146,153 @@ class EpistemicDeltaType(StrEnum):
     HUMAN_INTERVENTION = "HUMAN_INTERVENTION"
     SESSION_RECORDED = "SESSION_RECORDED"
     NO_STATE_CHANGE = "NO_STATE_CHANGE"
+
+
+class ResearchPlane(StrEnum):
+    """Independent v0.14 research-state coordinates."""
+
+    OPERATIONAL = "operational"
+    EPISTEMIC = "epistemic"
+    CLAIM = "claim"
+    ARTIFACT = "artifact"
+
+
+class TransitionTriggerClass(StrEnum):
+    OBSERVATION = "OBSERVATION"
+    TOOL_RESULT = "TOOL_RESULT"
+    MODEL_PROPOSAL = "MODEL_PROPOSAL"
+    HUMAN_DECISION = "HUMAN_DECISION"
+    EXACT_CHECK = "EXACT_CHECK"
+    EXTERNAL_UPDATE = "EXTERNAL_UPDATE"
+    PUBLIC_CORRECTION = "PUBLIC_CORRECTION"
+
+
+class TransitionVisibility(StrEnum):
+    DIRECT_OBSERVATION = "DIRECT_OBSERVATION"
+    PUBLIC_TRACE_DERIVATION = "PUBLIC_TRACE_DERIVATION"
+    AUTHOR_REPORTED = "AUTHOR_REPORTED"
+    NOT_ESTABLISHED = "NOT_ESTABLISHED"
+
+
+class TransitionProposalStatus(StrEnum):
+    PROPOSED = "PROPOSED"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+
+
+class ContinuationDecision(StrEnum):
+    RUN_NEXT = "RUN_NEXT"
+    WAIT = "WAIT"
+    REDIRECT = "REDIRECT"
+    ASK_HUMAN = "ASK_HUMAN"
+    STOP = "STOP"
+    NO_CHANGE = "NO_CHANGE"
+
+
+class ContinuationStatus(StrEnum):
+    RECORDED = "RECORDED"
+    REJECTED = "REJECTED"
+
+
+class HandoffPacketStatus(StrEnum):
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+
+
+class ClaimSourceClass(StrEnum):
+    DIRECT_OBSERVATION = "DIRECT_OBSERVATION"
+    TOOL_RESULT = "TOOL_RESULT"
+    FORMAL_EXECUTION = "FORMAL_EXECUTION"
+    AUTHOR_REPORTED = "AUTHOR_REPORTED"
+    LEGACY = "LEGACY"
+    UNKNOWN = "UNKNOWN"
+
+
+class ClaimState(StrEnum):
+    UNRESOLVED = "UNRESOLVED"
+    CANDIDATE = "CANDIDATE"
+    SUPPORTED = "SUPPORTED"
+    REFUTED = "REFUTED"
+    SUPERSEDED = "SUPERSEDED"
+
+
+class ClaimRelationType(StrEnum):
+    SUPPORTS = "SUPPORTS"
+    REFUTES = "REFUTES"
+    SUPERSEDES = "SUPERSEDES"
+    DERIVED_FROM = "DERIVED_FROM"
+
+
+class EvidenceDimensionStatus(StrEnum):
+    UNKNOWN = "UNKNOWN"
+    SUPPORTED = "SUPPORTED"
+    PARTIAL = "PARTIAL"
+    FAILED = "FAILED"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+class EvidenceDimensionName(StrEnum):
+    PROVENANCE = "provenance"
+    ARTIFACT_ACCESSIBILITY = "artifact_accessibility"
+    DERIVATION_VALIDITY = "derivation_validity"
+    INDEPENDENT_REPRODUCTION = "independent_reproduction"
+    NEGATIVE_PRESSURE = "negative_pressure"
+    AUDITABILITY = "auditability"
+
+
+class VerificationExecutionStatus(StrEnum):
+    CONFIGURED = "CONFIGURED"
+    EXECUTED = "EXECUTED"
+    SUCCEEDED = "SUCCEEDED"
+    FAILED = "FAILED"
+    TIMED_OUT = "TIMED_OUT"
+    UNAVAILABLE = "UNAVAILABLE"
+
+
+class CoverageStatus(StrEnum):
+    COVERED = "COVERED"
+    PARTIAL = "PARTIAL"
+    MISSING = "MISSING"
+    UNKNOWN = "UNKNOWN"
+
+
+class RepairLineageType(StrEnum):
+    REPAIR = "REPAIR"
+    REVERSION = "REVERSION"
+    SUPERSESSION = "SUPERSESSION"
+    FOLLOW_UP = "FOLLOW_UP"
+
+
+class AttemptOutcome(StrEnum):
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+    TIMED_OUT = "TIMED_OUT"
+    DUPLICATE = "DUPLICATE"
+    ROLLED_BACK = "ROLLED_BACK"
+    OUT_OF_SCOPE = "OUT_OF_SCOPE"
+    REJECTED = "REJECTED"
+    NO_CHANGE = "NO_CHANGE"
+
+
+class DossierSourceClass(StrEnum):
+    RAW_EVENT = "RAW_EVENT"
+    TOOL_ARTIFACT = "TOOL_ARTIFACT"
+    HUMAN_REVIEW = "HUMAN_REVIEW"
+    MODEL_REPORTED = "MODEL_REPORTED"
+    LEGACY = "LEGACY"
+    UNKNOWN = "UNKNOWN"
+
+
+class HierarchyNodeType(StrEnum):
+    EPISODE = "EPISODE"
+    RESULT_FAMILY = "RESULT_FAMILY"
+    DEPENDENCY_METHOD = "DEPENDENCY_METHOD"
+    CLAIM_ATOM = "CLAIM_ATOM"
+    FORMAL_TARGET_BUNDLE = "FORMAL_TARGET_BUNDLE"
+    MANUSCRIPT_SECTION = "MANUSCRIPT_SECTION"
+    SOURCE_FILE = "SOURCE_FILE"
+    CHALLENGE_CONFIG = "CHALLENGE_CONFIG"
 
 
 class PluginCategory(StrEnum):
@@ -346,6 +493,16 @@ class RouteCreate(BaseModel):
     revival_conditions: list[str] = Field(default_factory=list)
     actor: Actor = Field(default_factory=lambda: Actor(type=ActorType.HUMAN, id="local-researcher"))
 
+    @field_validator("initial_state")
+    @classmethod
+    def _initial_state_not_closed(cls, value: RouteState) -> RouteState:
+        if value == RouteState.CERTIFIED_CLOSED:
+            raise ValueError(
+                "CERTIFIED_CLOSED cannot be an initial state; it requires "
+                "human confirmation and closure evidence via a state transition"
+            )
+        return value
+
 
 class RouteRecord(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -380,6 +537,16 @@ class RouteSplitChild(BaseModel):
     description: str = Field(default="", max_length=8000)
     initial_state: RouteState = RouteState.SEED
     revival_conditions: list[str] = Field(default_factory=list)
+
+    @field_validator("initial_state")
+    @classmethod
+    def _initial_state_not_closed(cls, value: RouteState) -> RouteState:
+        if value == RouteState.CERTIFIED_CLOSED:
+            raise ValueError(
+                "CERTIFIED_CLOSED cannot be an initial state; it requires "
+                "human confirmation and closure evidence via a state transition"
+            )
+        return value
 
 
 class RouteSplitRequest(BaseModel):
@@ -432,6 +599,13 @@ class BranchCreate(BaseModel):
     initial_state: BranchState = BranchState.SEED
     actor: Actor = Field(default_factory=lambda: Actor(type=ActorType.HUMAN, id="local-researcher"))
 
+    @field_validator("initial_state")
+    @classmethod
+    def _initial_state_not_terminal(cls, value: BranchState) -> BranchState:
+        if value == BranchState.COMPLETED:
+            raise ValueError("COMPLETED cannot be an initial state")
+        return value
+
 
 class BranchRecord(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -444,6 +618,7 @@ class BranchRecord(BaseModel):
     description: str = ""
     assumptions: list[str] = Field(default_factory=list)
     parameters: dict[str, Any] = Field(default_factory=dict)
+    objections: list[str] = Field(default_factory=list)
     state: BranchState
     created_at: datetime
     updated_at: datetime
@@ -664,8 +839,634 @@ class EventRecord(BaseModel):
     epistemic_delta_type: EpistemicDeltaType | None = None
     previous_event_hash: str | None = None
     event_hash: str
+    # Alpha.5 control-plane metadata. These remain optional so Alpha.1–Alpha.4
+    # event lines can be read without rewriting historical JSONL.
+    revision: int | None = Field(default=None, ge=1)
+    batch_id: UUID | None = None
+    idempotency_key: str | None = Field(default=None, max_length=240)
+    command_id: str | None = Field(default=None, max_length=240)
 
     _schema_version = field_validator("schema_version")(_validate_schema_version)
+
+
+class ResearchStateSnapshot(BaseModel):
+    """Rebuildable four-plane state snapshot for the Alpha.5 transition kernel."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    project_id: UUID
+    revision: int = Field(default=0, ge=0)
+    operational: dict[str, Any] = Field(default_factory=dict)
+    epistemic: dict[str, Any] = Field(default_factory=dict)
+    claim: dict[str, Any] = Field(default_factory=dict)
+    artifact: dict[str, Any] = Field(default_factory=dict)
+    as_of: datetime
+
+
+class TransitionProposalCreate(BaseModel):
+    """Observable state proposal; creating it does not change any plane."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    trigger_class: TransitionTriggerClass
+    trigger_evidence_refs: list[str] = Field(default_factory=list)
+    accepted_delta: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    rejected_components: list[str] = Field(default_factory=list)
+    next_obligation_refs: list[str] = Field(default_factory=list)
+    handoff_refs: list[str] = Field(default_factory=list)
+    visibility: TransitionVisibility = TransitionVisibility.NOT_ESTABLISHED
+    proposal_actor: Actor
+
+    @field_validator("accepted_delta")
+    @classmethod
+    def validate_plane_keys(cls, value: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+        allowed = {plane.value for plane in ResearchPlane}
+        unknown = set(value) - allowed
+        if unknown:
+            raise ValueError(f"accepted_delta contains unknown research planes: {sorted(unknown)}")
+        return value
+
+
+class TransitionProposalRecord(TransitionProposalCreate):
+    proposal_id: UUID
+    project_id: UUID
+    status: TransitionProposalStatus = TransitionProposalStatus.PROPOSED
+    created_at: datetime
+
+
+class TransitionAcceptanceCreate(BaseModel):
+    """Human/mechanism acceptance of a previously proposed transition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    acceptance_actor: Actor
+    acceptance_mechanism: str = Field(min_length=1, max_length=240)
+    accepted: bool = True
+    rejection_reason: str = Field(default="", max_length=4000)
+
+
+class ResearchStateTransitionRecord(BaseModel):
+    """Accepted or rejected transition with explicit M2 provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    transition_id: UUID
+    proposal_id: UUID
+    project_id: UUID
+    from_revision: int = Field(ge=0)
+    to_revision: int = Field(ge=0)
+    trigger_class: TransitionTriggerClass
+    trigger_evidence_refs: list[str] = Field(default_factory=list)
+    proposal_actor: Actor
+    acceptance_actor_or_mechanism_ref: str
+    accepted_delta: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    rejected_components: list[str] = Field(default_factory=list)
+    next_obligation_refs: list[str] = Field(default_factory=list)
+    handoff_refs: list[str] = Field(default_factory=list)
+    visibility: TransitionVisibility
+    accepted: bool
+    rejection_reason: str = ""
+    idempotency_key: str
+    accepted_at: datetime
+
+
+class CommandReceipt(BaseModel):
+    """Stable receipt returned by a command that touched the event stream."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    command_id: UUID
+    project_id: UUID
+    operation: str
+    accepted: bool
+    idempotent_replay: bool = False
+    from_revision: int = Field(ge=0)
+    to_revision: int = Field(ge=0)
+    event_ids: list[UUID] = Field(default_factory=list)
+    batch_id: UUID | None = None
+    projection_revision: int = Field(ge=0)
+    error: str | None = None
+
+
+class ContinuationContractCreate(BaseModel):
+    """Typed end-of-episode instruction; it never hides an unrecorded action."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    decision: ContinuationDecision
+    scope: str = Field(min_length=1, max_length=4000)
+    obligation_refs: list[str] = Field(default_factory=list)
+    handoff_refs: list[str] = Field(default_factory=list)
+    reason: str = Field(default="", max_length=4000)
+    human_confirmed: bool = False
+    actor: Actor
+
+    @model_validator(mode="after")
+    def require_human_for_run_next(self) -> ContinuationContractCreate:
+        if self.decision is ContinuationDecision.RUN_NEXT and (
+            self.actor.type is not ActorType.HUMAN or not self.human_confirmed
+        ):
+            raise ValueError("RUN_NEXT requires explicit human confirmation")
+        return self
+
+
+class ContinuationContractRecord(ContinuationContractCreate):
+    contract_id: UUID
+    project_id: UUID
+    source_revision: int = Field(ge=0)
+    status: ContinuationStatus = ContinuationStatus.RECORDED
+    created_at: datetime
+
+
+class HandoffPacketV2Create(BaseModel):
+    """Evidence-oriented handoff packet; all claims remain source-referenced."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    scope: str = Field(min_length=1, max_length=4000)
+    tool_hashes: list[str] = Field(default_factory=list)
+    fact_evidence_refs: list[str] = Field(default_factory=list)
+    failure_evidence_refs: list[str] = Field(default_factory=list)
+    revival_conditions: list[str] = Field(default_factory=list)
+    obligation_refs: list[str] = Field(default_factory=list)
+    next_receiver_refs: list[str] = Field(default_factory=list)
+    source_session_ref: UUID | None = None
+    actor: Actor
+
+
+class HandoffPacketV2Record(HandoffPacketV2Create):
+    packet_id: UUID
+    project_id: UUID
+    from_revision: int = Field(ge=0)
+    packet_hash: str = Field(min_length=64, max_length=64)
+    status: HandoffPacketStatus = HandoffPacketStatus.PENDING
+    created_at: datetime
+
+
+class HandoffDecisionCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    accepted: bool
+    reason: str = Field(default="", max_length=4000)
+    acceptance_actor: Actor
+
+
+class HandoffReceipt(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    receipt_id: UUID
+    packet_id: UUID
+    project_id: UUID
+    accepted: bool
+    reason: str = ""
+    from_revision: int = Field(ge=0)
+    to_revision: int = Field(ge=0)
+    acceptance_actor: Actor
+    accepted_at: datetime
+
+
+class ClaimAtomCreate(BaseModel):
+    """A source-addressed claim proposal; acceptance is performed by M1."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    statement: str = Field(min_length=1, max_length=16000)
+    source_refs: list[str] = Field(default_factory=list)
+    source_class: ClaimSourceClass = ClaimSourceClass.UNKNOWN
+    interpretation: str = Field(default="", max_length=16000)
+    definitions: dict[str, str] = Field(default_factory=dict)
+    quantifiers: list[str] = Field(default_factory=list)
+    scope: dict[str, Any] = Field(default_factory=dict)
+    relations: list[str] = Field(default_factory=list)
+    open_obligation_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class ClaimAtomRecord(ClaimAtomCreate):
+    claim_id: UUID
+    project_id: UUID
+    version: int = Field(default=1, ge=1)
+    state: ClaimState = ClaimState.UNRESOLVED
+    as_of: datetime
+
+
+class ClaimRelationCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    source_claim_id: UUID
+    target_claim_id: UUID
+    relation: ClaimRelationType
+    evidence_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class ClaimRelationRecord(ClaimRelationCreate):
+    relation_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class EvidenceDimension(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_refs: list[str] = Field(default_factory=list)
+    status: EvidenceDimensionStatus = EvidenceDimensionStatus.UNKNOWN
+    evaluator_ref: str = ""
+    note: str = Field(default="", max_length=4000)
+
+
+class ReviewLineage(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lineage_id: UUID
+    reviewer_family: str = ""
+    organization: str = ""
+    editor: str = ""
+    source_material_refs: list[str] = Field(default_factory=list)
+    formatter: str = ""
+    checker: str = ""
+    scope: str = ""
+    unchecked_items: list[str] = Field(default_factory=list)
+    independence_group: str = ""
+    correlation_flags: list[str] = Field(default_factory=list)
+
+
+class ReviewLineageCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    reviewer_family: str = ""
+    organization: str = ""
+    editor: str = ""
+    source_material_refs: list[str] = Field(default_factory=list)
+    formatter: str = ""
+    checker: str = ""
+    scope: str = ""
+    unchecked_items: list[str] = Field(default_factory=list)
+    independence_group: str = ""
+    correlation_flags: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class EvidenceCardCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    claim_id: UUID
+    dimensions: dict[EvidenceDimensionName, EvidenceDimension]
+    review_lineage_ref: UUID | None = None
+    actor: Actor
+
+    @model_validator(mode="after")
+    def require_all_dimensions(self) -> EvidenceCardCreate:
+        missing = set(EvidenceDimensionName) - set(self.dimensions)
+        if missing:
+            raise ValueError(f"evidence card is missing dimensions: {sorted(item.value for item in missing)}")
+        return self
+
+
+class EvidenceCardRecord(EvidenceCardCreate):
+    card_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class ReviewLineageRecord(ReviewLineage):
+    project_id: UUID
+    created_at: datetime
+
+
+class MutationObservation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mutation_id: str = Field(min_length=1, max_length=240)
+    expected: str
+    observed: str
+    passed: bool
+    note: str = ""
+
+
+class VerificationExecutionManifestCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    command: list[str] = Field(min_length=1, max_length=64)
+    working_directory: str = ""
+    environment_fingerprint: dict[str, str] = Field(default_factory=dict)
+    dependency_lock_refs: list[str] = Field(default_factory=list)
+    exit_status: int | None = None
+    stdout_artifact_ref: str | None = None
+    stderr_artifact_ref: str | None = None
+    verification_check_ids: list[str] = Field(default_factory=list)
+    axiom_ceiling: list[str] = Field(default_factory=list)
+    target_scope: str = ""
+    timeout_seconds: int | None = Field(default=None, ge=1)
+    status: VerificationExecutionStatus = VerificationExecutionStatus.CONFIGURED
+    actor: Actor
+
+
+class VerificationExecutionManifestRecord(VerificationExecutionManifestCreate):
+    execution_id: UUID
+    project_id: UUID
+    executed_at: datetime
+    manifest_sha256: str = Field(min_length=64, max_length=64)
+
+
+class VerificationMutationSetCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    execution_id: UUID
+    mutations: list[MutationObservation] = Field(min_length=1)
+    actor: Actor
+
+
+class VerificationMutationSetRecord(VerificationMutationSetCreate):
+    mutation_set_id: UUID
+    project_id: UUID
+    created_at: datetime
+    all_expected_failures: bool
+
+
+class FormalCoverageBindingCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    challenge_id: str
+    headline_statement_ref: str
+    covered_declaration_refs: list[str] = Field(default_factory=list)
+    missing_declaration_refs: list[str] = Field(default_factory=list)
+    status: CoverageStatus = CoverageStatus.UNKNOWN
+    actor: Actor
+
+
+class FormalCoverageBindingRecord(FormalCoverageBindingCreate):
+    binding_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class RepositorySnapshotCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    repository_url: str = ""
+    ref: str = ""
+    commit: str = ""
+    observed_at: datetime
+    parent_commit: str | None = None
+    diff_ref: str | None = None
+    actor: Actor
+
+
+class RepositorySnapshotRecord(RepositorySnapshotCreate):
+    snapshot_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class RepairLineageCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    repair_type: RepairLineageType
+    input_refs: list[str] = Field(default_factory=list)
+    output_refs: list[str] = Field(default_factory=list)
+    affected_claim_refs: list[str] = Field(default_factory=list)
+    downstream_reopen_obligations: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class RepairLineageRecord(RepairLineageCreate):
+    repair_id: UUID
+    project_id: UUID
+    created_at: datetime
+    repair_sha256: str = Field(min_length=64, max_length=64)
+
+
+class ResearchHierarchyNodeCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    node_type: HierarchyNodeType
+    label: str = Field(min_length=1, max_length=4000)
+    parent_refs: list[str] = Field(default_factory=list)
+    source_refs: list[str] = Field(default_factory=list)
+    payload: dict[str, Any] = Field(default_factory=dict)
+    actor: Actor
+
+
+class ResearchHierarchyNodeRecord(ResearchHierarchyNodeCreate):
+    node_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class AttemptRecordCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    target_ref: str
+    method_ref: str = ""
+    outcome: AttemptOutcome
+    started_at: datetime
+    completed_at: datetime | None = None
+    input_refs: list[str] = Field(default_factory=list)
+    output_refs: list[str] = Field(default_factory=list)
+    failure_observations: list[str] = Field(default_factory=list)
+    no_change_reason: str = ""
+    actor: Actor
+
+
+class AttemptRecord(AttemptRecordCreate):
+    attempt_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class CostVector(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    discovery: float = Field(default=0, ge=0)
+    failed_attempts: float = Field(default=0, ge=0)
+    human_selection: float = Field(default=0, ge=0)
+    human_binding: float = Field(default=0, ge=0)
+    human_review: float = Field(default=0, ge=0)
+    compute: float = Field(default=0, ge=0)
+    formalization: float = Field(default=0, ge=0)
+    checking: float = Field(default=0, ge=0)
+    independent_reproduction: float = Field(default=0, ge=0)
+    infrastructure: float = Field(default=0, ge=0)
+
+
+class CostVectorRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    cost_id: UUID
+    project_id: UUID
+    scope_ref: str
+    currency: str = "USD"
+    vector: CostVector
+    source_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+    created_at: datetime
+
+
+class CostVectorCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    scope_ref: str
+    currency: str = "USD"
+    vector: CostVector
+    source_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class MicroFalsificationPlanCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    target_ref: str
+    hypotheses: list[str] = Field(min_length=1)
+    tests: list[str] = Field(min_length=1)
+    stopping_conditions: list[str] = Field(default_factory=list)
+    evidence_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class MicroFalsificationPlanRecord(MicroFalsificationPlanCreate):
+    plan_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+class BenchmarkBindingCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    benchmark_ref: str
+    target_refs: list[str] = Field(default_factory=list)
+    metric_definition: str
+    baseline_ref: str = ""
+    result_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class BenchmarkBindingRecord(BenchmarkBindingCreate):
+    binding_id: UUID
+    project_id: UUID
+    created_at: datetime
+
+
+DOSSIER_V2_FIELD_NAMES = (
+    "episode_identity",
+    "target_specification",
+    "scope_and_definitions",
+    "operational_configuration",
+    "model_and_tool_identifiers",
+    "input_provenance",
+    "raw_event_coverage",
+    "search_topology",
+    "attempt_outcomes",
+    "failure_observations",
+    "negative_pressure",
+    "claim_atoms",
+    "claim_relations",
+    "artifact_inventory",
+    "verification_manifests",
+    "formal_coverage",
+    "axiom_ceiling",
+    "kernel_execution",
+    "independent_reproduction",
+    "review_lineage",
+    "repair_lineage",
+    "continuation_contract",
+    "handoff_receipts",
+    "cost_vector",
+    "micro_falsification",
+    "benchmark_binding",
+    "unresolved_obligations",
+)
+
+
+class DossierField(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    value: Any = None
+    source_class: DossierSourceClass = DossierSourceClass.UNKNOWN
+    source_refs: list[str] = Field(default_factory=list)
+
+
+class ResearchEpisodeDossierV2Create(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    episode_ref: str
+    fields: dict[str, DossierField]
+    actor: Actor
+
+    @model_validator(mode="after")
+    def require_27_fields(self) -> ResearchEpisodeDossierV2Create:
+        required = set(DOSSIER_V2_FIELD_NAMES)
+        missing = required - set(self.fields)
+        if missing:
+            raise ValueError(f"dossier v2 is missing fields: {sorted(missing)}")
+        return self
+
+
+class ResearchEpisodeDossierV2Record(ResearchEpisodeDossierV2Create):
+    dossier_id: UUID
+    project_id: UUID
+    dossier_sha256: str = Field(min_length=64, max_length=64)
+    created_at: datetime
+
+
+class QuestionAgendaCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    expected_revision: int = Field(ge=0)
+    idempotency_key: str = Field(min_length=1, max_length=240)
+    episode_ref: str
+    target_specification: str
+    questions: list[dict[str, Any]] = Field(default_factory=list)
+    parent_child_edges: list[tuple[str, str]] = Field(default_factory=list)
+    source_refs: list[str] = Field(default_factory=list)
+    actor: Actor
+
+
+class QuestionAgendaRecord(QuestionAgendaCreate):
+    agenda_id: UUID
+    project_id: UUID
+    coverage_score: float = Field(ge=0, le=1)
+    created_at: datetime
 
 
 class ArtifactRecord(BaseModel):
@@ -816,6 +1617,18 @@ class PluginManifestRecord(BaseModel):
     version: str = Field(min_length=1, max_length=80)
     name: str = Field(min_length=1, max_length=240)
     description: str = Field(default="", max_length=4000)
+
+    @field_validator("plugin_id", "version")
+    @classmethod
+    def _no_path_characters(cls, value: str) -> str:
+        if not value or any(ch.isspace() or ord(ch) < 0x20 for ch in value):
+            raise ValueError(f"must not contain whitespace or control characters: {value!r}")
+        if value.startswith(".") or ".." in value or "/" in value or "\\" in value:
+            raise ValueError(
+                f"must not contain path separators or '..': {value!r}"
+            )
+        return value
+
     category: PluginCategory = PluginCategory.COMPUTE
     runner_type: PluginRunnerType = PluginRunnerType.PYTHON
     capabilities: list[str] = Field(default_factory=list)

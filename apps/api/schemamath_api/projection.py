@@ -9,19 +9,41 @@ from pathlib import Path
 from .domain import (
     ArenaRecipeRecord,
     ArtifactRecord,
+    AttemptRecord,
+    BenchmarkBindingRecord,
     BranchRecord,
     BridgeResultRecord,
     CanvasSnapshotRecord,
     ChallengeRecord,
     ChatImportPreviewRecord,
+    ClaimAtomRecord,
+    ClaimRelationRecord,
+    ContinuationContractRecord,
+    CostVectorRecord,
     DeadEndConstraintRecord,
     EventRecord,
+    EvidenceCardRecord,
+    FormalCoverageBindingRecord,
     HandoffArtifactRecord,
+    HandoffPacketStatus,
+    HandoffPacketV2Record,
+    HandoffReceipt,
+    MicroFalsificationPlanRecord,
     ModelSessionRecord,
     PluginRunRecord,
     ProjectPluginRecord,
+    QuestionAgendaRecord,
+    RepairLineageRecord,
+    RepositorySnapshotRecord,
     ResearchCheckpointRecord,
+    ResearchEpisodeDossierV2Record,
+    ResearchHierarchyNodeRecord,
+    ResearchStateTransitionRecord,
+    ReviewLineageRecord,
     RouteRecord,
+    TransitionProposalRecord,
+    VerificationExecutionManifestRecord,
+    VerificationMutationSetRecord,
 )
 
 SCHEMA_SQL = """
@@ -41,7 +63,11 @@ CREATE TABLE IF NOT EXISTS events (
     epistemic_delta_type TEXT,
     artifact_refs_json TEXT NOT NULL DEFAULT '[]',
     payload_json TEXT NOT NULL,
-    event_hash TEXT NOT NULL UNIQUE
+    event_hash TEXT NOT NULL UNIQUE,
+    revision INTEGER,
+    batch_id TEXT,
+    idempotency_key TEXT,
+    command_id TEXT
 );
 
 CREATE TABLE IF NOT EXISTS routes (
@@ -67,6 +93,7 @@ CREATE TABLE IF NOT EXISTS branches (
     description TEXT NOT NULL,
     assumptions_json TEXT NOT NULL,
     parameters_json TEXT NOT NULL,
+    objections_json TEXT NOT NULL DEFAULT '[]',
     state TEXT NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
@@ -202,6 +229,189 @@ CREATE TABLE IF NOT EXISTS visual_artifacts (
     created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS transition_proposals (
+    proposal_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS research_state_transitions (
+    transition_id TEXT PRIMARY KEY,
+    proposal_id TEXT NOT NULL,
+    project_id TEXT NOT NULL,
+    accepted INTEGER NOT NULL,
+    from_revision INTEGER NOT NULL,
+    to_revision INTEGER NOT NULL,
+    record_json TEXT NOT NULL,
+    accepted_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS continuation_contracts (
+    contract_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    decision TEXT NOT NULL,
+    status TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS handoff_packets_v2 (
+    packet_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    packet_hash TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS handoff_receipts (
+    receipt_id TEXT PRIMARY KEY,
+    packet_id TEXT NOT NULL,
+    project_id TEXT NOT NULL,
+    accepted INTEGER NOT NULL,
+    record_json TEXT NOT NULL,
+    accepted_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS claim_atoms (
+    claim_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    version INTEGER NOT NULL,
+    state TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    as_of TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS claim_relations (
+    relation_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    source_claim_id TEXT NOT NULL,
+    target_claim_id TEXT NOT NULL,
+    relation TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS review_lineage (
+    lineage_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS evidence_cards (
+    card_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    claim_id TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verification_execution_manifests (
+    execution_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    manifest_sha256 TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    executed_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS formal_coverage_bindings (
+    binding_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    challenge_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS repository_snapshots (
+    snapshot_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    commit_ref TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS repair_lineage (
+    repair_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    repair_type TEXT NOT NULL,
+    repair_sha256 TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS research_hierarchy_nodes (
+    node_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    node_type TEXT NOT NULL,
+    label TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS attempt_records (
+    attempt_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    target_ref TEXT NOT NULL,
+    outcome TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cost_vectors (
+    cost_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    scope_ref TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS micro_falsification_plans (
+    plan_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    target_ref TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS benchmark_bindings (
+    binding_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    benchmark_ref TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dossier_v2 (
+    dossier_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    episode_ref TEXT NOT NULL,
+    dossier_sha256 TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS verification_mutation_sets (
+    mutation_set_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    execution_id TEXT NOT NULL,
+    all_expected_failures INTEGER NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS question_agendas (
+    agenda_id TEXT PRIMARY KEY,
+    project_id TEXT NOT NULL,
+    episode_ref TEXT NOT NULL,
+    record_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS projection_migrations (
     version INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
@@ -222,16 +432,39 @@ CREATE INDEX IF NOT EXISTS idx_model_sessions_created ON model_sessions(created_
 CREATE INDEX IF NOT EXISTS idx_handoffs_created ON handoff_artifacts(created_at);
 CREATE INDEX IF NOT EXISTS idx_arena_recipes_created ON arena_recipes(created_at);
 CREATE INDEX IF NOT EXISTS idx_visual_artifacts_created ON visual_artifacts(created_at);
+CREATE INDEX IF NOT EXISTS idx_events_idempotency ON events(idempotency_key);
+CREATE INDEX IF NOT EXISTS idx_transition_proposals_project ON transition_proposals(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_state_transitions_project ON research_state_transitions(project_id, accepted_at);
+CREATE INDEX IF NOT EXISTS idx_continuation_contracts_project ON continuation_contracts(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_handoff_packets_v2_project ON handoff_packets_v2(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_claim_atoms_project ON claim_atoms(project_id, as_of);
+CREATE INDEX IF NOT EXISTS idx_claim_relations_project ON claim_relations(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_evidence_cards_claim ON evidence_cards(project_id, claim_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_verification_manifests_project ON verification_execution_manifests(project_id, executed_at);
+CREATE INDEX IF NOT EXISTS idx_coverage_bindings_project ON formal_coverage_bindings(project_id, challenge_id);
+CREATE INDEX IF NOT EXISTS idx_repository_snapshots_project ON repository_snapshots(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_repair_lineage_project ON repair_lineage(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_hierarchy_nodes_project ON research_hierarchy_nodes(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_attempt_records_project ON attempt_records(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_cost_vectors_project ON cost_vectors(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_falsification_plans_project ON micro_falsification_plans(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_benchmark_bindings_project ON benchmark_bindings(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_dossier_v2_project ON dossier_v2(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_mutation_sets_project ON verification_mutation_sets(project_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_question_agendas_project ON question_agendas(project_id, created_at);
 """
 
 
 class ProjectionStore:
-    CURRENT_SCHEMA_VERSION = 4
+    CURRENT_SCHEMA_VERSION = 7
     MIGRATIONS: tuple[tuple[int, str], ...] = (
         (1, "event-branch-and-artifact-references"),
         (2, "epistemic-delta-columns"),
         (3, "project-plugin-record"),
         (4, "alpha3-record-projections"),
+        (5, "alpha5-transition-records-and-event-provenance"),
+        (6, "alpha5-evidence-verification-and-dossier-projections"),
+        (7, "branch-objection-projections"),
     )
 
     def __init__(self, database_path: Path) -> None:
@@ -276,6 +509,27 @@ class ProjectionStore:
                 self._ensure_column(connection, "events", "epistemic_delta_type", "TEXT")
             elif version == 3:
                 self._ensure_column(connection, "project_plugins", "record_json", "TEXT")
+            elif version == 4:
+                # alpha3-record-projections: the alpha3 tables are created by
+                # SCHEMA_SQL (IF NOT EXISTS), which runs before migrations on
+                # every initialize(), so a database predating alpha3 gets them
+                # here; no column additions to pre-existing tables are needed.
+                pass
+            elif version == 5:
+                self._ensure_column(connection, "events", "revision", "INTEGER")
+                self._ensure_column(connection, "events", "batch_id", "TEXT")
+                self._ensure_column(connection, "events", "idempotency_key", "TEXT")
+                self._ensure_column(connection, "events", "command_id", "TEXT")
+            elif version == 6:
+                # alpha5-evidence-verification-and-dossier-projections: the new
+                # tables (evidence_cards, verification_execution_manifests,
+                # dossier_v2, ...) are likewise covered by SCHEMA_SQL; the only
+                # pre-existing-table columns alpha5 added are in migration 5.
+                pass
+            elif version == 7:
+                self._ensure_column(
+                    connection, "branches", "objections_json", "TEXT NOT NULL DEFAULT '[]'"
+                )
             connection.execute(
                 "INSERT INTO projection_migrations (version, name) VALUES (?, ?)",
                 (version, name),
@@ -308,8 +562,9 @@ class ProjectionStore:
                 INSERT OR IGNORE INTO events (
                     event_id, event_type, timestamp, actor_type, actor_id,
                     route_id, branch_id, epistemic_delta, epistemic_delta_type,
-                    artifact_refs_json, payload_json, event_hash
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    artifact_refs_json, payload_json, event_hash, revision,
+                    batch_id, idempotency_key, command_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     str(event.event_id),
@@ -324,6 +579,10 @@ class ProjectionStore:
                     json.dumps(event.artifact_refs, ensure_ascii=False),
                     json.dumps(event.payload, ensure_ascii=False, sort_keys=True),
                     event.event_hash,
+                    event.revision,
+                    str(event.batch_id) if event.batch_id else None,
+                    event.idempotency_key,
+                    event.command_id,
                 ),
             )
             self._apply_domain_event(connection, event)
@@ -345,22 +604,40 @@ class ProjectionStore:
                     str(event.route_id),
                 ),
             )
-        elif kind == "OBJECTION_ADDED" and event.route_id is not None:
-            row = connection.execute(
-                "SELECT objections_json FROM routes WHERE route_id = ?",
-                (str(event.route_id),),
-            ).fetchone()
-            if row:
-                objections = json.loads(row["objections_json"])
-                objections.append(event.payload["content"])
-                connection.execute(
-                    "UPDATE routes SET objections_json = ?, updated_at = ? WHERE route_id = ?",
-                    (
-                        json.dumps(objections, ensure_ascii=False),
-                        event.timestamp.isoformat(),
-                        str(event.route_id),
-                    ),
-                )
+        elif kind == "OBJECTION_ADDED":
+            content = event.payload["content"]
+            if event.route_id is not None:
+                row = connection.execute(
+                    "SELECT objections_json FROM routes WHERE route_id = ?",
+                    (str(event.route_id),),
+                ).fetchone()
+                if row:
+                    objections = json.loads(row["objections_json"])
+                    objections.append(content)
+                    connection.execute(
+                        "UPDATE routes SET objections_json = ?, updated_at = ? WHERE route_id = ?",
+                        (
+                            json.dumps(objections, ensure_ascii=False),
+                            event.timestamp.isoformat(),
+                            str(event.route_id),
+                        ),
+                    )
+            if event.branch_id is not None:
+                row = connection.execute(
+                    "SELECT objections_json FROM branches WHERE branch_id = ?",
+                    (str(event.branch_id),),
+                ).fetchone()
+                if row:
+                    objections = json.loads(row["objections_json"])
+                    objections.append(content)
+                    connection.execute(
+                        "UPDATE branches SET objections_json = ?, updated_at = ? WHERE branch_id = ?",
+                        (
+                            json.dumps(objections, ensure_ascii=False),
+                            event.timestamp.isoformat(),
+                            str(event.branch_id),
+                        ),
+                    )
         elif kind == "BRANCH_CREATED":
             self._insert_branch(connection, BranchRecord.model_validate(event.payload["branch"]))
         elif kind == "BRANCH_STATE_CHANGED":
@@ -531,6 +808,410 @@ class ProjectionStore:
                 "INSERT INTO visual_artifacts (visual_id, record_json, created_at) VALUES (?, ?, ?)",
                 (str(record.visual_id), record.model_dump_json(), record.created_at.isoformat()),
             )
+        elif kind == "RESEARCH_STATE_TRANSITION_PROPOSED":
+            record = TransitionProposalRecord.model_validate(event.payload["proposal"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO transition_proposals (
+                    proposal_id, project_id, status, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(record.proposal_id),
+                    str(record.project_id),
+                    record.status.value,
+                    record.model_dump_json(),
+                    record.created_at.isoformat(),
+                ),
+            )
+        elif kind in {
+            "RESEARCH_STATE_TRANSITION_ACCEPTED",
+            "RESEARCH_STATE_TRANSITION_REJECTED",
+        }:
+            record = ResearchStateTransitionRecord.model_validate(event.payload["transition"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO research_state_transitions (
+                    transition_id, proposal_id, project_id, accepted,
+                    from_revision, to_revision, record_json, accepted_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(record.transition_id),
+                    str(record.proposal_id),
+                    str(record.project_id),
+                    int(record.accepted),
+                    record.from_revision,
+                    record.to_revision,
+                    record.model_dump_json(),
+                    record.accepted_at.isoformat(),
+                ),
+            )
+            connection.execute(
+                "UPDATE transition_proposals SET status = ?, record_json = ? WHERE proposal_id = ?",
+                (
+                    "ACCEPTED" if record.accepted else "REJECTED",
+                    json.dumps(
+                        {
+                            **json.loads(
+                                connection.execute(
+                                    "SELECT record_json FROM transition_proposals WHERE proposal_id = ?",
+                                    (str(record.proposal_id),),
+                                ).fetchone()["record_json"]
+                            ),
+                            "status": "ACCEPTED" if record.accepted else "REJECTED",
+                        },
+                        ensure_ascii=False,
+                    ),
+                    str(record.proposal_id),
+                ),
+            )
+            if record.accepted:
+                for claim_payload in record.accepted_delta.get("claim", {}).get("atoms", {}).values():
+                    claim = ClaimAtomRecord.model_validate(claim_payload)
+                    connection.execute(
+                        """
+                        INSERT OR REPLACE INTO claim_atoms (
+                            claim_id, project_id, version, state, record_json, as_of
+                        ) VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                        (
+                            str(claim.claim_id),
+                            str(claim.project_id),
+                            claim.version,
+                            claim.state.value,
+                            claim.model_dump_json(),
+                            claim.as_of.isoformat(),
+                        ),
+                    )
+        elif kind == "CONTINUATION_CONTRACT_RECORDED":
+            record = ContinuationContractRecord.model_validate(event.payload["contract"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO continuation_contracts (
+                    contract_id, project_id, decision, status, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(record.contract_id),
+                    str(record.project_id),
+                    record.decision.value,
+                    record.status.value,
+                    record.model_dump_json(),
+                    record.created_at.isoformat(),
+                ),
+            )
+        elif kind == "HANDOFF_PACKET_V2_CREATED":
+            record = HandoffPacketV2Record.model_validate(event.payload["packet"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO handoff_packets_v2 (
+                    packet_id, project_id, status, packet_hash, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(record.packet_id),
+                    str(record.project_id),
+                    record.status.value,
+                    record.packet_hash,
+                    record.model_dump_json(),
+                    record.created_at.isoformat(),
+                ),
+            )
+        elif kind in {"HANDOFF_ACCEPTED", "HANDOFF_REJECTED"}:
+            receipt = HandoffReceipt.model_validate(event.payload["receipt"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO handoff_receipts (
+                    receipt_id, packet_id, project_id, accepted, record_json, accepted_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(receipt.receipt_id),
+                    str(receipt.packet_id),
+                    str(receipt.project_id),
+                    int(receipt.accepted),
+                    receipt.model_dump_json(),
+                    receipt.accepted_at.isoformat(),
+                ),
+            )
+            packet_row = connection.execute(
+                "SELECT record_json FROM handoff_packets_v2 WHERE packet_id = ?",
+                (str(receipt.packet_id),),
+            ).fetchone()
+            if packet_row:
+                packet = HandoffPacketV2Record.model_validate_json(packet_row["record_json"])
+                packet = packet.model_copy(
+                    update={
+                        "status": (
+                            HandoffPacketStatus.ACCEPTED
+                            if receipt.accepted
+                            else HandoffPacketStatus.REJECTED
+                        )
+                    }
+                )
+                connection.execute(
+                    "UPDATE handoff_packets_v2 SET status = ?, record_json = ? WHERE packet_id = ?",
+                    (
+                        packet.status.value,
+                        packet.model_dump_json(),
+                        str(receipt.packet_id),
+                    ),
+                )
+        elif kind == "CLAIM_RELATION_CREATED":
+            relation = ClaimRelationRecord.model_validate(event.payload["relation"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO claim_relations (
+                    relation_id, project_id, source_claim_id, target_claim_id,
+                    relation, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(relation.relation_id),
+                    str(relation.project_id),
+                    str(relation.source_claim_id),
+                    str(relation.target_claim_id),
+                    relation.relation.value,
+                    relation.model_dump_json(),
+                    relation.created_at.isoformat(),
+                ),
+            )
+        elif kind == "REVIEW_LINEAGE_CREATED":
+            lineage = ReviewLineageRecord.model_validate(event.payload["lineage"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO review_lineage (
+                    lineage_id, project_id, record_json, created_at
+                ) VALUES (?, ?, ?, ?)
+                """,
+                (
+                    str(lineage.lineage_id),
+                    str(lineage.project_id),
+                    lineage.model_dump_json(),
+                    lineage.created_at.isoformat(),
+                ),
+            )
+        elif kind == "EVIDENCE_CARD_CREATED":
+            card = EvidenceCardRecord.model_validate(event.payload["evidence_card"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO evidence_cards (
+                    card_id, project_id, claim_id, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(card.card_id),
+                    str(card.project_id),
+                    str(card.claim_id),
+                    card.model_dump_json(),
+                    card.created_at.isoformat(),
+                ),
+            )
+        elif kind == "VERIFICATION_EXECUTION_MANIFEST_RECORDED":
+            manifest = VerificationExecutionManifestRecord.model_validate(
+                event.payload["manifest"]
+            )
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO verification_execution_manifests (
+                    execution_id, project_id, status, manifest_sha256, record_json, executed_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(manifest.execution_id),
+                    str(manifest.project_id),
+                    manifest.status.value,
+                    manifest.manifest_sha256,
+                    manifest.model_dump_json(),
+                    manifest.executed_at.isoformat(),
+                ),
+            )
+        elif kind == "FORMAL_COVERAGE_BINDING_RECORDED":
+            binding = FormalCoverageBindingRecord.model_validate(event.payload["binding"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO formal_coverage_bindings (
+                    binding_id, project_id, challenge_id, status, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(binding.binding_id),
+                    str(binding.project_id),
+                    binding.challenge_id,
+                    binding.status.value,
+                    binding.model_dump_json(),
+                    binding.created_at.isoformat(),
+                ),
+            )
+        elif kind == "REPOSITORY_SNAPSHOT_RECORDED":
+            snapshot = RepositorySnapshotRecord.model_validate(event.payload["snapshot"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO repository_snapshots (
+                    snapshot_id, project_id, commit_ref, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(snapshot.snapshot_id),
+                    str(snapshot.project_id),
+                    snapshot.commit,
+                    snapshot.model_dump_json(),
+                    snapshot.created_at.isoformat(),
+                ),
+            )
+        elif kind == "REPAIR_LINEAGE_RECORDED":
+            repair = RepairLineageRecord.model_validate(event.payload["repair"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO repair_lineage (
+                    repair_id, project_id, repair_type, repair_sha256, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(repair.repair_id),
+                    str(repair.project_id),
+                    repair.repair_type.value,
+                    repair.repair_sha256,
+                    repair.model_dump_json(),
+                    repair.created_at.isoformat(),
+                ),
+            )
+        elif kind == "RESEARCH_HIERARCHY_NODE_RECORDED":
+            node = ResearchHierarchyNodeRecord.model_validate(event.payload["node"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO research_hierarchy_nodes (
+                    node_id, project_id, node_type, label, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(node.node_id),
+                    str(node.project_id),
+                    node.node_type.value,
+                    node.label,
+                    node.model_dump_json(),
+                    node.created_at.isoformat(),
+                ),
+            )
+        elif kind == "ATTEMPT_RECORDED":
+            attempt = AttemptRecord.model_validate(event.payload["attempt"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO attempt_records (
+                    attempt_id, project_id, target_ref, outcome, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(attempt.attempt_id),
+                    str(attempt.project_id),
+                    attempt.target_ref,
+                    attempt.outcome.value,
+                    attempt.model_dump_json(),
+                    attempt.created_at.isoformat(),
+                ),
+            )
+        elif kind == "COST_VECTOR_RECORDED":
+            cost = CostVectorRecord.model_validate(event.payload["cost"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO cost_vectors (
+                    cost_id, project_id, scope_ref, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(cost.cost_id),
+                    str(cost.project_id),
+                    cost.scope_ref,
+                    cost.model_dump_json(),
+                    cost.created_at.isoformat(),
+                ),
+            )
+        elif kind == "MICRO_FALSIFICATION_PLAN_RECORDED":
+            plan = MicroFalsificationPlanRecord.model_validate(event.payload["plan"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO micro_falsification_plans (
+                    plan_id, project_id, target_ref, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(plan.plan_id),
+                    str(plan.project_id),
+                    plan.target_ref,
+                    plan.model_dump_json(),
+                    plan.created_at.isoformat(),
+                ),
+            )
+        elif kind == "BENCHMARK_BINDING_RECORDED":
+            binding = BenchmarkBindingRecord.model_validate(event.payload["binding"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO benchmark_bindings (
+                    binding_id, project_id, benchmark_ref, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(binding.binding_id),
+                    str(binding.project_id),
+                    binding.benchmark_ref,
+                    binding.model_dump_json(),
+                    binding.created_at.isoformat(),
+                ),
+            )
+        elif kind == "DOSSIER_V2_RECORDED":
+            dossier = ResearchEpisodeDossierV2Record.model_validate(event.payload["dossier"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO dossier_v2 (
+                    dossier_id, project_id, episode_ref, dossier_sha256, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(dossier.dossier_id),
+                    str(dossier.project_id),
+                    dossier.episode_ref,
+                    dossier.dossier_sha256,
+                    dossier.model_dump_json(),
+                    dossier.created_at.isoformat(),
+                ),
+            )
+        elif kind == "VERIFICATION_MUTATION_SET_RECORDED":
+            mutation_set = VerificationMutationSetRecord.model_validate(
+                event.payload["mutation_set"]
+            )
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO verification_mutation_sets (
+                    mutation_set_id, project_id, execution_id,
+                    all_expected_failures, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(mutation_set.mutation_set_id),
+                    str(mutation_set.project_id),
+                    str(mutation_set.execution_id),
+                    int(mutation_set.all_expected_failures),
+                    mutation_set.model_dump_json(),
+                    mutation_set.created_at.isoformat(),
+                ),
+            )
+        elif kind == "QUESTION_AGENDA_RECORDED":
+            agenda = QuestionAgendaRecord.model_validate(event.payload["agenda"])
+            connection.execute(
+                """
+                INSERT OR REPLACE INTO question_agendas (
+                    agenda_id, project_id, episode_ref, record_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    str(agenda.agenda_id),
+                    str(agenda.project_id),
+                    agenda.episode_ref,
+                    agenda.model_dump_json(),
+                    agenda.created_at.isoformat(),
+                ),
+            )
 
     @staticmethod
     def _insert_route(connection: sqlite3.Connection, route: RouteRecord) -> None:
@@ -563,9 +1244,9 @@ class ProjectionStore:
             """
             INSERT INTO branches (
                 branch_id, project_id, route_id, parent_branch_id, title,
-                description, assumptions_json, parameters_json, state,
-                created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                description, assumptions_json, parameters_json, objections_json,
+                state, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 str(branch.branch_id),
@@ -576,6 +1257,7 @@ class ProjectionStore:
                 branch.description,
                 json.dumps(branch.assumptions, ensure_ascii=False),
                 json.dumps(branch.parameters, ensure_ascii=False, sort_keys=True),
+                json.dumps(branch.objections, ensure_ascii=False),
                 branch.state.value,
                 branch.created_at.isoformat(),
                 branch.updated_at.isoformat(),
@@ -874,6 +1556,145 @@ class ProjectionStore:
             ).fetchone()
         return ArenaRecipeRecord.model_validate_json(row["record_json"]) if row else None
 
+    def list_continuation_contracts(self) -> list[ContinuationContractRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM continuation_contracts ORDER BY created_at"
+            ).fetchall()
+        return [ContinuationContractRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_handoff_packets_v2(self) -> list[HandoffPacketV2Record]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM handoff_packets_v2 ORDER BY created_at"
+            ).fetchall()
+        return [HandoffPacketV2Record.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_handoff_receipts(self) -> list[HandoffReceipt]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM handoff_receipts ORDER BY accepted_at"
+            ).fetchall()
+        return [HandoffReceipt.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_claim_atoms(self) -> list[ClaimAtomRecord]:
+        with self.connect() as connection:
+            rows = connection.execute("SELECT record_json FROM claim_atoms ORDER BY as_of").fetchall()
+        return [ClaimAtomRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def get_claim_atom(self, claim_id: str) -> ClaimAtomRecord | None:
+        with self.connect() as connection:
+            row = connection.execute(
+                "SELECT record_json FROM claim_atoms WHERE claim_id = ?", (claim_id,)
+            ).fetchone()
+        return ClaimAtomRecord.model_validate_json(row["record_json"]) if row else None
+
+    def list_claim_relations(self) -> list[ClaimRelationRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM claim_relations ORDER BY created_at"
+            ).fetchall()
+        return [ClaimRelationRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_review_lineage(self) -> list[ReviewLineageRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM review_lineage ORDER BY created_at"
+            ).fetchall()
+        return [ReviewLineageRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_evidence_cards(self) -> list[EvidenceCardRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM evidence_cards ORDER BY created_at"
+            ).fetchall()
+        return [EvidenceCardRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_verification_manifests(self) -> list[VerificationExecutionManifestRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM verification_execution_manifests ORDER BY executed_at"
+            ).fetchall()
+        return [
+            VerificationExecutionManifestRecord.model_validate_json(row["record_json"])
+            for row in rows
+        ]
+
+    def list_coverage_bindings(self) -> list[FormalCoverageBindingRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM formal_coverage_bindings ORDER BY created_at"
+            ).fetchall()
+        return [FormalCoverageBindingRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_repository_snapshots(self) -> list[RepositorySnapshotRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM repository_snapshots ORDER BY created_at"
+            ).fetchall()
+        return [RepositorySnapshotRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_repair_lineage(self) -> list[RepairLineageRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM repair_lineage ORDER BY created_at"
+            ).fetchall()
+        return [RepairLineageRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_hierarchy_nodes(self) -> list[ResearchHierarchyNodeRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM research_hierarchy_nodes ORDER BY created_at"
+            ).fetchall()
+        return [ResearchHierarchyNodeRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_attempt_records(self) -> list[AttemptRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM attempt_records ORDER BY created_at"
+            ).fetchall()
+        return [AttemptRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_cost_vectors(self) -> list[CostVectorRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM cost_vectors ORDER BY created_at"
+            ).fetchall()
+        return [CostVectorRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_falsification_plans(self) -> list[MicroFalsificationPlanRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM micro_falsification_plans ORDER BY created_at"
+            ).fetchall()
+        return [MicroFalsificationPlanRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_benchmark_bindings(self) -> list[BenchmarkBindingRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM benchmark_bindings ORDER BY created_at"
+            ).fetchall()
+        return [BenchmarkBindingRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_dossiers_v2(self) -> list[ResearchEpisodeDossierV2Record]:
+        with self.connect() as connection:
+            rows = connection.execute("SELECT record_json FROM dossier_v2 ORDER BY created_at").fetchall()
+        return [ResearchEpisodeDossierV2Record.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_mutation_sets(self) -> list[VerificationMutationSetRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM verification_mutation_sets ORDER BY created_at"
+            ).fetchall()
+        return [VerificationMutationSetRecord.model_validate_json(row["record_json"]) for row in rows]
+
+    def list_question_agendas(self) -> list[QuestionAgendaRecord]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT record_json FROM question_agendas ORDER BY created_at"
+            ).fetchall()
+        return [QuestionAgendaRecord.model_validate_json(row["record_json"]) for row in rows]
+
     def list_visual_artifacts(self) -> list[CanvasSnapshotRecord]:
         with self.connect() as connection:
             rows = connection.execute(
@@ -924,6 +1745,7 @@ class ProjectionStore:
                 "description": row["description"],
                 "assumptions": json.loads(row["assumptions_json"]),
                 "parameters": json.loads(row["parameters_json"]),
+                "objections": json.loads(row["objections_json"]),
                 "state": row["state"],
                 "created_at": row["created_at"],
                 "updated_at": row["updated_at"],

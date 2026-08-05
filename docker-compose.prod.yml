@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: proofflow/proofflow-api:0.1.0-alpha.4
+    image: proofflow/proofflow-api:0.1.0-alpha.5
     container_name: proofflow_api
     ports:
       - "127.0.0.1:8000:8000"

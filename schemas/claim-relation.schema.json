@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "ClaimRelationType": {
+      "enum": [
+        "SUPPORTS",
+        "REFUTES",
+        "SUPERSEDES",
+        "DERIVED_FROM"
+      ],
+      "title": "ClaimRelationType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "source_claim_id": {
+      "format": "uuid",
+      "title": "Source Claim Id",
+      "type": "string"
+    },
+    "target_claim_id": {
+      "format": "uuid",
+      "title": "Target Claim Id",
+      "type": "string"
+    },
+    "relation": {
+      "$ref": "#/$defs/ClaimRelationType"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "relation_id": {
+      "format": "uuid",
+      "title": "Relation Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "source_claim_id",
+    "target_claim_id",
+    "relation",
+    "actor",
+    "relation_id",
+    "project_id",
+    "created_at"
+  ],
+  "title": "ClaimRelationRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/claim-relation.schema.json"
+}

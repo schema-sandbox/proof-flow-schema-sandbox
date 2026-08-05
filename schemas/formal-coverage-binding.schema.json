@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "CoverageStatus": {
+      "enum": [
+        "COVERED",
+        "PARTIAL",
+        "MISSING",
+        "UNKNOWN"
+      ],
+      "title": "CoverageStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "challenge_id": {
+      "title": "Challenge Id",
+      "type": "string"
+    },
+    "headline_statement_ref": {
+      "title": "Headline Statement Ref",
+      "type": "string"
+    },
+    "covered_declaration_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Covered Declaration Refs",
+      "type": "array"
+    },
+    "missing_declaration_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Declaration Refs",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/CoverageStatus",
+      "default": "UNKNOWN"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "binding_id": {
+      "format": "uuid",
+      "title": "Binding Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "challenge_id",
+    "headline_statement_ref",
+    "actor",
+    "binding_id",
+    "project_id",
+    "created_at"
+  ],
+  "title": "FormalCoverageBindingRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/formal-coverage-binding.schema.json"
+}

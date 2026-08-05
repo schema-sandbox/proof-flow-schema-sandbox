@@ -57,6 +57,8 @@ class Transaction:
     proposed_events: list[dict[str, Any]] = field(default_factory=list)
     proposed_artifacts: list[ProposedArtifact] = field(default_factory=list)
     state_mutations: list[Callable[[], None]] = field(default_factory=list)
+    expected_revision: int | None = None
+    idempotency_key: str | None = None
 
 
 @dataclass(frozen=True)
@@ -153,38 +155,28 @@ class TransactionExecutor:
                         shutil.copy2(stage_dir / sha256_hash, target_file)
                         committed_blobs.append(target_file)
 
-            # Phase 3: Commit Events to EventStore
+            # Phase 3: Apply State Mutations BEFORE the durable event commit. The
+            # event append is the atomic commit point: if a mutation raises here,
+            # nothing has been persisted and a true rollback is reported instead
+            # of claiming rolled_back after events already entered the chain.
+            for mutation in tx.state_mutations:
+                mutation()
+
+            # Phase 4: Commit Events to EventStore (the durable commit point)
             if tx.proposed_events:
                 store = self._event_store
                 if not store and events_path:
                     store = EventStore(events_path)
 
                 if store and tx.project_id:
-                    from schemamath_api.domain import Actor, ActorType
-
-                    for ev_data in tx.proposed_events:
-                        actor_raw = ev_data.get("actor", {"type": "RUNTIME", "id": "k0"})
-                        if isinstance(actor_raw, dict):
-                            actor_obj = Actor.model_validate(actor_raw)
-                        elif isinstance(actor_raw, Actor):
-                            actor_obj = actor_raw
-                        else:
-                            actor_obj = Actor(type=ActorType.RUNTIME, id="k0")
-
-                        rec = store.append(
-                            project_id=tx.project_id,
-                            event_type=ev_data.get("event_type", "GENERIC_ACTION"),
-                            actor=actor_obj,
-                            payload=ev_data.get("payload"),
-                            route_id=ev_data.get("route_id"),
-                            branch_id=ev_data.get("branch_id"),
-                            artifact_refs=ev_data.get("artifact_refs"),
-                        )
-                        committed_events.append(str(rec.event_id))
-
-            # Phase 4: Apply State Mutations
-            for mutation in tx.state_mutations:
-                mutation()
+                    committed_records = store.append_batch(
+                        project_id=tx.project_id,
+                        events=list(tx.proposed_events),
+                        expected_revision=tx.expected_revision,
+                        idempotency_key=tx.idempotency_key,
+                        batch_id=tx.tx_id,
+                    )
+                    committed_events.extend(str(record.event_id) for record in committed_records)
 
             return TransactionResult(
                 tx_id=tx.tx_id,

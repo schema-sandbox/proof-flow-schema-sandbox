@@ -26,6 +26,8 @@ def _resolve_ui_dirs() -> tuple[Path | None, Path | None]:
     source_root = Path(__file__).resolve().parents[3]
     source_prototype = source_root / "prototype"
     source_web = source_root / "apps" / "web" / "dist"
+    prototype: Path | None = None
+    web_dist: Path | None = None
 
     from importlib.resources import files as _package_files
 
@@ -79,6 +81,19 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def security_headers(request, call_next):
+        response = await call_next(request)
+        if response.headers.get("content-type", "").startswith("text/html"):
+            response.headers.setdefault(
+                "Content-Security-Policy",
+                "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+                "img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; "
+                "worker-src 'self' blob:; object-src 'none'; base-uri 'self'; "
+                "frame-ancestors 'none'",
+            )
+        return response
 
     app.dependency_overrides[api_module.get_service] = lambda: service
     app.include_router(api_module.router)

@@ -1,0 +1,181 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "ClaimSourceClass": {
+      "enum": [
+        "DIRECT_OBSERVATION",
+        "TOOL_RESULT",
+        "FORMAL_EXECUTION",
+        "AUTHOR_REPORTED",
+        "LEGACY",
+        "UNKNOWN"
+      ],
+      "title": "ClaimSourceClass",
+      "type": "string"
+    },
+    "ClaimState": {
+      "enum": [
+        "UNRESOLVED",
+        "CANDIDATE",
+        "SUPPORTED",
+        "REFUTED",
+        "SUPERSEDED"
+      ],
+      "title": "ClaimState",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "statement": {
+      "maxLength": 16000,
+      "minLength": 1,
+      "title": "Statement",
+      "type": "string"
+    },
+    "source_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Refs",
+      "type": "array"
+    },
+    "source_class": {
+      "$ref": "#/$defs/ClaimSourceClass",
+      "default": "UNKNOWN"
+    },
+    "interpretation": {
+      "default": "",
+      "maxLength": 16000,
+      "title": "Interpretation",
+      "type": "string"
+    },
+    "definitions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Definitions",
+      "type": "object"
+    },
+    "quantifiers": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Quantifiers",
+      "type": "array"
+    },
+    "scope": {
+      "additionalProperties": true,
+      "title": "Scope",
+      "type": "object"
+    },
+    "relations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Relations",
+      "type": "array"
+    },
+    "open_obligation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Open Obligation Refs",
+      "type": "array"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "claim_id": {
+      "format": "uuid",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "version": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "state": {
+      "$ref": "#/$defs/ClaimState",
+      "default": "UNRESOLVED"
+    },
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "statement",
+    "actor",
+    "claim_id",
+    "project_id",
+    "as_of"
+  ],
+  "title": "ClaimAtomRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/claim-atom.schema.json"
+}

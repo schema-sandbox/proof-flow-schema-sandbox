@@ -1,0 +1,155 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "EvidenceDimension": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/EvidenceDimensionStatus",
+          "default": "UNKNOWN"
+        },
+        "evaluator_ref": {
+          "default": "",
+          "title": "Evaluator Ref",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "maxLength": 4000,
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "EvidenceDimension",
+      "type": "object"
+    },
+    "EvidenceDimensionName": {
+      "enum": [
+        "provenance",
+        "artifact_accessibility",
+        "derivation_validity",
+        "independent_reproduction",
+        "negative_pressure",
+        "auditability"
+      ],
+      "title": "EvidenceDimensionName",
+      "type": "string"
+    },
+    "EvidenceDimensionStatus": {
+      "enum": [
+        "UNKNOWN",
+        "SUPPORTED",
+        "PARTIAL",
+        "FAILED",
+        "NOT_APPLICABLE"
+      ],
+      "title": "EvidenceDimensionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "claim_id": {
+      "format": "uuid",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "dimensions": {
+      "additionalProperties": {
+        "$ref": "#/$defs/EvidenceDimension"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/EvidenceDimensionName"
+      },
+      "title": "Dimensions",
+      "type": "object"
+    },
+    "review_lineage_ref": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Review Lineage Ref"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "claim_id",
+    "dimensions",
+    "actor"
+  ],
+  "title": "EvidenceCardCreate",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/evidence-card-create.schema.json"
+}

@@ -3,7 +3,7 @@
   "info": {
     "title": "ProofFlow Schema Sandbox Local API",
     "description": "Local-first experimental research workspace. It does not promise solutions and does not automatically label results as solved.",
-    "version": "0.1.0-alpha.4"
+    "version": "0.1.0-alpha.5"
   },
   "paths": {
     "/api/v1/projects": {
@@ -1189,6 +1189,1716 @@
         }
       }
     },
+    "/api/v1/projects/{project_id}/command-receipts": {
+      "get": {
+        "summary": "List Command Receipts",
+        "operationId": "list_command_receipts_api_v1_projects__project_id__command_receipts_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandReceipt"
+                  },
+                  "title": "Response List Command Receipts Api V1 Projects  Project Id  Command Receipts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/transition-proposals": {
+      "post": {
+        "summary": "Create Transition Proposal",
+        "operationId": "create_transition_proposal_api_v1_projects__project_id__transition_proposals_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionProposalCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransitionProposalRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Transition Proposals",
+        "operationId": "list_transition_proposals_api_v1_projects__project_id__transition_proposals_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransitionProposalRecord"
+                  },
+                  "title": "Response List Transition Proposals Api V1 Projects  Project Id  Transition Proposals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/transition-proposals/{proposal_id}/accept": {
+      "post": {
+        "summary": "Accept Transition Proposal",
+        "operationId": "accept_transition_proposal_api_v1_projects__project_id__transition_proposals__proposal_id__accept_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "proposal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Proposal Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionAcceptanceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchStateTransitionRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/research-state": {
+      "get": {
+        "summary": "Get Research State",
+        "operationId": "get_research_state_api_v1_projects__project_id__research_state_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchStateSnapshot"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/claim-atoms/proposals": {
+      "post": {
+        "summary": "Propose Claim Atom",
+        "operationId": "propose_claim_atom_api_v1_projects__project_id__claim_atoms_proposals_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimAtomCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransitionProposalRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/claim-atoms": {
+      "get": {
+        "summary": "List Claim Atoms",
+        "operationId": "list_claim_atoms_api_v1_projects__project_id__claim_atoms_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClaimAtomRecord"
+                  },
+                  "title": "Response List Claim Atoms Api V1 Projects  Project Id  Claim Atoms Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/claim-relations": {
+      "post": {
+        "summary": "Create Claim Relation",
+        "operationId": "create_claim_relation_api_v1_projects__project_id__claim_relations_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClaimRelationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimRelationRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Claim Relations",
+        "operationId": "list_claim_relations_api_v1_projects__project_id__claim_relations_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClaimRelationRecord"
+                  },
+                  "title": "Response List Claim Relations Api V1 Projects  Project Id  Claim Relations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/review-lineage": {
+      "post": {
+        "summary": "Create Review Lineage",
+        "operationId": "create_review_lineage_api_v1_projects__project_id__review_lineage_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewLineageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewLineageRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Review Lineage",
+        "operationId": "list_review_lineage_api_v1_projects__project_id__review_lineage_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReviewLineageRecord"
+                  },
+                  "title": "Response List Review Lineage Api V1 Projects  Project Id  Review Lineage Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/evidence-cards": {
+      "post": {
+        "summary": "Create Evidence Card",
+        "operationId": "create_evidence_card_api_v1_projects__project_id__evidence_cards_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceCardCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceCardRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Evidence Cards",
+        "operationId": "list_evidence_cards_api_v1_projects__project_id__evidence_cards_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EvidenceCardRecord"
+                  },
+                  "title": "Response List Evidence Cards Api V1 Projects  Project Id  Evidence Cards Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/verification-manifests": {
+      "post": {
+        "summary": "Create Verification Manifest",
+        "operationId": "create_verification_manifest_api_v1_projects__project_id__verification_manifests_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationExecutionManifestCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationExecutionManifestRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Verification Manifests",
+        "operationId": "list_verification_manifests_api_v1_projects__project_id__verification_manifests_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VerificationExecutionManifestRecord"
+                  },
+                  "title": "Response List Verification Manifests Api V1 Projects  Project Id  Verification Manifests Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/verification-mutation-sets": {
+      "post": {
+        "summary": "Create Mutation Set",
+        "operationId": "create_mutation_set_api_v1_projects__project_id__verification_mutation_sets_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationMutationSetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationMutationSetRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Mutation Sets",
+        "operationId": "list_mutation_sets_api_v1_projects__project_id__verification_mutation_sets_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VerificationMutationSetRecord"
+                  },
+                  "title": "Response List Mutation Sets Api V1 Projects  Project Id  Verification Mutation Sets Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/coverage-bindings": {
+      "post": {
+        "summary": "Create Coverage Binding",
+        "operationId": "create_coverage_binding_api_v1_projects__project_id__coverage_bindings_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FormalCoverageBindingCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormalCoverageBindingRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Coverage Bindings",
+        "operationId": "list_coverage_bindings_api_v1_projects__project_id__coverage_bindings_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FormalCoverageBindingRecord"
+                  },
+                  "title": "Response List Coverage Bindings Api V1 Projects  Project Id  Coverage Bindings Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/repository-snapshots": {
+      "post": {
+        "summary": "Create Repository Snapshot",
+        "operationId": "create_repository_snapshot_api_v1_projects__project_id__repository_snapshots_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepositorySnapshotCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepositorySnapshotRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Repository Snapshots",
+        "operationId": "list_repository_snapshots_api_v1_projects__project_id__repository_snapshots_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositorySnapshotRecord"
+                  },
+                  "title": "Response List Repository Snapshots Api V1 Projects  Project Id  Repository Snapshots Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/repair-lineage": {
+      "post": {
+        "summary": "Create Repair Lineage",
+        "operationId": "create_repair_lineage_api_v1_projects__project_id__repair_lineage_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepairLineageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepairLineageRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Repair Lineage",
+        "operationId": "list_repair_lineage_api_v1_projects__project_id__repair_lineage_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepairLineageRecord"
+                  },
+                  "title": "Response List Repair Lineage Api V1 Projects  Project Id  Repair Lineage Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/hierarchy-nodes": {
+      "post": {
+        "summary": "Create Hierarchy Node",
+        "operationId": "create_hierarchy_node_api_v1_projects__project_id__hierarchy_nodes_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResearchHierarchyNodeCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchHierarchyNodeRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Hierarchy Nodes",
+        "operationId": "list_hierarchy_nodes_api_v1_projects__project_id__hierarchy_nodes_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResearchHierarchyNodeRecord"
+                  },
+                  "title": "Response List Hierarchy Nodes Api V1 Projects  Project Id  Hierarchy Nodes Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/attempts": {
+      "post": {
+        "summary": "Create Attempt Record",
+        "operationId": "create_attempt_record_api_v1_projects__project_id__attempts_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttemptRecordCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Attempt Records",
+        "operationId": "list_attempt_records_api_v1_projects__project_id__attempts_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttemptRecord"
+                  },
+                  "title": "Response List Attempt Records Api V1 Projects  Project Id  Attempts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/cost-vectors": {
+      "post": {
+        "summary": "Create Cost Vector",
+        "operationId": "create_cost_vector_api_v1_projects__project_id__cost_vectors_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CostVectorCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CostVectorRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Cost Vectors",
+        "operationId": "list_cost_vectors_api_v1_projects__project_id__cost_vectors_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CostVectorRecord"
+                  },
+                  "title": "Response List Cost Vectors Api V1 Projects  Project Id  Cost Vectors Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/falsification-plans": {
+      "post": {
+        "summary": "Create Falsification Plan",
+        "operationId": "create_falsification_plan_api_v1_projects__project_id__falsification_plans_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MicroFalsificationPlanCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MicroFalsificationPlanRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Falsification Plans",
+        "operationId": "list_falsification_plans_api_v1_projects__project_id__falsification_plans_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MicroFalsificationPlanRecord"
+                  },
+                  "title": "Response List Falsification Plans Api V1 Projects  Project Id  Falsification Plans Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/benchmark-bindings": {
+      "post": {
+        "summary": "Create Benchmark Binding",
+        "operationId": "create_benchmark_binding_api_v1_projects__project_id__benchmark_bindings_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BenchmarkBindingCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BenchmarkBindingRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Benchmark Bindings",
+        "operationId": "list_benchmark_bindings_api_v1_projects__project_id__benchmark_bindings_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BenchmarkBindingRecord"
+                  },
+                  "title": "Response List Benchmark Bindings Api V1 Projects  Project Id  Benchmark Bindings Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/dossiers-v2": {
+      "post": {
+        "summary": "Create Dossier V2",
+        "operationId": "create_dossier_v2_api_v1_projects__project_id__dossiers_v2_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResearchEpisodeDossierV2Create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchEpisodeDossierV2Record"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Dossiers V2",
+        "operationId": "list_dossiers_v2_api_v1_projects__project_id__dossiers_v2_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResearchEpisodeDossierV2Record"
+                  },
+                  "title": "Response List Dossiers V2 Api V1 Projects  Project Id  Dossiers V2 Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/question-agendas": {
+      "post": {
+        "summary": "Create Question Agenda",
+        "operationId": "create_question_agenda_api_v1_projects__project_id__question_agendas_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionAgendaCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionAgendaRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Question Agendas",
+        "operationId": "list_question_agendas_api_v1_projects__project_id__question_agendas_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QuestionAgendaRecord"
+                  },
+                  "title": "Response List Question Agendas Api V1 Projects  Project Id  Question Agendas Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/projects/{project_id}/artifacts": {
       "post": {
         "summary": "Add Artifact",
@@ -2279,6 +3989,294 @@
         }
       }
     },
+    "/api/v1/projects/{project_id}/continuation-contracts": {
+      "post": {
+        "summary": "Create Continuation Contract",
+        "operationId": "create_continuation_contract_api_v1_projects__project_id__continuation_contracts_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContinuationContractCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContinuationContractRecord"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Continuation Contracts",
+        "operationId": "list_continuation_contracts_api_v1_projects__project_id__continuation_contracts_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContinuationContractRecord"
+                  },
+                  "title": "Response List Continuation Contracts Api V1 Projects  Project Id  Continuation Contracts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/handoffs-v2": {
+      "post": {
+        "summary": "Create Handoff Packet V2",
+        "operationId": "create_handoff_packet_v2_api_v1_projects__project_id__handoffs_v2_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandoffPacketV2Create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandoffPacketV2Record"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List Handoff Packets V2",
+        "operationId": "list_handoff_packets_v2_api_v1_projects__project_id__handoffs_v2_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HandoffPacketV2Record"
+                  },
+                  "title": "Response List Handoff Packets V2 Api V1 Projects  Project Id  Handoffs V2 Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/handoffs-v2/{packet_id}/accept": {
+      "post": {
+        "summary": "Accept Handoff Packet V2",
+        "operationId": "accept_handoff_packet_v2_api_v1_projects__project_id__handoffs_v2__packet_id__accept_post",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "packet_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Packet Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HandoffDecisionCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HandoffReceipt"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/projects/{project_id}/handoff-receipts": {
+      "get": {
+        "summary": "List Handoff Receipts",
+        "operationId": "list_handoff_receipts_api_v1_projects__project_id__handoff_receipts_get",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HandoffReceipt"
+                  },
+                  "title": "Response List Handoff Receipts Api V1 Projects  Project Id  Handoff Receipts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/projects/{project_id}/arena-recipes": {
       "post": {
         "summary": "Create Arena Recipe",
@@ -3319,6 +5317,334 @@
         ],
         "title": "ArtifactType"
       },
+      "AttemptOutcome": {
+        "type": "string",
+        "enum": [
+          "SUCCESS",
+          "FAILURE",
+          "TIMED_OUT",
+          "DUPLICATE",
+          "ROLLED_BACK",
+          "OUT_OF_SCOPE",
+          "REJECTED",
+          "NO_CHANGE"
+        ],
+        "title": "AttemptOutcome"
+      },
+      "AttemptRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "target_ref": {
+            "type": "string",
+            "title": "Target Ref"
+          },
+          "method_ref": {
+            "type": "string",
+            "title": "Method Ref",
+            "default": ""
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AttemptOutcome"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "input_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Input Refs"
+          },
+          "output_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Output Refs"
+          },
+          "failure_observations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failure Observations"
+          },
+          "no_change_reason": {
+            "type": "string",
+            "title": "No Change Reason",
+            "default": ""
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "attempt_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Attempt Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "target_ref",
+          "outcome",
+          "started_at",
+          "actor",
+          "attempt_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "AttemptRecord"
+      },
+      "AttemptRecordCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "target_ref": {
+            "type": "string",
+            "title": "Target Ref"
+          },
+          "method_ref": {
+            "type": "string",
+            "title": "Method Ref",
+            "default": ""
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/AttemptOutcome"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "input_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Input Refs"
+          },
+          "output_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Output Refs"
+          },
+          "failure_observations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failure Observations"
+          },
+          "no_change_reason": {
+            "type": "string",
+            "title": "No Change Reason",
+            "default": ""
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "target_ref",
+          "outcome",
+          "started_at",
+          "actor"
+        ],
+        "title": "AttemptRecordCreate"
+      },
+      "BenchmarkBindingCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "benchmark_ref": {
+            "type": "string",
+            "title": "Benchmark Ref"
+          },
+          "target_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Refs"
+          },
+          "metric_definition": {
+            "type": "string",
+            "title": "Metric Definition"
+          },
+          "baseline_ref": {
+            "type": "string",
+            "title": "Baseline Ref",
+            "default": ""
+          },
+          "result_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Result Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "benchmark_ref",
+          "metric_definition",
+          "actor"
+        ],
+        "title": "BenchmarkBindingCreate"
+      },
+      "BenchmarkBindingRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "benchmark_ref": {
+            "type": "string",
+            "title": "Benchmark Ref"
+          },
+          "target_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Target Refs"
+          },
+          "metric_definition": {
+            "type": "string",
+            "title": "Metric Definition"
+          },
+          "baseline_ref": {
+            "type": "string",
+            "title": "Baseline Ref",
+            "default": ""
+          },
+          "result_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Result Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "binding_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Binding Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "benchmark_ref",
+          "metric_definition",
+          "actor",
+          "binding_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "BenchmarkBindingRecord"
+      },
       "Body_add_artifact_api_v1_projects__project_id__artifacts_post": {
         "properties": {
           "file": {
@@ -3568,6 +5894,13 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Parameters"
+          },
+          "objections": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Objections"
           },
           "state": {
             "$ref": "#/components/schemas/BranchState"
@@ -4382,6 +6715,436 @@
         ],
         "title": "CheckpointConfidence"
       },
+      "ClaimAtomCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "statement": {
+            "type": "string",
+            "maxLength": 16000,
+            "minLength": 1,
+            "title": "Statement"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "source_class": {
+            "$ref": "#/components/schemas/ClaimSourceClass",
+            "default": "UNKNOWN"
+          },
+          "interpretation": {
+            "type": "string",
+            "maxLength": 16000,
+            "title": "Interpretation",
+            "default": ""
+          },
+          "definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Definitions"
+          },
+          "quantifiers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quantifiers"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Scope"
+          },
+          "relations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Relations"
+          },
+          "open_obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Open Obligation Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "statement",
+          "actor"
+        ],
+        "title": "ClaimAtomCreate",
+        "description": "A source-addressed claim proposal; acceptance is performed by M1."
+      },
+      "ClaimAtomRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "statement": {
+            "type": "string",
+            "maxLength": 16000,
+            "minLength": 1,
+            "title": "Statement"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "source_class": {
+            "$ref": "#/components/schemas/ClaimSourceClass",
+            "default": "UNKNOWN"
+          },
+          "interpretation": {
+            "type": "string",
+            "maxLength": 16000,
+            "title": "Interpretation",
+            "default": ""
+          },
+          "definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Definitions"
+          },
+          "quantifiers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Quantifiers"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Scope"
+          },
+          "relations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Relations"
+          },
+          "open_obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Open Obligation Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Claim Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version",
+            "default": 1
+          },
+          "state": {
+            "$ref": "#/components/schemas/ClaimState",
+            "default": "UNRESOLVED"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "statement",
+          "actor",
+          "claim_id",
+          "project_id",
+          "as_of"
+        ],
+        "title": "ClaimAtomRecord"
+      },
+      "ClaimRelationCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "source_claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Claim Id"
+          },
+          "target_claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Target Claim Id"
+          },
+          "relation": {
+            "$ref": "#/components/schemas/ClaimRelationType"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "source_claim_id",
+          "target_claim_id",
+          "relation",
+          "actor"
+        ],
+        "title": "ClaimRelationCreate"
+      },
+      "ClaimRelationRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "source_claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Claim Id"
+          },
+          "target_claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Target Claim Id"
+          },
+          "relation": {
+            "$ref": "#/components/schemas/ClaimRelationType"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "relation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Relation Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "source_claim_id",
+          "target_claim_id",
+          "relation",
+          "actor",
+          "relation_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "ClaimRelationRecord"
+      },
+      "ClaimRelationType": {
+        "type": "string",
+        "enum": [
+          "SUPPORTS",
+          "REFUTES",
+          "SUPERSEDES",
+          "DERIVED_FROM"
+        ],
+        "title": "ClaimRelationType"
+      },
+      "ClaimSourceClass": {
+        "type": "string",
+        "enum": [
+          "DIRECT_OBSERVATION",
+          "TOOL_RESULT",
+          "FORMAL_EXECUTION",
+          "AUTHOR_REPORTED",
+          "LEGACY",
+          "UNKNOWN"
+        ],
+        "title": "ClaimSourceClass"
+      },
+      "ClaimState": {
+        "type": "string",
+        "enum": [
+          "UNRESOLVED",
+          "CANDIDATE",
+          "SUPPORTED",
+          "REFUTED",
+          "SUPERSEDED"
+        ],
+        "title": "ClaimState"
+      },
+      "CommandReceipt": {
+        "properties": {
+          "command_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Command Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "operation": {
+            "type": "string",
+            "title": "Operation"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "idempotent_replay": {
+            "type": "boolean",
+            "title": "Idempotent Replay",
+            "default": false
+          },
+          "from_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "From Revision"
+          },
+          "to_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "To Revision"
+          },
+          "event_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Event Ids"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "projection_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Projection Revision"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "command_id",
+          "project_id",
+          "operation",
+          "accepted",
+          "from_revision",
+          "to_revision",
+          "projection_revision"
+        ],
+        "title": "CommandReceipt",
+        "description": "Stable receipt returned by a command that touched the event stream."
+      },
       "ConnectorType": {
         "type": "string",
         "enum": [
@@ -4392,6 +7155,355 @@
           "future_plugin"
         ],
         "title": "ConnectorType"
+      },
+      "ContinuationContractCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ContinuationDecision"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Scope"
+          },
+          "obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Obligation Refs"
+          },
+          "handoff_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Handoff Refs"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Reason",
+            "default": ""
+          },
+          "human_confirmed": {
+            "type": "boolean",
+            "title": "Human Confirmed",
+            "default": false
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "decision",
+          "scope",
+          "actor"
+        ],
+        "title": "ContinuationContractCreate",
+        "description": "Typed end-of-episode instruction; it never hides an unrecorded action."
+      },
+      "ContinuationContractRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ContinuationDecision"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Scope"
+          },
+          "obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Obligation Refs"
+          },
+          "handoff_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Handoff Refs"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Reason",
+            "default": ""
+          },
+          "human_confirmed": {
+            "type": "boolean",
+            "title": "Human Confirmed",
+            "default": false
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "contract_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Contract Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "source_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Source Revision"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ContinuationStatus",
+            "default": "RECORDED"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "decision",
+          "scope",
+          "actor",
+          "contract_id",
+          "project_id",
+          "source_revision",
+          "created_at"
+        ],
+        "title": "ContinuationContractRecord"
+      },
+      "ContinuationDecision": {
+        "type": "string",
+        "enum": [
+          "RUN_NEXT",
+          "WAIT",
+          "REDIRECT",
+          "ASK_HUMAN",
+          "STOP",
+          "NO_CHANGE"
+        ],
+        "title": "ContinuationDecision"
+      },
+      "ContinuationStatus": {
+        "type": "string",
+        "enum": [
+          "RECORDED",
+          "REJECTED"
+        ],
+        "title": "ContinuationStatus"
+      },
+      "CostVector": {
+        "properties": {
+          "discovery": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Discovery",
+            "default": 0
+          },
+          "failed_attempts": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Failed Attempts",
+            "default": 0
+          },
+          "human_selection": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Human Selection",
+            "default": 0
+          },
+          "human_binding": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Human Binding",
+            "default": 0
+          },
+          "human_review": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Human Review",
+            "default": 0
+          },
+          "compute": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Compute",
+            "default": 0
+          },
+          "formalization": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Formalization",
+            "default": 0
+          },
+          "checking": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Checking",
+            "default": 0
+          },
+          "independent_reproduction": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Independent Reproduction",
+            "default": 0
+          },
+          "infrastructure": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Infrastructure",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CostVector"
+      },
+      "CostVectorCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "scope_ref": {
+            "type": "string",
+            "title": "Scope Ref"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "USD"
+          },
+          "vector": {
+            "$ref": "#/components/schemas/CostVector"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "scope_ref",
+          "vector",
+          "actor"
+        ],
+        "title": "CostVectorCreate"
+      },
+      "CostVectorRecord": {
+        "properties": {
+          "cost_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Cost Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "scope_ref": {
+            "type": "string",
+            "title": "Scope Ref"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "USD"
+          },
+          "vector": {
+            "$ref": "#/components/schemas/CostVector"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cost_id",
+          "project_id",
+          "scope_ref",
+          "vector",
+          "actor",
+          "created_at"
+        ],
+        "title": "CostVectorRecord"
+      },
+      "CoverageStatus": {
+        "type": "string",
+        "enum": [
+          "COVERED",
+          "PARTIAL",
+          "MISSING",
+          "UNKNOWN"
+        ],
+        "title": "CoverageStatus"
       },
       "DeadEndConstraintCreate": {
         "properties": {
@@ -4583,6 +7695,39 @@
         ],
         "title": "DeadEndStrength"
       },
+      "DossierField": {
+        "properties": {
+          "value": {
+            "title": "Value"
+          },
+          "source_class": {
+            "$ref": "#/components/schemas/DossierSourceClass",
+            "default": "UNKNOWN"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "DossierField"
+      },
+      "DossierSourceClass": {
+        "type": "string",
+        "enum": [
+          "RAW_EVENT",
+          "TOOL_ARTIFACT",
+          "HUMAN_REVIEW",
+          "MODEL_REPORTED",
+          "LEGACY",
+          "UNKNOWN"
+        ],
+        "title": "DossierSourceClass"
+      },
       "EpistemicDeltaSummary": {
         "properties": {
           "event_id": {
@@ -4665,7 +7810,7 @@
           "schema_version": {
             "type": "string",
             "title": "Schema Version",
-            "default": "0.5"
+            "default": "0.6"
           },
           "event_id": {
             "type": "string",
@@ -4767,6 +7912,54 @@
           "event_hash": {
             "type": "string",
             "title": "Event Hash"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "batch_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batch Id"
+          },
+          "idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 240
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Key"
+          },
+          "command_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 240
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Command Id"
           }
         },
         "additionalProperties": true,
@@ -4780,6 +7973,312 @@
           "event_hash"
         ],
         "title": "EventRecord"
+      },
+      "EvidenceCardCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Claim Id"
+          },
+          "dimensions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EvidenceDimension"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/EvidenceDimensionName"
+            },
+            "type": "object",
+            "title": "Dimensions"
+          },
+          "review_lineage_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Lineage Ref"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "claim_id",
+          "dimensions",
+          "actor"
+        ],
+        "title": "EvidenceCardCreate"
+      },
+      "EvidenceCardRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "claim_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Claim Id"
+          },
+          "dimensions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EvidenceDimension"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/EvidenceDimensionName"
+            },
+            "type": "object",
+            "title": "Dimensions"
+          },
+          "review_lineage_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Lineage Ref"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "card_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Card Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "claim_id",
+          "dimensions",
+          "actor",
+          "card_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "EvidenceCardRecord"
+      },
+      "EvidenceDimension": {
+        "properties": {
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Refs"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EvidenceDimensionStatus",
+            "default": "UNKNOWN"
+          },
+          "evaluator_ref": {
+            "type": "string",
+            "title": "Evaluator Ref",
+            "default": ""
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "EvidenceDimension"
+      },
+      "EvidenceDimensionName": {
+        "type": "string",
+        "enum": [
+          "provenance",
+          "artifact_accessibility",
+          "derivation_validity",
+          "independent_reproduction",
+          "negative_pressure",
+          "auditability"
+        ],
+        "title": "EvidenceDimensionName"
+      },
+      "EvidenceDimensionStatus": {
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "SUPPORTED",
+          "PARTIAL",
+          "FAILED",
+          "NOT_APPLICABLE"
+        ],
+        "title": "EvidenceDimensionStatus"
+      },
+      "FormalCoverageBindingCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "challenge_id": {
+            "type": "string",
+            "title": "Challenge Id"
+          },
+          "headline_statement_ref": {
+            "type": "string",
+            "title": "Headline Statement Ref"
+          },
+          "covered_declaration_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Covered Declaration Refs"
+          },
+          "missing_declaration_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Declaration Refs"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CoverageStatus",
+            "default": "UNKNOWN"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "challenge_id",
+          "headline_statement_ref",
+          "actor"
+        ],
+        "title": "FormalCoverageBindingCreate"
+      },
+      "FormalCoverageBindingRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "challenge_id": {
+            "type": "string",
+            "title": "Challenge Id"
+          },
+          "headline_statement_ref": {
+            "type": "string",
+            "title": "Headline Statement Ref"
+          },
+          "covered_declaration_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Covered Declaration Refs"
+          },
+          "missing_declaration_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Declaration Refs"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CoverageStatus",
+            "default": "UNKNOWN"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "binding_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Binding Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "challenge_id",
+          "headline_statement_ref",
+          "actor",
+          "binding_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "FormalCoverageBindingRecord"
       },
       "GenericEventCreate": {
         "properties": {
@@ -5155,6 +8654,335 @@
         ],
         "title": "HandoffArtifactType"
       },
+      "HandoffDecisionCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Reason",
+            "default": ""
+          },
+          "acceptance_actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "accepted",
+          "acceptance_actor"
+        ],
+        "title": "HandoffDecisionCreate"
+      },
+      "HandoffPacketStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING",
+          "ACCEPTED",
+          "REJECTED"
+        ],
+        "title": "HandoffPacketStatus"
+      },
+      "HandoffPacketV2Create": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Scope"
+          },
+          "tool_hashes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tool Hashes"
+          },
+          "fact_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fact Evidence Refs"
+          },
+          "failure_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failure Evidence Refs"
+          },
+          "revival_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Revival Conditions"
+          },
+          "obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Obligation Refs"
+          },
+          "next_receiver_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Receiver Refs"
+          },
+          "source_session_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Session Ref"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "scope",
+          "actor"
+        ],
+        "title": "HandoffPacketV2Create",
+        "description": "Evidence-oriented handoff packet; all claims remain source-referenced."
+      },
+      "HandoffPacketV2Record": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "scope": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Scope"
+          },
+          "tool_hashes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tool Hashes"
+          },
+          "fact_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fact Evidence Refs"
+          },
+          "failure_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Failure Evidence Refs"
+          },
+          "revival_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Revival Conditions"
+          },
+          "obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Obligation Refs"
+          },
+          "next_receiver_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Receiver Refs"
+          },
+          "source_session_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Session Ref"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "packet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Packet Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "from_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "From Revision"
+          },
+          "packet_hash": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Packet Hash"
+          },
+          "status": {
+            "$ref": "#/components/schemas/HandoffPacketStatus",
+            "default": "PENDING"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "scope",
+          "actor",
+          "packet_id",
+          "project_id",
+          "from_revision",
+          "packet_hash",
+          "created_at"
+        ],
+        "title": "HandoffPacketV2Record"
+      },
+      "HandoffReceipt": {
+        "properties": {
+          "receipt_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Receipt Id"
+          },
+          "packet_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Packet Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "default": ""
+          },
+          "from_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "From Revision"
+          },
+          "to_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "To Revision"
+          },
+          "acceptance_actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Accepted At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "receipt_id",
+          "packet_id",
+          "project_id",
+          "accepted",
+          "from_revision",
+          "to_revision",
+          "acceptance_actor",
+          "accepted_at"
+        ],
+        "title": "HandoffReceipt"
+      },
+      "HierarchyNodeType": {
+        "type": "string",
+        "enum": [
+          "EPISODE",
+          "RESULT_FAMILY",
+          "DEPENDENCY_METHOD",
+          "CLAIM_ATOM",
+          "FORMAL_TARGET_BUNDLE",
+          "MANUSCRIPT_SECTION",
+          "SOURCE_FILE",
+          "CHALLENGE_CONFIG"
+        ],
+        "title": "HierarchyNodeType"
+      },
       "HistoricalSearchHit": {
         "properties": {
           "kind": {
@@ -5509,6 +9337,150 @@
         ],
         "title": "InterpretationStatus"
       },
+      "MicroFalsificationPlanCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "target_ref": {
+            "type": "string",
+            "title": "Target Ref"
+          },
+          "hypotheses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Hypotheses"
+          },
+          "tests": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Tests"
+          },
+          "stopping_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stopping Conditions"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "target_ref",
+          "hypotheses",
+          "tests",
+          "actor"
+        ],
+        "title": "MicroFalsificationPlanCreate"
+      },
+      "MicroFalsificationPlanRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "target_ref": {
+            "type": "string",
+            "title": "Target Ref"
+          },
+          "hypotheses": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Hypotheses"
+          },
+          "tests": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Tests"
+          },
+          "stopping_conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Stopping Conditions"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Plan Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "target_ref",
+          "hypotheses",
+          "tests",
+          "actor",
+          "plan_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "MicroFalsificationPlanRecord"
+      },
       "ModelSessionCreate": {
         "properties": {
           "connector_type": {
@@ -5705,6 +9677,42 @@
         ],
         "title": "ModelSessionRecord"
       },
+      "MutationObservation": {
+        "properties": {
+          "mutation_id": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Mutation Id"
+          },
+          "expected": {
+            "type": "string",
+            "title": "Expected"
+          },
+          "observed": {
+            "type": "string",
+            "title": "Observed"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mutation_id",
+          "expected",
+          "observed",
+          "passed"
+        ],
+        "title": "MutationObservation"
+      },
       "PluginCategory": {
         "type": "string",
         "enum": [
@@ -5848,7 +9856,7 @@
           "schema_version": {
             "type": "string",
             "title": "Schema Version",
-            "default": "0.5"
+            "default": "0.6"
           },
           "plugin_id": {
             "type": "string",
@@ -6299,7 +10307,7 @@
           "schema_version": {
             "type": "string",
             "title": "Schema Version",
-            "default": "0.5"
+            "default": "0.6"
           },
           "project_id": {
             "type": "string",
@@ -6567,6 +10575,474 @@
         ],
         "title": "PythonPluginRunRequest"
       },
+      "QuestionAgendaCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "episode_ref": {
+            "type": "string",
+            "title": "Episode Ref"
+          },
+          "target_specification": {
+            "type": "string",
+            "title": "Target Specification"
+          },
+          "questions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Questions"
+          },
+          "parent_child_edges": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Parent Child Edges"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "episode_ref",
+          "target_specification",
+          "actor"
+        ],
+        "title": "QuestionAgendaCreate"
+      },
+      "QuestionAgendaRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "episode_ref": {
+            "type": "string",
+            "title": "Episode Ref"
+          },
+          "target_specification": {
+            "type": "string",
+            "title": "Target Specification"
+          },
+          "questions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Questions"
+          },
+          "parent_child_edges": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "type": "array",
+              "maxItems": 2,
+              "minItems": 2
+            },
+            "type": "array",
+            "title": "Parent Child Edges"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "agenda_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Agenda Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "coverage_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Coverage Score"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "episode_ref",
+          "target_specification",
+          "actor",
+          "agenda_id",
+          "project_id",
+          "coverage_score",
+          "created_at"
+        ],
+        "title": "QuestionAgendaRecord"
+      },
+      "RepairLineageCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "repair_type": {
+            "$ref": "#/components/schemas/RepairLineageType"
+          },
+          "input_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Input Refs"
+          },
+          "output_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Output Refs"
+          },
+          "affected_claim_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Affected Claim Refs"
+          },
+          "downstream_reopen_obligations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Downstream Reopen Obligations"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "repair_type",
+          "actor"
+        ],
+        "title": "RepairLineageCreate"
+      },
+      "RepairLineageRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "repair_type": {
+            "$ref": "#/components/schemas/RepairLineageType"
+          },
+          "input_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Input Refs"
+          },
+          "output_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Output Refs"
+          },
+          "affected_claim_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Affected Claim Refs"
+          },
+          "downstream_reopen_obligations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Downstream Reopen Obligations"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "repair_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Repair Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "repair_sha256": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Repair Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "repair_type",
+          "actor",
+          "repair_id",
+          "project_id",
+          "created_at",
+          "repair_sha256"
+        ],
+        "title": "RepairLineageRecord"
+      },
+      "RepairLineageType": {
+        "type": "string",
+        "enum": [
+          "REPAIR",
+          "REVERSION",
+          "SUPERSESSION",
+          "FOLLOW_UP"
+        ],
+        "title": "RepairLineageType"
+      },
+      "RepositorySnapshotCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "repository_url": {
+            "type": "string",
+            "title": "Repository Url",
+            "default": ""
+          },
+          "ref": {
+            "type": "string",
+            "title": "Ref",
+            "default": ""
+          },
+          "commit": {
+            "type": "string",
+            "title": "Commit",
+            "default": ""
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "parent_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Commit"
+          },
+          "diff_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diff Ref"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "observed_at",
+          "actor"
+        ],
+        "title": "RepositorySnapshotCreate"
+      },
+      "RepositorySnapshotRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "repository_url": {
+            "type": "string",
+            "title": "Repository Url",
+            "default": ""
+          },
+          "ref": {
+            "type": "string",
+            "title": "Ref",
+            "default": ""
+          },
+          "commit": {
+            "type": "string",
+            "title": "Commit",
+            "default": ""
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "parent_commit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Commit"
+          },
+          "diff_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diff Ref"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Snapshot Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "observed_at",
+          "actor",
+          "snapshot_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "RepositorySnapshotRecord"
+      },
       "ResearchCheckpointCreate": {
         "properties": {
           "current_target": {
@@ -6791,6 +11267,239 @@
         ],
         "title": "ResearchCheckpointRecord"
       },
+      "ResearchEpisodeDossierV2Create": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "episode_ref": {
+            "type": "string",
+            "title": "Episode Ref"
+          },
+          "fields": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DossierField"
+            },
+            "type": "object",
+            "title": "Fields"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "episode_ref",
+          "fields",
+          "actor"
+        ],
+        "title": "ResearchEpisodeDossierV2Create"
+      },
+      "ResearchEpisodeDossierV2Record": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "episode_ref": {
+            "type": "string",
+            "title": "Episode Ref"
+          },
+          "fields": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DossierField"
+            },
+            "type": "object",
+            "title": "Fields"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "dossier_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dossier Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "dossier_sha256": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Dossier Sha256"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "episode_ref",
+          "fields",
+          "actor",
+          "dossier_id",
+          "project_id",
+          "dossier_sha256",
+          "created_at"
+        ],
+        "title": "ResearchEpisodeDossierV2Record"
+      },
+      "ResearchHierarchyNodeCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "node_type": {
+            "$ref": "#/components/schemas/HierarchyNodeType"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "parent_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Parent Refs"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "node_type",
+          "label",
+          "actor"
+        ],
+        "title": "ResearchHierarchyNodeCreate"
+      },
+      "ResearchHierarchyNodeRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "node_type": {
+            "$ref": "#/components/schemas/HierarchyNodeType"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "parent_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Parent Refs"
+          },
+          "source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Refs"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "node_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Node Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "node_type",
+          "label",
+          "actor",
+          "node_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "ResearchHierarchyNodeRecord"
+      },
       "ResearchPacketRequest": {
         "properties": {
           "route_ids": {
@@ -6848,6 +11557,333 @@
           "markdown"
         ],
         "title": "ResearchPacketResponse"
+      },
+      "ResearchStateSnapshot": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Revision",
+            "default": 0
+          },
+          "operational": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Operational"
+          },
+          "epistemic": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Epistemic"
+          },
+          "claim": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Claim"
+          },
+          "artifact": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Artifact"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "project_id",
+          "as_of"
+        ],
+        "title": "ResearchStateSnapshot",
+        "description": "Rebuildable four-plane state snapshot for the Alpha.5 transition kernel."
+      },
+      "ResearchStateTransitionRecord": {
+        "properties": {
+          "transition_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transition Id"
+          },
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Proposal Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "from_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "From Revision"
+          },
+          "to_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "To Revision"
+          },
+          "trigger_class": {
+            "$ref": "#/components/schemas/TransitionTriggerClass"
+          },
+          "trigger_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Trigger Evidence Refs"
+          },
+          "proposal_actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "acceptance_actor_or_mechanism_ref": {
+            "type": "string",
+            "title": "Acceptance Actor Or Mechanism Ref"
+          },
+          "accepted_delta": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Accepted Delta"
+          },
+          "rejected_components": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected Components"
+          },
+          "next_obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Obligation Refs"
+          },
+          "handoff_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Handoff Refs"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/TransitionVisibility"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "rejection_reason": {
+            "type": "string",
+            "title": "Rejection Reason",
+            "default": ""
+          },
+          "idempotency_key": {
+            "type": "string",
+            "title": "Idempotency Key"
+          },
+          "accepted_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Accepted At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "transition_id",
+          "proposal_id",
+          "project_id",
+          "from_revision",
+          "to_revision",
+          "trigger_class",
+          "proposal_actor",
+          "acceptance_actor_or_mechanism_ref",
+          "visibility",
+          "accepted",
+          "idempotency_key",
+          "accepted_at"
+        ],
+        "title": "ResearchStateTransitionRecord",
+        "description": "Accepted or rejected transition with explicit M2 provenance."
+      },
+      "ReviewLineageCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "reviewer_family": {
+            "type": "string",
+            "title": "Reviewer Family",
+            "default": ""
+          },
+          "organization": {
+            "type": "string",
+            "title": "Organization",
+            "default": ""
+          },
+          "editor": {
+            "type": "string",
+            "title": "Editor",
+            "default": ""
+          },
+          "source_material_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Material Refs"
+          },
+          "formatter": {
+            "type": "string",
+            "title": "Formatter",
+            "default": ""
+          },
+          "checker": {
+            "type": "string",
+            "title": "Checker",
+            "default": ""
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "unchecked_items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unchecked Items"
+          },
+          "independence_group": {
+            "type": "string",
+            "title": "Independence Group",
+            "default": ""
+          },
+          "correlation_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Correlation Flags"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "actor"
+        ],
+        "title": "ReviewLineageCreate"
+      },
+      "ReviewLineageRecord": {
+        "properties": {
+          "lineage_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Lineage Id"
+          },
+          "reviewer_family": {
+            "type": "string",
+            "title": "Reviewer Family",
+            "default": ""
+          },
+          "organization": {
+            "type": "string",
+            "title": "Organization",
+            "default": ""
+          },
+          "editor": {
+            "type": "string",
+            "title": "Editor",
+            "default": ""
+          },
+          "source_material_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Source Material Refs"
+          },
+          "formatter": {
+            "type": "string",
+            "title": "Formatter",
+            "default": ""
+          },
+          "checker": {
+            "type": "string",
+            "title": "Checker",
+            "default": ""
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "unchecked_items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unchecked Items"
+          },
+          "independence_group": {
+            "type": "string",
+            "title": "Independence Group",
+            "default": ""
+          },
+          "correlation_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Correlation Flags"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lineage_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "ReviewLineageRecord"
       },
       "RouteCreate": {
         "properties": {
@@ -7202,6 +12238,246 @@
         ],
         "title": "SessionCompleteness"
       },
+      "TransitionAcceptanceCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "acceptance_actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "acceptance_mechanism": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Acceptance Mechanism"
+          },
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted",
+            "default": true
+          },
+          "rejection_reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "title": "Rejection Reason",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "acceptance_actor",
+          "acceptance_mechanism"
+        ],
+        "title": "TransitionAcceptanceCreate",
+        "description": "Human/mechanism acceptance of a previously proposed transition."
+      },
+      "TransitionProposalCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "trigger_class": {
+            "$ref": "#/components/schemas/TransitionTriggerClass"
+          },
+          "trigger_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Trigger Evidence Refs"
+          },
+          "accepted_delta": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Accepted Delta"
+          },
+          "rejected_components": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected Components"
+          },
+          "next_obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Obligation Refs"
+          },
+          "handoff_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Handoff Refs"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/TransitionVisibility",
+            "default": "NOT_ESTABLISHED"
+          },
+          "proposal_actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "trigger_class",
+          "proposal_actor"
+        ],
+        "title": "TransitionProposalCreate",
+        "description": "Observable state proposal; creating it does not change any plane."
+      },
+      "TransitionProposalRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "trigger_class": {
+            "$ref": "#/components/schemas/TransitionTriggerClass"
+          },
+          "trigger_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Trigger Evidence Refs"
+          },
+          "accepted_delta": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Accepted Delta"
+          },
+          "rejected_components": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected Components"
+          },
+          "next_obligation_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Obligation Refs"
+          },
+          "handoff_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Handoff Refs"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/TransitionVisibility",
+            "default": "NOT_ESTABLISHED"
+          },
+          "proposal_actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "proposal_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Proposal Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TransitionProposalStatus",
+            "default": "PROPOSED"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "trigger_class",
+          "proposal_actor",
+          "proposal_id",
+          "project_id",
+          "created_at"
+        ],
+        "title": "TransitionProposalRecord"
+      },
+      "TransitionProposalStatus": {
+        "type": "string",
+        "enum": [
+          "PROPOSED",
+          "ACCEPTED",
+          "REJECTED"
+        ],
+        "title": "TransitionProposalStatus"
+      },
+      "TransitionTriggerClass": {
+        "type": "string",
+        "enum": [
+          "OBSERVATION",
+          "TOOL_RESULT",
+          "MODEL_PROPOSAL",
+          "HUMAN_DECISION",
+          "EXACT_CHECK",
+          "EXTERNAL_UPDATE",
+          "PUBLIC_CORRECTION"
+        ],
+        "title": "TransitionTriggerClass"
+      },
+      "TransitionVisibility": {
+        "type": "string",
+        "enum": [
+          "DIRECT_OBSERVATION",
+          "PUBLIC_TRACE_DERIVATION",
+          "AUTHOR_REPORTED",
+          "NOT_ESTABLISHED"
+        ],
+        "title": "TransitionVisibility"
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -7241,6 +12517,394 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VerificationExecutionManifestCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "command": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Command"
+          },
+          "working_directory": {
+            "type": "string",
+            "title": "Working Directory",
+            "default": ""
+          },
+          "environment_fingerprint": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Environment Fingerprint"
+          },
+          "dependency_lock_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dependency Lock Refs"
+          },
+          "exit_status": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Status"
+          },
+          "stdout_artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stdout Artifact Ref"
+          },
+          "stderr_artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stderr Artifact Ref"
+          },
+          "verification_check_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Check Ids"
+          },
+          "axiom_ceiling": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Axiom Ceiling"
+          },
+          "target_scope": {
+            "type": "string",
+            "title": "Target Scope",
+            "default": ""
+          },
+          "timeout_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout Seconds"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VerificationExecutionStatus",
+            "default": "CONFIGURED"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "command",
+          "actor"
+        ],
+        "title": "VerificationExecutionManifestCreate"
+      },
+      "VerificationExecutionManifestRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "command": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 64,
+            "minItems": 1,
+            "title": "Command"
+          },
+          "working_directory": {
+            "type": "string",
+            "title": "Working Directory",
+            "default": ""
+          },
+          "environment_fingerprint": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Environment Fingerprint"
+          },
+          "dependency_lock_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dependency Lock Refs"
+          },
+          "exit_status": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exit Status"
+          },
+          "stdout_artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stdout Artifact Ref"
+          },
+          "stderr_artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stderr Artifact Ref"
+          },
+          "verification_check_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Verification Check Ids"
+          },
+          "axiom_ceiling": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Axiom Ceiling"
+          },
+          "target_scope": {
+            "type": "string",
+            "title": "Target Scope",
+            "default": ""
+          },
+          "timeout_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeout Seconds"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VerificationExecutionStatus",
+            "default": "CONFIGURED"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "execution_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Execution Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "executed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Executed At"
+          },
+          "manifest_sha256": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Manifest Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "command",
+          "actor",
+          "execution_id",
+          "project_id",
+          "executed_at",
+          "manifest_sha256"
+        ],
+        "title": "VerificationExecutionManifestRecord"
+      },
+      "VerificationExecutionStatus": {
+        "type": "string",
+        "enum": [
+          "CONFIGURED",
+          "EXECUTED",
+          "SUCCEEDED",
+          "FAILED",
+          "TIMED_OUT",
+          "UNAVAILABLE"
+        ],
+        "title": "VerificationExecutionStatus"
+      },
+      "VerificationMutationSetCreate": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "execution_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Execution Id"
+          },
+          "mutations": {
+            "items": {
+              "$ref": "#/components/schemas/MutationObservation"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Mutations"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "execution_id",
+          "mutations",
+          "actor"
+        ],
+        "title": "VerificationMutationSetCreate"
+      },
+      "VerificationMutationSetRecord": {
+        "properties": {
+          "expected_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Revision"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Idempotency Key"
+          },
+          "execution_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Execution Id"
+          },
+          "mutations": {
+            "items": {
+              "$ref": "#/components/schemas/MutationObservation"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Mutations"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "mutation_set_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Mutation Set Id"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "all_expected_failures": {
+            "type": "boolean",
+            "title": "All Expected Failures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "execution_id",
+          "mutations",
+          "actor",
+          "mutation_set_id",
+          "project_id",
+          "created_at",
+          "all_expected_failures"
+        ],
+        "title": "VerificationMutationSetRecord"
       },
       "VisualMappingStatus": {
         "type": "string",

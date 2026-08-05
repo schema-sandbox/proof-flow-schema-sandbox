@@ -228,6 +228,73 @@ button:active:not(:disabled) {
   line-height: 1.6;
 }
 
+.control-plane-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px 2px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.control-plane-panel .section-heading {
+  align-items: flex-start;
+}
+
+.control-plane-note {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.plane-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.plane-card {
+  display: grid;
+  gap: 3px;
+  padding: 10px 11px;
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.plane-card span,
+.plane-card small {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.plane-card strong {
+  font-family: "Cascadia Mono", "SFMono-Regular", monospace;
+  font-size: 20px;
+}
+
+.proposal-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.proposal-status {
+  padding: 4px 7px;
+  color: var(--text-muted);
+  font-family: "Cascadia Mono", "SFMono-Regular", monospace;
+  font-size: 10px;
+  background: var(--surface-muted);
+  border-radius: 99px;
+}
+
+.proposal-status.accepted {
+  color: #2e6b4b;
+  background: #dcefe3;
+}
+
+.proposal-status.rejected {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
 .status-line {
   display: flex;
   flex-wrap: wrap;
@@ -787,6 +854,10 @@ button:disabled {
     min-width: 0;
   }
 
+  .plane-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .dual-canvas {
     grid-template-columns: 1fr;
     height: auto;
@@ -818,6 +889,10 @@ button:disabled {
 
   .project-facts {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .plane-grid {
+    grid-template-columns: 1fr 1fr;
   }
 
   .search-strip {

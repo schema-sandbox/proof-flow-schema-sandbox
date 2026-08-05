@@ -54,6 +54,42 @@ export type EventRecord = {
   branch_id: string | null;
   epistemic_delta: string | null;
   epistemic_delta_type: string | null;
+  revision?: number | null;
+  idempotency_key?: string | null;
+};
+
+export type ResearchStateSnapshot = {
+  project_id: string;
+  revision: number;
+  operational: Record<string, unknown>;
+  epistemic: Record<string, unknown>;
+  claim: Record<string, unknown>;
+  artifact: Record<string, unknown>;
+  as_of: string;
+};
+
+export type TransitionProposalRecord = {
+  proposal_id: string;
+  status: string;
+  trigger_class: string;
+  accepted_delta: Record<string, Record<string, unknown>>;
+  next_obligation_refs: string[];
+  handoff_refs: string[];
+  created_at: string;
+};
+
+export type ClaimAtomRecord = {
+  claim_id: string;
+  statement: string;
+  state: string;
+  source_class: string;
+  open_obligation_refs: string[];
+};
+
+export type EvidenceCardRecord = {
+  card_id: string;
+  claim_id: string;
+  dimensions: Record<string, { status: string; evidence_refs: string[] }>;
 };
 
 export type EpistemicDelta = {
@@ -142,6 +178,14 @@ export const api = {
   bridges: (id: string) =>
     request<BridgeResultRecord[]>(`/api/v1/projects/${id}/bridge-results`),
   events: (id: string) => request<EventRecord[]>(`/api/v1/projects/${id}/events`),
+  researchState: (id: string) =>
+    request<ResearchStateSnapshot>(`/api/v1/projects/${id}/research-state`),
+  transitionProposals: (id: string) =>
+    request<TransitionProposalRecord[]>(`/api/v1/projects/${id}/transition-proposals`),
+  claimAtoms: (id: string) =>
+    request<ClaimAtomRecord[]>(`/api/v1/projects/${id}/claim-atoms`),
+  evidenceCards: (id: string) =>
+    request<EvidenceCardRecord[]>(`/api/v1/projects/${id}/evidence-cards`),
   deltas: (id: string) =>
     request<EpistemicDelta[]>(`/api/v1/projects/${id}/epistemic-deltas?limit=80`),
   search: (id: string, query: string) =>

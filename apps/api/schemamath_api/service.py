@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import mimetypes
 import os
 import shutil
@@ -26,6 +27,10 @@ from .domain import (
     ArtifactOrigin,
     ArtifactRecord,
     ArtifactType,
+    AttemptRecord,
+    AttemptRecordCreate,
+    BenchmarkBindingCreate,
+    BenchmarkBindingRecord,
     BranchCreate,
     BranchRecord,
     BranchStateChange,
@@ -41,21 +46,41 @@ from .domain import (
     ChatImportConfirmationResponse,
     ChatImportConfirmRequest,
     ChatImportPreviewRecord,
+    ClaimAtomCreate,
+    ClaimAtomRecord,
+    ClaimRelationCreate,
+    ClaimRelationRecord,
+    CommandReceipt,
+    ContinuationContractCreate,
+    ContinuationContractRecord,
+    CostVectorCreate,
+    CostVectorRecord,
     DeadEndConstraintCreate,
     DeadEndConstraintRecord,
     EpistemicDeltaSummary,
     EpistemicDeltaType,
     EventRecord,
+    EvidenceCardCreate,
+    EvidenceCardRecord,
+    FormalCoverageBindingCreate,
+    FormalCoverageBindingRecord,
     GenericEventCreate,
     GenericPluginRunRequest,
     HandoffArtifactCreate,
     HandoffArtifactRecord,
+    HandoffDecisionCreate,
+    HandoffPacketStatus,
+    HandoffPacketV2Create,
+    HandoffPacketV2Record,
+    HandoffReceipt,
     HistoricalSearchHit,
     HumanNoteCreate,
     ImportDisposition,
     ImportPreflightReport,
     IntegrityReport,
     InterpretationStatus,
+    MicroFalsificationPlanCreate,
+    MicroFalsificationPlanRecord,
     ModelSessionCreate,
     ModelSessionRecord,
     PluginHealthRecord,
@@ -69,10 +94,24 @@ from .domain import (
     ProjectStatus,
     ProjectSummary,
     PythonPluginRunRequest,
+    QuestionAgendaCreate,
+    QuestionAgendaRecord,
+    RepairLineageCreate,
+    RepairLineageRecord,
+    RepositorySnapshotCreate,
+    RepositorySnapshotRecord,
     ResearchCheckpointCreate,
     ResearchCheckpointRecord,
+    ResearchEpisodeDossierV2Create,
+    ResearchEpisodeDossierV2Record,
+    ResearchHierarchyNodeCreate,
+    ResearchHierarchyNodeRecord,
     ResearchPacketRequest,
     ResearchPacketResponse,
+    ResearchStateSnapshot,
+    ResearchStateTransitionRecord,
+    ReviewLineageCreate,
+    ReviewLineageRecord,
     RouteCreate,
     RouteMergeRequest,
     RouteMergeResponse,
@@ -81,6 +120,15 @@ from .domain import (
     RouteSplitResponse,
     RouteState,
     RouteStateChange,
+    TransitionAcceptanceCreate,
+    TransitionProposalCreate,
+    TransitionProposalRecord,
+    TransitionProposalStatus,
+    TransitionVisibility,
+    VerificationExecutionManifestCreate,
+    VerificationExecutionManifestRecord,
+    VerificationMutationSetCreate,
+    VerificationMutationSetRecord,
     VisualMappingStatus,
     utc_now,
 )
@@ -94,6 +142,8 @@ from .transitions import (
     validate_challenge_transition,
     validate_route_transition,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class NotFoundError(LookupError):
@@ -162,6 +212,28 @@ RESERVED_EVENT_TYPES = frozenset(
         "HANDOFF_CREATED",
         "ARENA_RECIPE_CREATED",
         "VISUAL_CANVAS_SNAPSHOT_CREATED",
+        "RESEARCH_STATE_TRANSITION_PROPOSED",
+        "RESEARCH_STATE_TRANSITION_ACCEPTED",
+        "RESEARCH_STATE_TRANSITION_REJECTED",
+        "CONTINUATION_CONTRACT_RECORDED",
+        "HANDOFF_PACKET_V2_CREATED",
+        "HANDOFF_ACCEPTED",
+        "HANDOFF_REJECTED",
+        "CLAIM_RELATION_CREATED",
+        "REVIEW_LINEAGE_CREATED",
+        "EVIDENCE_CARD_CREATED",
+        "VERIFICATION_EXECUTION_MANIFEST_RECORDED",
+        "FORMAL_COVERAGE_BINDING_RECORDED",
+        "REPOSITORY_SNAPSHOT_RECORDED",
+        "REPAIR_LINEAGE_RECORDED",
+        "RESEARCH_HIERARCHY_NODE_RECORDED",
+        "ATTEMPT_RECORDED",
+        "COST_VECTOR_RECORDED",
+        "MICRO_FALSIFICATION_PLAN_RECORDED",
+        "BENCHMARK_BINDING_RECORDED",
+        "DOSSIER_V2_RECORDED",
+        "VERIFICATION_MUTATION_SET_RECORDED",
+        "QUESTION_AGENDA_RECORDED",
     }
 )
 
@@ -263,7 +335,8 @@ class SchemaMathService:
         for path in sorted(self.settings.workspace_root.glob("*.smath/project.json")):
             try:
                 manifest = ProjectManifest.model_validate_json(path.read_text(encoding="utf-8"))
-            except Exception:
+            except Exception as exc:
+                logger.warning("skipping unreadable project manifest %s: %s", path, exc)
                 continue
             summaries.append(
                 ProjectSummary(
@@ -803,6 +876,1006 @@ class SchemaMathService:
         self.get_project(project_id)
         return self._event_store(project_id).read_all()
 
+    def list_command_receipts(self, project_id: UUID) -> list[CommandReceipt]:
+        """Fold canonical event batches into explicit, queryable receipts."""
+        self.get_project(project_id)
+        events = self._event_store(project_id).read_all()
+        groups: dict[str, list[EventRecord]] = {}
+        for event in events:
+            key = str(event.batch_id or event.event_id)
+            groups.setdefault(key, []).append(event)
+        receipts: list[CommandReceipt] = []
+        for key, batch in groups.items():
+            first = batch[0]
+            last = batch[-1]
+            try:
+                command_id = UUID(first.command_id or key)
+            except ValueError:
+                command_id = first.event_id
+            from_revision = (first.revision or 1) - 1
+            receipts.append(
+                CommandReceipt(
+                    command_id=command_id,
+                    project_id=project_id,
+                    operation=first.event_type,
+                    accepted=True,
+                    from_revision=max(from_revision, 0),
+                    to_revision=last.revision or (first.revision or 0),
+                    event_ids=[item.event_id for item in batch],
+                    batch_id=first.batch_id,
+                    projection_revision=self._event_store(project_id).current_revision(),
+                )
+            )
+        return receipts
+
+    def _append_alpha5_record_event(
+        self,
+        *,
+        project_id: UUID,
+        expected_revision: int,
+        idempotency_key: str,
+        event_type: str,
+        actor: Actor,
+        payload: dict[str, object],
+        artifact_refs: list[str] | None = None,
+        epistemic_delta: str,
+    ) -> EventRecord:
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=expected_revision,
+                idempotency_key=idempotency_key,
+                events=[
+                    {
+                        "event_type": event_type,
+                        "actor": actor,
+                        "payload": payload,
+                        "artifact_refs": artifact_refs or [],
+                        "epistemic_delta": epistemic_delta,
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        event = committed[0]
+        self._projection(project_id).apply(event)
+        self._touch_manifest(project_id)
+        return event
+
+    # ------------------------------------------------------------------
+    # Alpha.5 state proposals and accepted transitions
+    # ------------------------------------------------------------------
+
+    def _transition_proposals_from_events(
+        self, project_id: UUID, events: list[EventRecord] | None = None
+    ) -> list[TransitionProposalRecord]:
+        proposals: dict[UUID, TransitionProposalRecord] = {}
+        stream = events if events is not None else self._event_store(project_id).read_all()
+        for event in stream:
+            if event.event_type == "RESEARCH_STATE_TRANSITION_PROPOSED":
+                record = TransitionProposalRecord.model_validate(event.payload["proposal"])
+                proposals[record.proposal_id] = record
+            elif event.event_type in {
+                "RESEARCH_STATE_TRANSITION_ACCEPTED",
+                "RESEARCH_STATE_TRANSITION_REJECTED",
+            }:
+                transition = ResearchStateTransitionRecord.model_validate(
+                    event.payload["transition"]
+                )
+                proposal = proposals.get(transition.proposal_id)
+                if proposal is not None:
+                    proposals[transition.proposal_id] = proposal.model_copy(
+                        update={
+                            "status": (
+                                TransitionProposalStatus.ACCEPTED
+                                if transition.accepted
+                                else TransitionProposalStatus.REJECTED
+                            )
+                        }
+                    )
+        return sorted(proposals.values(), key=lambda item: item.created_at)
+
+    def list_transition_proposals(self, project_id: UUID) -> list[TransitionProposalRecord]:
+        self.get_project(project_id)
+        return self._transition_proposals_from_events(project_id)
+
+    def create_transition_proposal(
+        self, project_id: UUID, request: TransitionProposalCreate
+    ) -> TransitionProposalRecord:
+        self.get_project(project_id)
+        record = TransitionProposalRecord(
+            proposal_id=uuid4(),
+            project_id=project_id,
+            status=TransitionProposalStatus.PROPOSED,
+            created_at=utc_now(),
+            **request.model_dump(),
+        )
+        try:
+            events = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "RESEARCH_STATE_TRANSITION_PROPOSED",
+                        "actor": request.proposal_actor,
+                        "payload": {"proposal": record.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            "A state transition proposal was recorded without changing accepted state."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        event = events[0]
+        self._projection(project_id).apply(event)
+        self._touch_manifest(project_id)
+        return TransitionProposalRecord.model_validate(event.payload["proposal"])
+
+    def accept_transition_proposal(
+        self,
+        project_id: UUID,
+        proposal_id: UUID,
+        request: TransitionAcceptanceCreate,
+    ) -> ResearchStateTransitionRecord:
+        self.get_project(project_id)
+        store = self._event_store(project_id)
+        events = store.read_all()
+        proposal = next(
+            (
+                item
+                for item in self._transition_proposals_from_events(project_id, events)
+                if item.proposal_id == proposal_id
+            ),
+            None,
+        )
+        if proposal is None:
+            raise NotFoundError(f"transition proposal {proposal_id} not found")
+
+        for event in events:
+            if event.event_type not in {
+                "RESEARCH_STATE_TRANSITION_ACCEPTED",
+                "RESEARCH_STATE_TRANSITION_REJECTED",
+            }:
+                continue
+            transition = ResearchStateTransitionRecord.model_validate(
+                event.payload["transition"]
+            )
+            if transition.proposal_id == proposal_id:
+                return transition
+
+        if not request.accepted and not request.rejection_reason.strip():
+            raise ValueError("rejection_reason is required when a transition is rejected")
+        current_revision = store.current_revision()
+        transition = ResearchStateTransitionRecord(
+            transition_id=uuid4(),
+            proposal_id=proposal.proposal_id,
+            project_id=project_id,
+            from_revision=current_revision,
+            to_revision=current_revision + 1,
+            trigger_class=proposal.trigger_class,
+            trigger_evidence_refs=proposal.trigger_evidence_refs,
+            proposal_actor=proposal.proposal_actor,
+            acceptance_actor_or_mechanism_ref=(
+                f"{request.acceptance_actor.type.value}:{request.acceptance_actor.id}:"
+                f"{request.acceptance_mechanism}"
+            ),
+            accepted_delta=proposal.accepted_delta if request.accepted else {},
+            rejected_components=proposal.rejected_components,
+            next_obligation_refs=proposal.next_obligation_refs,
+            handoff_refs=proposal.handoff_refs,
+            visibility=proposal.visibility,
+            accepted=request.accepted,
+            rejection_reason=request.rejection_reason,
+            idempotency_key=request.idempotency_key,
+            accepted_at=utc_now(),
+        )
+        event_type = (
+            "RESEARCH_STATE_TRANSITION_ACCEPTED"
+            if request.accepted
+            else "RESEARCH_STATE_TRANSITION_REJECTED"
+        )
+        try:
+            committed = store.append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": event_type,
+                        "actor": request.acceptance_actor,
+                        "payload": {"transition": transition.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            "A proposed research-state delta was accepted."
+                            if request.accepted
+                            else "A proposed research-state delta was rejected without writeback."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        committed_transition = ResearchStateTransitionRecord.model_validate(
+            committed[0].payload["transition"]
+        )
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return committed_transition
+
+    def research_state(self, project_id: UUID) -> ResearchStateSnapshot:
+        self.get_project(project_id)
+        snapshot = ResearchStateSnapshot(project_id=project_id, as_of=utc_now())
+        for event in self._event_store(project_id).read_all():
+            if event.event_type != "RESEARCH_STATE_TRANSITION_ACCEPTED":
+                continue
+            transition = ResearchStateTransitionRecord.model_validate(
+                event.payload["transition"]
+            )
+            for plane, delta in transition.accepted_delta.items():
+                getattr(snapshot, plane).update(delta)
+            snapshot.as_of = transition.accepted_at
+        snapshot.revision = self._event_store(project_id).current_revision()
+        return snapshot
+
+    def propose_claim_atom(
+        self, project_id: UUID, request: ClaimAtomCreate
+    ) -> TransitionProposalRecord:
+        self.get_project(project_id)
+        claim_id = uuid4()
+        claim = ClaimAtomRecord(
+            claim_id=claim_id,
+            project_id=project_id,
+            version=1,
+            state="UNRESOLVED",
+            as_of=utc_now(),
+            **request.model_dump(),
+        )
+        trigger_class = "HUMAN_DECISION" if request.actor.type is ActorType.HUMAN else "MODEL_PROPOSAL"
+        visibility = (
+            TransitionVisibility.DIRECT_OBSERVATION
+            if request.source_class.value == "DIRECT_OBSERVATION"
+            else TransitionVisibility.AUTHOR_REPORTED
+            if request.source_class.value == "AUTHOR_REPORTED"
+            else TransitionVisibility.NOT_ESTABLISHED
+        )
+        proposal = TransitionProposalCreate(
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            trigger_class=trigger_class,
+            trigger_evidence_refs=request.source_refs,
+            accepted_delta={
+                "claim": {"atoms": {str(claim_id): claim.model_dump(mode="json")}}
+            },
+            next_obligation_refs=request.open_obligation_refs,
+            visibility=visibility,
+            proposal_actor=request.actor,
+        )
+        return self.create_transition_proposal(project_id, proposal)
+
+    def list_claim_atoms(self, project_id: UUID) -> list[ClaimAtomRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_claim_atoms()
+
+    def create_claim_relation(
+        self, project_id: UUID, request: ClaimRelationCreate
+    ) -> ClaimRelationRecord:
+        self.get_project(project_id)
+        projection = self._projection(project_id)
+        if projection.get_claim_atom(str(request.source_claim_id)) is None:
+            raise NotFoundError(f"source claim {request.source_claim_id} not found")
+        if projection.get_claim_atom(str(request.target_claim_id)) is None:
+            raise NotFoundError(f"target claim {request.target_claim_id} not found")
+        record = ClaimRelationRecord(
+            relation_id=uuid4(),
+            project_id=project_id,
+            created_at=utc_now(),
+            **request.model_dump(),
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "CLAIM_RELATION_CREATED",
+                        "actor": request.actor,
+                        "payload": {"relation": record.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            f"Claim relation {request.relation.value} was recorded with explicit evidence refs."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return ClaimRelationRecord.model_validate(committed[0].payload["relation"])
+
+    def list_claim_relations(self, project_id: UUID) -> list[ClaimRelationRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_claim_relations()
+
+    def create_review_lineage(
+        self, project_id: UUID, request: ReviewLineageCreate
+    ) -> ReviewLineageRecord:
+        self.get_project(project_id)
+        record = ReviewLineageRecord(
+            lineage_id=uuid4(),
+            project_id=project_id,
+            created_at=utc_now(),
+            **request.model_dump(exclude={"expected_revision", "idempotency_key", "actor"}),
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "REVIEW_LINEAGE_CREATED",
+                        "actor": request.actor,
+                        "payload": {"lineage": record.model_dump(mode="json")},
+                        "epistemic_delta": "Reviewer lineage was preserved without upgrading claim state.",
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return ReviewLineageRecord.model_validate(committed[0].payload["lineage"])
+
+    def list_review_lineage(self, project_id: UUID) -> list[ReviewLineageRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_review_lineage()
+
+    def create_evidence_card(
+        self, project_id: UUID, request: EvidenceCardCreate
+    ) -> EvidenceCardRecord:
+        self.get_project(project_id)
+        projection = self._projection(project_id)
+        if projection.get_claim_atom(str(request.claim_id)) is None:
+            raise NotFoundError(f"claim {request.claim_id} not found")
+        if request.review_lineage_ref is not None and not any(
+            item.lineage_id == request.review_lineage_ref for item in projection.list_review_lineage()
+        ):
+            raise NotFoundError(f"review lineage {request.review_lineage_ref} not found")
+        record = EvidenceCardRecord(
+            card_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "EVIDENCE_CARD_CREATED",
+                        "actor": request.actor,
+                        "payload": {"evidence_card": record.model_dump(mode="json")},
+                        "artifact_refs": [
+                            ref
+                            for dimension in request.dimensions.values()
+                            for ref in dimension.evidence_refs
+                        ],
+                        "epistemic_delta": (
+                            "Six-dimensional evidence statuses were recorded; unknown remains unknown."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return EvidenceCardRecord.model_validate(committed[0].payload["evidence_card"])
+
+    def list_evidence_cards(self, project_id: UUID) -> list[EvidenceCardRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_evidence_cards()
+
+    def create_verification_manifest(
+        self, project_id: UUID, request: VerificationExecutionManifestCreate
+    ) -> VerificationExecutionManifestRecord:
+        self.get_project(project_id)
+        execution_id = uuid4()
+        executed_at = utc_now()
+        material = {
+            "execution_id": str(execution_id),
+            "project_id": str(project_id),
+            **request.model_dump(mode="json", exclude={"expected_revision", "idempotency_key", "actor"}),
+        }
+        manifest_sha256 = hashlib.sha256(
+            json.dumps(material, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        record = VerificationExecutionManifestRecord(
+            execution_id=execution_id,
+            project_id=project_id,
+            executed_at=executed_at,
+            manifest_sha256=manifest_sha256,
+            **request.model_dump(),
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "VERIFICATION_EXECUTION_MANIFEST_RECORDED",
+                        "actor": request.actor,
+                        "payload": {"manifest": record.model_dump(mode="json")},
+                        "artifact_refs": [
+                            ref
+                            for ref in (request.stdout_artifact_ref, request.stderr_artifact_ref)
+                            if ref
+                        ],
+                        "epistemic_delta": (
+                            "Verification execution metadata was recorded; status is separate from claim state."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return VerificationExecutionManifestRecord.model_validate(committed[0].payload["manifest"])
+
+    def list_verification_manifests(
+        self, project_id: UUID
+    ) -> list[VerificationExecutionManifestRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_verification_manifests()
+
+    def create_mutation_set(
+        self, project_id: UUID, request: VerificationMutationSetCreate
+    ) -> VerificationMutationSetRecord:
+        self.get_project(project_id)
+        if not any(
+            item.execution_id == request.execution_id
+            for item in self._projection(project_id).list_verification_manifests()
+        ):
+            raise NotFoundError(f"verification execution {request.execution_id} not found")
+        all_expected_failures = all(not item.passed for item in request.mutations)
+        record = VerificationMutationSetRecord(
+            mutation_set_id=uuid4(),
+            project_id=project_id,
+            created_at=utc_now(),
+            all_expected_failures=all_expected_failures,
+            **request.model_dump(),
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="VERIFICATION_MUTATION_SET_RECORDED",
+            actor=request.actor,
+            payload={"mutation_set": record.model_dump(mode="json")},
+            epistemic_delta=(
+                "Verification mutation outcomes were recorded; a set passes only when every "
+                "expected failure is observed."
+            ),
+        )
+        return VerificationMutationSetRecord.model_validate(event.payload["mutation_set"])
+
+    def list_mutation_sets(self, project_id: UUID) -> list[VerificationMutationSetRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_mutation_sets()
+
+    def create_coverage_binding(
+        self, project_id: UUID, request: FormalCoverageBindingCreate
+    ) -> FormalCoverageBindingRecord:
+        self.get_project(project_id)
+        record = FormalCoverageBindingRecord(
+            binding_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "FORMAL_COVERAGE_BINDING_RECORDED",
+                        "actor": request.actor,
+                        "payload": {"binding": record.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            f"Formal coverage for challenge {request.challenge_id} was recorded as {request.status.value}."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return FormalCoverageBindingRecord.model_validate(committed[0].payload["binding"])
+
+    def list_coverage_bindings(self, project_id: UUID) -> list[FormalCoverageBindingRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_coverage_bindings()
+
+    def create_repository_snapshot(
+        self, project_id: UUID, request: RepositorySnapshotCreate
+    ) -> RepositorySnapshotRecord:
+        self.get_project(project_id)
+        record = RepositorySnapshotRecord(
+            snapshot_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "REPOSITORY_SNAPSHOT_RECORDED",
+                        "actor": request.actor,
+                        "payload": {"snapshot": record.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            "Repository ref, commit and observation time were recorded for reproducibility."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return RepositorySnapshotRecord.model_validate(committed[0].payload["snapshot"])
+
+    def list_repository_snapshots(self, project_id: UUID) -> list[RepositorySnapshotRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_repository_snapshots()
+
+    def create_repair_lineage(
+        self, project_id: UUID, request: RepairLineageCreate
+    ) -> RepairLineageRecord:
+        self.get_project(project_id)
+        repair_id = uuid4()
+        material = {
+            "repair_id": str(repair_id),
+            "project_id": str(project_id),
+            **request.model_dump(mode="json", exclude={"expected_revision", "idempotency_key", "actor"}),
+        }
+        repair_sha256 = hashlib.sha256(
+            json.dumps(material, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        record = RepairLineageRecord(
+            repair_id=repair_id,
+            project_id=project_id,
+            created_at=utc_now(),
+            repair_sha256=repair_sha256,
+            **request.model_dump(),
+        )
+        try:
+            committed = self._event_store(project_id).append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                events=[
+                    {
+                        "event_type": "REPAIR_LINEAGE_RECORDED",
+                        "actor": request.actor,
+                        "payload": {"repair": record.model_dump(mode="json")},
+                        "artifact_refs": request.input_refs + request.output_refs,
+                        "epistemic_delta": (
+                            "Repair lineage and downstream reopen obligations were preserved."
+                        ),
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return RepairLineageRecord.model_validate(committed[0].payload["repair"])
+
+    def list_repair_lineage(self, project_id: UUID) -> list[RepairLineageRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_repair_lineage()
+
+    def create_hierarchy_node(
+        self, project_id: UUID, request: ResearchHierarchyNodeCreate
+    ) -> ResearchHierarchyNodeRecord:
+        self.get_project(project_id)
+        record = ResearchHierarchyNodeRecord(
+            node_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="RESEARCH_HIERARCHY_NODE_RECORDED",
+            actor=request.actor,
+            payload={"node": record.model_dump(mode="json")},
+            artifact_refs=request.source_refs,
+            epistemic_delta="A typed research hierarchy node was recorded with parent and source references.",
+        )
+        return ResearchHierarchyNodeRecord.model_validate(event.payload["node"])
+
+    def list_hierarchy_nodes(self, project_id: UUID) -> list[ResearchHierarchyNodeRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_hierarchy_nodes()
+
+    def create_attempt_record(
+        self, project_id: UUID, request: AttemptRecordCreate
+    ) -> AttemptRecord:
+        self.get_project(project_id)
+        record = AttemptRecord(
+            attempt_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="ATTEMPT_RECORDED",
+            actor=request.actor,
+            payload={"attempt": record.model_dump(mode="json")},
+            artifact_refs=request.input_refs + request.output_refs,
+            epistemic_delta=f"Attempt outcome {request.outcome.value} was recorded without upgrading claim state.",
+        )
+        return AttemptRecord.model_validate(event.payload["attempt"])
+
+    def list_attempt_records(self, project_id: UUID) -> list[AttemptRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_attempt_records()
+
+    def create_cost_vector(
+        self, project_id: UUID, request: CostVectorCreate
+    ) -> CostVectorRecord:
+        self.get_project(project_id)
+        record = CostVectorRecord(
+            cost_id=uuid4(),
+            project_id=project_id,
+            scope_ref=request.scope_ref,
+            currency=request.currency,
+            vector=request.vector,
+            source_refs=request.source_refs,
+            actor=request.actor,
+            created_at=utc_now(),
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="COST_VECTOR_RECORDED",
+            actor=request.actor,
+            payload={"cost": record.model_dump(mode="json")},
+            artifact_refs=request.source_refs,
+            epistemic_delta="Cost categories were recorded separately; no aggregate evidence score was derived.",
+        )
+        return CostVectorRecord.model_validate(event.payload["cost"])
+
+    def list_cost_vectors(self, project_id: UUID) -> list[CostVectorRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_cost_vectors()
+
+    def create_falsification_plan(
+        self, project_id: UUID, request: MicroFalsificationPlanCreate
+    ) -> MicroFalsificationPlanRecord:
+        self.get_project(project_id)
+        record = MicroFalsificationPlanRecord(
+            plan_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="MICRO_FALSIFICATION_PLAN_RECORDED",
+            actor=request.actor,
+            payload={"plan": record.model_dump(mode="json")},
+            artifact_refs=request.evidence_refs,
+            epistemic_delta="A micro-falsification plan was registered with explicit stopping conditions.",
+        )
+        return MicroFalsificationPlanRecord.model_validate(event.payload["plan"])
+
+    def list_falsification_plans(self, project_id: UUID) -> list[MicroFalsificationPlanRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_falsification_plans()
+
+    def create_benchmark_binding(
+        self, project_id: UUID, request: BenchmarkBindingCreate
+    ) -> BenchmarkBindingRecord:
+        self.get_project(project_id)
+        record = BenchmarkBindingRecord(
+            binding_id=uuid4(), project_id=project_id, created_at=utc_now(), **request.model_dump()
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="BENCHMARK_BINDING_RECORDED",
+            actor=request.actor,
+            payload={"binding": record.model_dump(mode="json")},
+            artifact_refs=request.result_refs,
+            epistemic_delta="Benchmark binding and metric definition were recorded separately from claim status.",
+        )
+        return BenchmarkBindingRecord.model_validate(event.payload["binding"])
+
+    def list_benchmark_bindings(self, project_id: UUID) -> list[BenchmarkBindingRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_benchmark_bindings()
+
+    def create_dossier_v2(
+        self, project_id: UUID, request: ResearchEpisodeDossierV2Create
+    ) -> ResearchEpisodeDossierV2Record:
+        self.get_project(project_id)
+        dossier_id = uuid4()
+        material = {
+            "dossier_id": str(dossier_id),
+            "project_id": str(project_id),
+            "episode_ref": request.episode_ref,
+            "fields": {
+                key: value.model_dump(mode="json") for key, value in sorted(request.fields.items())
+            },
+        }
+        dossier_sha256 = hashlib.sha256(
+            json.dumps(material, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        record = ResearchEpisodeDossierV2Record(
+            dossier_id=dossier_id,
+            project_id=project_id,
+            dossier_sha256=dossier_sha256,
+            created_at=utc_now(),
+            **request.model_dump(),
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="DOSSIER_V2_RECORDED",
+            actor=request.actor,
+            payload={"dossier": record.model_dump(mode="json")},
+            artifact_refs=[ref for field in request.fields.values() for ref in field.source_refs],
+            epistemic_delta="A 27-field dossier was generated with explicit source classes and unknown values.",
+        )
+        return ResearchEpisodeDossierV2Record.model_validate(event.payload["dossier"])
+
+    def list_dossiers_v2(self, project_id: UUID) -> list[ResearchEpisodeDossierV2Record]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_dossiers_v2()
+
+    def create_question_agenda(
+        self, project_id: UUID, request: QuestionAgendaCreate
+    ) -> QuestionAgendaRecord:
+        self.get_project(project_id)
+        categories = {
+            str(item.get("category", "unknown"))
+            for item in request.questions
+            if isinstance(item, dict)
+        }
+        coverage_score = min(len(categories) / 5, 1.0)
+        record = QuestionAgendaRecord(
+            agenda_id=uuid4(),
+            project_id=project_id,
+            coverage_score=coverage_score,
+            created_at=utc_now(),
+            **request.model_dump(),
+        )
+        event = self._append_alpha5_record_event(
+            project_id=project_id,
+            expected_revision=request.expected_revision,
+            idempotency_key=request.idempotency_key,
+            event_type="QUESTION_AGENDA_RECORDED",
+            actor=request.actor,
+            payload={"agenda": record.model_dump(mode="json")},
+            artifact_refs=request.source_refs,
+            epistemic_delta=(
+                "Question agenda lineage was recorded; questions do not change claim maturity."
+            ),
+        )
+        return QuestionAgendaRecord.model_validate(event.payload["agenda"])
+
+    def list_question_agendas(self, project_id: UUID) -> list[QuestionAgendaRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_question_agendas()
+
+    def create_continuation_contract(
+        self, project_id: UUID, request: ContinuationContractCreate
+    ) -> ContinuationContractRecord:
+        self.get_project(project_id)
+        store = self._event_store(project_id)
+        source_revision = store.current_revision()
+        record = ContinuationContractRecord(
+            contract_id=uuid4(),
+            project_id=project_id,
+            source_revision=source_revision,
+            created_at=utc_now(),
+            **request.model_dump(),
+        )
+        command_id = uuid4()
+        try:
+            committed = store.append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                batch_id=command_id,
+                events=[
+                    {
+                        "event_type": "CONTINUATION_CONTRACT_RECORDED",
+                        "actor": request.actor,
+                        "command_id": str(command_id),
+                        "payload": {"contract": record.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            f"Continuation decision {request.decision.value} was recorded; "
+                            "no unrecorded work was authorized."
+                        ),
+                        "epistemic_delta_type": EpistemicDeltaType.NO_STATE_CHANGE,
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        event = committed[0]
+        self._projection(project_id).apply(event)
+        self._touch_manifest(project_id)
+        return ContinuationContractRecord.model_validate(event.payload["contract"])
+
+    def list_continuation_contracts(self, project_id: UUID) -> list[ContinuationContractRecord]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_continuation_contracts()
+
+    def create_handoff_packet_v2(
+        self, project_id: UUID, request: HandoffPacketV2Create
+    ) -> HandoffPacketV2Record:
+        self.get_project(project_id)
+        store = self._event_store(project_id)
+        from_revision = store.current_revision()
+        packet_id = uuid4()
+        packet_material = {
+            "packet_id": str(packet_id),
+            "project_id": str(project_id),
+            "scope": request.scope,
+            "tool_hashes": request.tool_hashes,
+            "fact_evidence_refs": request.fact_evidence_refs,
+            "failure_evidence_refs": request.failure_evidence_refs,
+            "revival_conditions": request.revival_conditions,
+            "obligation_refs": request.obligation_refs,
+            "next_receiver_refs": request.next_receiver_refs,
+            "source_session_ref": (
+                str(request.source_session_ref) if request.source_session_ref else None
+            ),
+        }
+        packet_hash = hashlib.sha256(
+            json.dumps(packet_material, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+                "utf-8"
+            )
+        ).hexdigest()
+        record = HandoffPacketV2Record(
+            packet_id=packet_id,
+            project_id=project_id,
+            from_revision=from_revision,
+            packet_hash=packet_hash,
+            status=HandoffPacketStatus.PENDING,
+            created_at=utc_now(),
+            **request.model_dump(),
+        )
+        command_id = uuid4()
+        try:
+            committed = store.append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                batch_id=command_id,
+                events=[
+                    {
+                        "event_type": "HANDOFF_PACKET_V2_CREATED",
+                        "actor": request.actor,
+                        "command_id": str(command_id),
+                        "artifact_refs": request.fact_evidence_refs + request.failure_evidence_refs,
+                        "payload": {"packet": record.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            "A versioned handoff packet preserved facts, failures and obligations "
+                            "without asserting proof status."
+                        ),
+                        "epistemic_delta_type": EpistemicDeltaType.HANDOFF_REUSED,
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        event = committed[0]
+        self._projection(project_id).apply(event)
+        self._touch_manifest(project_id)
+        return HandoffPacketV2Record.model_validate(event.payload["packet"])
+
+    def list_handoff_packets_v2(self, project_id: UUID) -> list[HandoffPacketV2Record]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_handoff_packets_v2()
+
+    def accept_handoff_packet_v2(
+        self, project_id: UUID, packet_id: UUID, request: HandoffDecisionCreate
+    ) -> HandoffReceipt:
+        self.get_project(project_id)
+        projection = self._projection(project_id)
+        packet = next(
+            (item for item in projection.list_handoff_packets_v2() if item.packet_id == packet_id),
+            None,
+        )
+        if packet is None:
+            raise NotFoundError(f"handoff packet {packet_id} not found")
+        for existing in projection.list_handoff_receipts():
+            if existing.packet_id == packet_id:
+                return existing
+        if not request.accepted and not request.reason.strip():
+            raise ValueError("reason is required when a handoff is rejected")
+        store = self._event_store(project_id)
+        from_revision = store.current_revision()
+        receipt = HandoffReceipt(
+            receipt_id=uuid4(),
+            packet_id=packet_id,
+            project_id=project_id,
+            accepted=request.accepted,
+            reason=request.reason,
+            from_revision=from_revision,
+            to_revision=from_revision + 1,
+            acceptance_actor=request.acceptance_actor,
+            accepted_at=utc_now(),
+        )
+        event_type = "HANDOFF_ACCEPTED" if request.accepted else "HANDOFF_REJECTED"
+        command_id = uuid4()
+        try:
+            committed = store.append_batch(
+                project_id=project_id,
+                expected_revision=request.expected_revision,
+                idempotency_key=request.idempotency_key,
+                batch_id=command_id,
+                events=[
+                    {
+                        "event_type": event_type,
+                        "actor": request.acceptance_actor,
+                        "command_id": str(command_id),
+                        "payload": {"receipt": receipt.model_dump(mode="json")},
+                        "epistemic_delta": (
+                            "A handoff packet was accepted for the next receiver."
+                            if request.accepted
+                            else "A handoff packet was rejected with a recorded reason."
+                        ),
+                        "epistemic_delta_type": EpistemicDeltaType.HANDOFF_REUSED,
+                    }
+                ],
+            )
+        except ValueError as exc:
+            if "stale event-store revision" in str(exc):
+                raise ConflictError(str(exc)) from exc
+            raise
+        self._projection(project_id).apply(committed[0])
+        self._touch_manifest(project_id)
+        return HandoffReceipt.model_validate(committed[0].payload["receipt"])
+
+    def list_handoff_receipts(self, project_id: UUID) -> list[HandoffReceipt]:
+        self.get_project(project_id)
+        return self._projection(project_id).list_handoff_receipts()
+
     def add_artifact(
         self,
         *,
@@ -956,6 +2029,27 @@ class SchemaMathService:
         if preview.confirmed_at is not None:
             raise ConflictError("chat import has already been confirmed")
         candidate_map = {item.candidate_id: item for item in preview.candidates}
+        # Validate every selection before writing any event so a bad reference
+        # cannot leave a partially confirmed import behind (no per-selection
+        # events are committed until the whole batch is known to be valid).
+        for selection in request.selections:
+            if selection.candidate_id not in candidate_map:
+                raise ConflictError(
+                    f"candidate {selection.candidate_id} does not belong to import {import_id}"
+                )
+            if (
+                selection.disposition in (ImportDisposition.BRIDGE_RESULT, ImportDisposition.NEW_BRANCH)
+                and selection.route_id is None
+            ):
+                raise ConflictError(
+                    f"{selection.disposition.value} requires a route target"
+                )
+            if selection.route_id is not None:
+                self._require_route(project_id, selection.route_id)
+            if selection.branch_id is not None:
+                branch = self._require_branch(project_id, selection.branch_id)
+                if selection.route_id is not None and branch.route_id != selection.route_id:
+                    raise ConflictError("branch belongs to a different route")
         created_event_ids: list[UUID] = []
         created_object_refs: list[str] = []
         ignored_count = 0
@@ -2209,12 +3303,15 @@ class SchemaMathService:
 
     def rebuild_projection(self, project_id: UUID) -> int:
         self.get_project(project_id)
-        projection = self._projection(project_id)
-        projection.reset()
-        events = self._event_store(project_id).read_all()
-        for event in events:
-            projection.apply(event)
-        return len(events)
+        store = self._event_store(project_id)
+        # Hold the append locks so concurrent appends cannot race the reset+replay.
+        with store.append_lock():
+            projection = self._projection(project_id)
+            projection.reset()
+            events = store.read_all()
+            for event in events:
+                projection.apply(event)
+            return len(events)
 
     def export_project_zip(self, project_id: UUID) -> Path:
         project = self.get_project(project_id)
@@ -2415,9 +3512,19 @@ class SchemaMathService:
             )
             try:
                 shutil.copytree(temp_path, staging)
+                store = EventStore(staging / "events" / "events.jsonl")
+                # Re-verify the canonical stream actually replayed (not merely the
+                # member the manifest's user-controlled event_stream field pointed
+                # at during preflight) so a tampered chain cannot be imported.
+                valid, first_invalid, chain_error = store.verify_chain()
+                if not valid:
+                    raise ConflictError(
+                        "imported event chain is invalid at index "
+                        f"{first_invalid}: {chain_error}"
+                    )
                 projection = ProjectionStore(staging / "database" / "projections.sqlite3")
                 projection.reset()
-                events = EventStore(staging / "events" / "events.jsonl").read_all()
+                events = store.read_all()
                 for event in events:
                     projection.apply(event)
                 staging.replace(destination)

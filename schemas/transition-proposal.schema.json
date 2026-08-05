@@ -1,0 +1,171 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "TransitionProposalStatus": {
+      "enum": [
+        "PROPOSED",
+        "ACCEPTED",
+        "REJECTED"
+      ],
+      "title": "TransitionProposalStatus",
+      "type": "string"
+    },
+    "TransitionTriggerClass": {
+      "enum": [
+        "OBSERVATION",
+        "TOOL_RESULT",
+        "MODEL_PROPOSAL",
+        "HUMAN_DECISION",
+        "EXACT_CHECK",
+        "EXTERNAL_UPDATE",
+        "PUBLIC_CORRECTION"
+      ],
+      "title": "TransitionTriggerClass",
+      "type": "string"
+    },
+    "TransitionVisibility": {
+      "enum": [
+        "DIRECT_OBSERVATION",
+        "PUBLIC_TRACE_DERIVATION",
+        "AUTHOR_REPORTED",
+        "NOT_ESTABLISHED"
+      ],
+      "title": "TransitionVisibility",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "trigger_class": {
+      "$ref": "#/$defs/TransitionTriggerClass"
+    },
+    "trigger_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Trigger Evidence Refs",
+      "type": "array"
+    },
+    "accepted_delta": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Accepted Delta",
+      "type": "object"
+    },
+    "rejected_components": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rejected Components",
+      "type": "array"
+    },
+    "next_obligation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Next Obligation Refs",
+      "type": "array"
+    },
+    "handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Handoff Refs",
+      "type": "array"
+    },
+    "visibility": {
+      "$ref": "#/$defs/TransitionVisibility",
+      "default": "NOT_ESTABLISHED"
+    },
+    "proposal_actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "proposal_id": {
+      "format": "uuid",
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/TransitionProposalStatus",
+      "default": "PROPOSED"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "trigger_class",
+    "proposal_actor",
+    "proposal_id",
+    "project_id",
+    "created_at"
+  ],
+  "title": "TransitionProposalRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/transition-proposal.schema.json"
+}

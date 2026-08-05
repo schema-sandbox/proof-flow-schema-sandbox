@@ -1,0 +1,211 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "VerificationExecutionStatus": {
+      "enum": [
+        "CONFIGURED",
+        "EXECUTED",
+        "SUCCEEDED",
+        "FAILED",
+        "TIMED_OUT",
+        "UNAVAILABLE"
+      ],
+      "title": "VerificationExecutionStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "command": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 64,
+      "minItems": 1,
+      "title": "Command",
+      "type": "array"
+    },
+    "working_directory": {
+      "default": "",
+      "title": "Working Directory",
+      "type": "string"
+    },
+    "environment_fingerprint": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Environment Fingerprint",
+      "type": "object"
+    },
+    "dependency_lock_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dependency Lock Refs",
+      "type": "array"
+    },
+    "exit_status": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exit Status"
+    },
+    "stdout_artifact_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stdout Artifact Ref"
+    },
+    "stderr_artifact_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stderr Artifact Ref"
+    },
+    "verification_check_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Verification Check Ids",
+      "type": "array"
+    },
+    "axiom_ceiling": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Axiom Ceiling",
+      "type": "array"
+    },
+    "target_scope": {
+      "default": "",
+      "title": "Target Scope",
+      "type": "string"
+    },
+    "timeout_seconds": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timeout Seconds"
+    },
+    "status": {
+      "$ref": "#/$defs/VerificationExecutionStatus",
+      "default": "CONFIGURED"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "execution_id": {
+      "format": "uuid",
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "executed_at": {
+      "format": "date-time",
+      "title": "Executed At",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Manifest Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "command",
+    "actor",
+    "execution_id",
+    "project_id",
+    "executed_at",
+    "manifest_sha256"
+  ],
+  "title": "VerificationExecutionManifestRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/verification-execution-manifest.schema.json"
+}

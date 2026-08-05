@@ -27,6 +27,10 @@ import {
   type HistoricalSearchHit,
   type ProjectManifest,
   type ProjectSummary,
+  type ClaimAtomRecord,
+  type EvidenceCardRecord,
+  type ResearchStateSnapshot,
+  type TransitionProposalRecord,
   type RouteRecord,
 } from "./api";
 
@@ -181,6 +185,10 @@ export function App() {
   const [bridges, setBridges] = useState<BridgeResultRecord[]>([]);
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [deltas, setDeltas] = useState<EpistemicDelta[]>([]);
+  const [researchState, setResearchState] = useState<ResearchStateSnapshot | null>(null);
+  const [transitionProposals, setTransitionProposals] = useState<TransitionProposalRecord[]>([]);
+  const [claimAtoms, setClaimAtoms] = useState<ClaimAtomRecord[]>([]);
+  const [evidenceCards, setEvidenceCards] = useState<EvidenceCardRecord[]>([]);
   const [canvasScene, setCanvasScene] = useState<Record<string, unknown> | null>(null);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<GraphData | null>(null);
@@ -227,7 +235,20 @@ export function App() {
     setLoading(true);
     setError("");
     try {
-      const [p, r, b, c, bridgeItems, eventItems, deltaItems, latestCanvas] =
+      const [
+        p,
+        r,
+        b,
+        c,
+        bridgeItems,
+        eventItems,
+        deltaItems,
+        latestCanvas,
+        stateSnapshot,
+        proposalItems,
+        claimItems,
+        evidenceItems,
+      ] =
         await Promise.all([
           api.project(id),
           api.routes(id),
@@ -237,6 +258,10 @@ export function App() {
           api.events(id),
           api.deltas(id),
           api.latestCanvas(id),
+          api.researchState(id),
+          api.transitionProposals(id),
+          api.claimAtoms(id),
+          api.evidenceCards(id),
         ]);
       setProject(p);
       setRoutes(r);
@@ -245,6 +270,10 @@ export function App() {
       setBridges(bridgeItems);
       setEvents(eventItems);
       setDeltas(deltaItems);
+      setResearchState(stateSnapshot);
+      setTransitionProposals(proposalItems);
+      setClaimAtoms(claimItems);
+      setEvidenceCards(evidenceItems);
       const scene = latestCanvas?.scene ?? {
         type: "excalidraw",
         version: 2,
@@ -465,6 +494,36 @@ export function App() {
                 <div><dt>事件</dt><dd>{events.length}</dd></div>
               </dl>
             </header>
+
+            <section className="control-plane-panel" aria-label="Alpha 5 研究控制面板">
+              <div className="section-heading">
+                <div>
+                  <h3>规范研究状态</h3>
+                  <span>
+                    修订 {researchState?.revision ?? "—"} · 提案 {transitionProposals.length} · Claim {claimAtoms.length} · Evidence {evidenceCards.length}
+                  </span>
+                </div>
+                <span className="control-plane-note">状态只能由已接受 transition 写回</span>
+              </div>
+              <div className="plane-grid">
+                {(["operational", "epistemic", "claim", "artifact"] as const).map((plane) => (
+                  <article key={plane} className="plane-card">
+                    <span>{plane}</span>
+                    <strong>{Object.keys(researchState?.[plane] ?? {}).length}</strong>
+                    <small>{plane === "claim" ? "Claim 保持未决/候选分离" : "可重建平面摘要"}</small>
+                  </article>
+                ))}
+              </div>
+              {transitionProposals.length > 0 && (
+                <div className="proposal-strip">
+                  {transitionProposals.slice(-4).reverse().map((proposal) => (
+                    <span key={proposal.proposal_id} className={`proposal-status ${proposal.status.toLowerCase()}`}>
+                      {proposal.status} · {proposal.trigger_class}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </section>
 
             {error && <div className="message error-message" role="alert">{error}</div>}
             {notice && <div className="message notice-message" role="status">{notice}</div>}

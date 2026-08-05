@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "HandoffPacketStatus": {
+      "enum": [
+        "PENDING",
+        "ACCEPTED",
+        "REJECTED"
+      ],
+      "title": "HandoffPacketStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "scope": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Scope",
+      "type": "string"
+    },
+    "tool_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tool Hashes",
+      "type": "array"
+    },
+    "fact_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Fact Evidence Refs",
+      "type": "array"
+    },
+    "failure_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Evidence Refs",
+      "type": "array"
+    },
+    "revival_conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Revival Conditions",
+      "type": "array"
+    },
+    "obligation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Obligation Refs",
+      "type": "array"
+    },
+    "next_receiver_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Next Receiver Refs",
+      "type": "array"
+    },
+    "source_session_ref": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Session Ref"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "packet_id": {
+      "format": "uuid",
+      "title": "Packet Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "from_revision": {
+      "minimum": 0,
+      "title": "From Revision",
+      "type": "integer"
+    },
+    "packet_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Packet Hash",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/HandoffPacketStatus",
+      "default": "PENDING"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "scope",
+    "actor",
+    "packet_id",
+    "project_id",
+    "from_revision",
+    "packet_hash",
+    "created_at"
+  ],
+  "title": "HandoffPacketV2Record",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/handoff-packet-v2.schema.json"
+}

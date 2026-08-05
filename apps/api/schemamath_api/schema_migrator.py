@@ -1,8 +1,8 @@
 """
-Schema Migrator — v0.4 → v0.5 (v46.0)
+Schema Migrator — v0.1 through v0.6 (Alpha.5)
 
 Provides automatic migration of event records and domain objects from schema
-version 0.4 to 0.5, with backward-compatible reading of older formats.
+version 0.1 through 0.6, with backward-compatible reading of older formats.
 """
 
 from __future__ import annotations
@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .event_store import event_digest, serialize_record
+
 logger = logging.getLogger(__name__)
 
 MIGRATION_PAIRS: list[tuple[str, str]] = [
@@ -20,12 +22,20 @@ MIGRATION_PAIRS: list[tuple[str, str]] = [
     ("0.2", "0.3"),
     ("0.3", "0.4"),
     ("0.4", "0.5"),
+    ("0.5", "0.6"),
 ]
 
 V05_NEW_FIELDS: dict[str, Any] = {
     "trace_class": "FINAL_ONLY_ARTIFACT",
     "artifact_correlations": [],
     "cost_boundary": None,
+}
+
+V06_NEW_FIELDS: dict[str, Any] = {
+    "revision": None,
+    "batch_id": None,
+    "idempotency_key": None,
+    "command_id": None,
 }
 
 
@@ -106,10 +116,19 @@ class SchemaMigrator:
         result = self.migrate_records(records, target_version)
 
         if result.success:
+            # Rebuild the SHA-256 chain so the migrated file passes
+            # EventStore.verify_chain (field additions invalidate old hashes).
+            previous: str | None = None
+            for rec in records:
+                without_hash = dict(rec)
+                without_hash.pop("event_hash", None)
+                rec["previous_event_hash"] = previous
+                rec["event_hash"] = event_digest(without_hash)
+                previous = rec["event_hash"]
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            with target_path.open("w", encoding="utf-8") as f:
+            with target_path.open("wb") as f:
                 for rec in records:
-                    f.write(json.dumps(rec, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
+                    f.write(serialize_record(rec) + b"\n")
             logger.info(
                 "Migrated %d records from %s to %s (skipped %d)",
                 result.records_migrated,
@@ -146,5 +165,16 @@ class SchemaMigrator:
                     if isinstance(payload, dict) and key not in payload:
                         payload[key] = default
                         migrated["payload"] = payload
+
+        if from_v == "0.5" and to_v == "0.6":
+            for key, default in V06_NEW_FIELDS.items():
+                migrated.setdefault(key, default)
+            # Adding the control-plane fields changes the record content, so any
+            # existing event_hash must be recomputed over the new bytes to stay
+            # consistent with EventStore.verify_chain.
+            if "event_hash" in migrated:
+                without_hash = dict(migrated)
+                without_hash.pop("event_hash", None)
+                migrated["event_hash"] = event_digest(without_hash)
 
         return migrated

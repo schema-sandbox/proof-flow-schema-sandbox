@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-**Version:** `0.1.0-alpha.4`  
+**Version:** `0.1.0-alpha.5`  
 **Short name:** ProofFlow  
 **Status:** local-first experimental mathematics research sandbox
 
@@ -9,6 +9,13 @@ guaranteed solver, does not claim access to hidden model reasoning, and never
 automatically marks a project solved. `UNRESOLVED` is a first-class outcome;
 objections remain easy while certified route closure intentionally requires
 strong evidence and a human actor.
+
+## Alpha.5
+
+- Atomic revisioned/idempotent event batches and accepted/rejected four-plane research-state transitions.
+- Typed continuation contracts, V2 handoff receipts, ClaimAtom proposals, six-dimensional evidence cards and review lineage.
+- Verification execution manifests, coverage bindings, repository snapshots, repair lineage, typed attempts/costs and 27-field dossier V2.
+- `/app/` now summarizes the four research planes, transition proposals, claims and evidence inventory.
 
 ## Alpha.4
 
@@ -38,6 +45,29 @@ strong evidence and a human actor.
   separately and only humans can confirm mappings into the research graph.
 - Alpha.2 `.smath.zip` import compatibility and replay are covered by regression
   tests. Historical events are never rewritten.
+
+## Paper v0.14 and the Alpha.5 boundary
+
+`From_Prompt_to_Proof_v0.14.md` introduces four independent research-state
+planes, accepted state transitions, typed continuation decisions,
+evidence-backed handoffs, claim-to-certificate coverage and repository snapshot
+lineage. These are the Alpha.5 control-plane requirements; Alpha.4 behavior
+remains readable and is not rewritten.
+
+See the [v0.14 alignment requirements](docs/V0_14_THEORY_REQUIREMENTS_CN.md)
+and [target architecture](docs/ARCHITECTURE.md). Alpha.4 remains strongest at
+trajectory retention; Alpha.5 adds the transition acceptance, continuation
+control, vector-valued claim evidence and formal-release coverage control plane.
+External Lean, dependency and clean-release evidence remains a separate
+release gate and is never inferred from local static checks.
+
+See the [v0.14 software audit](docs/V0_14_SOFTWARE_AUDIT_CN.md),
+[Alpha.5 upgrade plan](docs/ALPHA_5_UPGRADE_PLAN_CN.md), and
+[Alpha.5 acceptance matrix](docs/ALPHA_5_ACCEPTANCE_MATRIX_CN.md) for the audit
+trail and release gates. Legacy Alpha.1–Alpha.4 events remain readable; new
+writes use schema `0.6` and are append-only.
+The [Alpha.5 implementation report](docs/ALPHA_5_IMPLEMENTATION_REPORT_CN.md)
+records local verification and the external evidence boundary.
 
 ## Run locally
 
@@ -70,10 +100,11 @@ published port to loopback, and disables local process plugins. The `/app/` UI
 prompts for an API key after a 401 and keeps it only in the current browser session.
 
 ProofFlow-prefixed environment variables are preferred:
-`PROOFFLOW_WORKSPACE`, `PROOFFLOW_PLUGIN_ROOT`,
+`PROOFFLOW_ENV`, `PROOFFLOW_WORKSPACE`, `PROOFFLOW_PLUGIN_ROOT`,
 `PROOFFLOW_MAX_UPLOAD_BYTES`, `PROOFFLOW_MAX_CHAT_IMPORT_CHARS`,
 `PROOFFLOW_MAX_PLUGIN_OUTPUT_BYTES`, and
-`PROOFFLOW_MAX_PLUGIN_OUTPUT_FILES`. Production additionally requires
+`PROOFFLOW_MAX_PLUGIN_OUTPUT_FILES`. `PROOFFLOW_ENV=production` switches to
+fail-closed behavior. Production additionally requires
 `PROOFFLOW_SECRET_KEY` and `PROOFFLOW_API_KEYS`, and accepts
 `PROOFFLOW_AUTH_ENABLED`, `PROOFFLOW_ALLOW_LOCAL_PLUGINS`, and
 `PROOFFLOW_MAX_IMPORT_BYTES`. Their `SCHEMAMATH_*` Alpha.2 aliases remain
@@ -85,13 +116,19 @@ supported for compatibility.
 .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
 .\.venv\Scripts\ruff.exe check apps/api tests scripts
 .\.venv\Scripts\python.exe scripts/validate_schemas.py
+.\.venv\Scripts\python.exe scripts/export_runtime_schemas.py
+.\.venv\Scripts\python.exe scripts/export_k0_schemas.py
+.\.venv\Scripts\python.exe scripts/export_openapi.py
 npm run build --prefix apps/web
 npm audit --prefix apps/web --audit-level=high
+python scripts/stage_wheel_ui.py
+python -m pip wheel . --no-deps --no-build-isolation -w /tmp/proofflow-wheel
 ```
 
 See [Alpha.4 release notes](docs/ALPHA_4_RELEASE_NOTES_CN.md),
 [migration notes](docs/MIGRATION_ALPHA3_TO_ALPHA4_CN.md), and
-[validation report](VALIDATION_REPORT.txt).
+[validation report](VALIDATION_REPORT.txt). Next-version requirements are
+defined in the [v0.14 alignment specification](docs/V0_14_THEORY_REQUIREMENTS_CN.md).
 
 ## Security boundary
 

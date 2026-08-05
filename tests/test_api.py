@@ -63,6 +63,112 @@ def test_api_vertical_slice(tmp_path: Path) -> None:
     assert response.json()["valid"] is True
 
 
+def test_alpha5_research_state_transition_api(tmp_path: Path) -> None:
+    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
+    client = TestClient(app)
+    project = client.post(
+        "/api/v1/projects",
+        json={
+            "title": "Transition API project",
+            "problem": {"source_text": "Track a proposed state change."},
+            "actor": {"type": "human", "id": "tester"},
+        },
+    )
+    assert project.status_code == 201, project.text
+    project_id = project.json()["project_id"]
+
+    proposal = client.post(
+        f"/api/v1/projects/{project_id}/transition-proposals",
+        json={
+            "expected_revision": 1,
+            "idempotency_key": "api-proposal-1",
+            "trigger_class": "OBSERVATION",
+            "trigger_evidence_refs": ["artifact:obs-1"],
+            "accepted_delta": {"epistemic": {"support": "weak"}},
+            "visibility": "DIRECT_OBSERVATION",
+            "proposal_actor": {"type": "human", "id": "tester"},
+        },
+    )
+    assert proposal.status_code == 201, proposal.text
+    proposal_id = proposal.json()["proposal_id"]
+
+    listed = client.get(f"/api/v1/projects/{project_id}/transition-proposals")
+    assert listed.status_code == 200
+    assert listed.json()[0]["status"] == "PROPOSED"
+
+    accepted = client.post(
+        f"/api/v1/projects/{project_id}/transition-proposals/{proposal_id}/accept",
+        json={
+            "expected_revision": 2,
+            "idempotency_key": "api-accept-1",
+            "acceptance_actor": {"type": "human", "id": "reviewer"},
+            "acceptance_mechanism": "manual-review",
+            "accepted": True,
+        },
+    )
+    assert accepted.status_code == 201, accepted.text
+    assert accepted.json()["accepted"] is True
+
+    state = client.get(f"/api/v1/projects/{project_id}/research-state")
+    assert state.status_code == 200
+    assert state.json()["revision"] == 3
+    assert state.json()["epistemic"]["support"] == "weak"
+
+
+def test_alpha5_continuation_and_handoff_v2_api(tmp_path: Path) -> None:
+    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
+    client = TestClient(app)
+    project = client.post(
+        "/api/v1/projects",
+        json={
+            "title": "Typed handoff API project",
+            "problem": {"source_text": "Keep a typed continuation receipt."},
+            "actor": {"type": "human", "id": "tester"},
+        },
+    )
+    assert project.status_code == 201, project.text
+    project_id = project.json()["project_id"]
+
+    continuation = client.post(
+        f"/api/v1/projects/{project_id}/continuation-contracts",
+        json={
+            "expected_revision": 1,
+            "idempotency_key": "api-continuation-1",
+            "decision": "NO_CHANGE",
+            "scope": "retain route",
+            "actor": {"type": "human", "id": "tester"},
+        },
+    )
+    assert continuation.status_code == 201, continuation.text
+
+    packet = client.post(
+        f"/api/v1/projects/{project_id}/handoffs-v2",
+        json={
+            "expected_revision": 2,
+            "idempotency_key": "api-handoff-1",
+            "scope": "route packet",
+            "tool_hashes": ["sha256:tool"],
+            "fact_evidence_refs": ["artifact:fact"],
+            "failure_evidence_refs": ["artifact:failure"],
+            "actor": {"type": "human", "id": "tester"},
+        },
+    )
+    assert packet.status_code == 201, packet.text
+    packet_id = packet.json()["packet_id"]
+
+    receipt = client.post(
+        f"/api/v1/projects/{project_id}/handoffs-v2/{packet_id}/accept",
+        json={
+            "expected_revision": 3,
+            "idempotency_key": "api-handoff-receipt-1",
+            "accepted": True,
+            "acceptance_actor": {"type": "human", "id": "receiver"},
+        },
+    )
+    assert receipt.status_code == 201, receipt.text
+    assert receipt.json()["accepted"] is True
+
+
 def test_alpha2_api_objects_chat_import_and_python_plugin(tmp_path: Path) -> None:
     app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
     client = TestClient(app)
@@ -316,3 +422,45 @@ def test_generic_event_api_rejects_internal_state_machine_events(tmp_path: Path)
         },
     )
     assert annotation.status_code == 201, annotation.text
+
+
+def test_corrupt_event_chain_returns_500_not_400(tmp_path: Path) -> None:
+    import json
+
+    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
+    client = TestClient(app)
+
+    project_id = client.post(
+        "/api/v1/projects",
+        json={
+            "title": "Integrity project",
+            "description": "test",
+            "problem": {
+                "source_text": "Verify chain corruption is reported as 500.",
+                "author_notes": "",
+                "definitions": [],
+                "assumptions": [],
+            },
+            "actor": {"type": "human", "id": "tester"},
+        },
+    ).json()["project_id"]
+
+    event_path = (
+        tmp_path / "workspaces" / f"{project_id}.smath" / "events" / "events.jsonl"
+    )
+    records = event_path.read_text(encoding="utf-8").splitlines()
+    record = json.loads(records[0])
+    record["event_type"] = "TAMPERED_EVENT"
+    records[0] = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+    event_path.write_text("\n".join(records) + "\n", encoding="utf-8")
+
+    response = client.post(
+        f"/api/v1/projects/{project_id}/events",
+        json={
+            "event_type": "EXPERIMENT_NOTE",
+            "actor": {"type": "human", "id": "tester"},
+            "payload": {"label": "must be refused"},
+        },
+    )
+    assert response.status_code == 500, response.text
+    assert "integrity" in response.json()["detail"]

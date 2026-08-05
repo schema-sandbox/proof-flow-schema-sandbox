@@ -131,3 +131,49 @@ class TestTransactionExecutor:
         assert len(tx.proposed_events) == 1
         assert len(tx.proposed_artifacts) == 1
         assert tx.proposed_artifacts[0].content == b"art content"
+
+    def test_invalid_event_in_batch_leaves_no_partial_events(self, temp_workspace):
+        event_store, _, _ = temp_workspace
+        executor = TransactionExecutor(event_store)
+        tx = Transaction(
+            project_id=uuid4(),
+            proposed_events=[
+                {"event_type": "FIRST", "actor": {"type": "human", "id": "user1"}},
+                {"event_type": "SECOND", "actor": {"type": "invalid", "id": "user1"}},
+            ],
+        )
+
+        result = executor.execute_transaction(tx, _make_merged_decision(Decision.ALLOW))
+
+        assert result.success is False
+        assert result.rolled_back is True
+        assert event_store.read_all() == []
+
+    def test_expected_revision_and_idempotency_are_enforced(self, temp_workspace):
+        event_store, _, _ = temp_workspace
+        executor = TransactionExecutor(event_store)
+        project_id = uuid4()
+        first = Transaction(
+            project_id=project_id,
+            expected_revision=0,
+            idempotency_key="command-1",
+            proposed_events=[{"event_type": "ONCE", "actor": {"type": "human", "id": "user1"}}],
+        )
+
+        first_result = executor.execute_transaction(first, _make_merged_decision(Decision.ALLOW))
+        retry_result = executor.execute_transaction(first, _make_merged_decision(Decision.ALLOW))
+
+        assert first_result.success is True
+        assert retry_result.success is True
+        assert retry_result.committed_event_ids == first_result.committed_event_ids
+        assert len(event_store.read_all()) == 1
+
+        stale = Transaction(
+            project_id=project_id,
+            expected_revision=0,
+            proposed_events=[{"event_type": "STALE", "actor": {"type": "human", "id": "user1"}}],
+        )
+        stale_result = executor.execute_transaction(stale, _make_merged_decision(Decision.ALLOW))
+        assert stale_result.success is False
+        assert "stale event-store revision" in (stale_result.error or "")
+        assert [event.event_type for event in event_store.read_all()] == ["ONCE"]

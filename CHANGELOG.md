@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.1.0-alpha.5
+
+- Added atomic event batches with revision checks, idempotency keys, batch IDs and command metadata.
+- Added accepted/rejected research-state transitions across operational, epistemic, claim and artifact planes.
+- Added typed continuation contracts, V2 handoff packets and acceptance/rejection receipts.
+- Added ClaimAtom proposals, six independent evidence dimensions, review lineage and explicit claim relations.
+- Added execution manifests, formal coverage bindings, repository snapshots and repair lineage records.
+- Added typed hierarchy nodes, attempt outcomes, cost vectors, micro-falsification plans, benchmark bindings and 27-field dossier V2 records.
+- Added the Alpha.5 REST routes, runtime schemas, SQLite projections and control-plane UI summary.
+- Comparator results now fail closed when no real primary-kernel execution is available.
+- Schema `0.6` accepts Alpha.1–Alpha.5 reads; legacy event lines remain append-only and are projected without rewriting.
+
+## Unreleased — v0.14 theory-alignment documentation
+
+- Added a SHA-256-pinned v0.14 requirements baseline with 16 traceable
+  `PF-014` requirement groups.
+- Added the current-code software audit, Alpha.5 upgrade plan and acceptance
+  matrix while preserving Alpha.4 as the current runtime boundary.
+- The implementation work described by this plan is now recorded in the Alpha.5
+  release section above; the original audit baseline remains historical.
+- Updated the repository map and README links. No runtime behavior, API,
+  Schema version or historical release record was changed by this
+  documentation-only alignment pass.
+
 ## 0.1.0-alpha.4
 
 - Added fail-closed production API-key/HMAC authentication and disabled local

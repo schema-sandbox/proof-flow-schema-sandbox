@@ -1,0 +1,147 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "MutationObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "mutation_id": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Mutation Id",
+          "type": "string"
+        },
+        "expected": {
+          "title": "Expected",
+          "type": "string"
+        },
+        "observed": {
+          "title": "Observed",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mutation_id",
+        "expected",
+        "observed",
+        "passed"
+      ],
+      "title": "MutationObservation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "execution_id": {
+      "format": "uuid",
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "mutations": {
+      "items": {
+        "$ref": "#/$defs/MutationObservation"
+      },
+      "minItems": 1,
+      "title": "Mutations",
+      "type": "array"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "mutation_set_id": {
+      "format": "uuid",
+      "title": "Mutation Set Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "all_expected_failures": {
+      "title": "All Expected Failures",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "execution_id",
+    "mutations",
+    "actor",
+    "mutation_set_id",
+    "project_id",
+    "created_at",
+    "all_expected_failures"
+  ],
+  "title": "VerificationMutationSetRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/verification-mutation-set.schema.json"
+}

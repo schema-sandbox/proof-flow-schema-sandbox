@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "AttemptOutcome": {
+      "enum": [
+        "SUCCESS",
+        "FAILURE",
+        "TIMED_OUT",
+        "DUPLICATE",
+        "ROLLED_BACK",
+        "OUT_OF_SCOPE",
+        "REJECTED",
+        "NO_CHANGE"
+      ],
+      "title": "AttemptOutcome",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "target_ref": {
+      "title": "Target Ref",
+      "type": "string"
+    },
+    "method_ref": {
+      "default": "",
+      "title": "Method Ref",
+      "type": "string"
+    },
+    "outcome": {
+      "$ref": "#/$defs/AttemptOutcome"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Refs",
+      "type": "array"
+    },
+    "output_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Refs",
+      "type": "array"
+    },
+    "failure_observations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Observations",
+      "type": "array"
+    },
+    "no_change_reason": {
+      "default": "",
+      "title": "No Change Reason",
+      "type": "string"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "attempt_id": {
+      "format": "uuid",
+      "title": "Attempt Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "target_ref",
+    "outcome",
+    "started_at",
+    "actor",
+    "attempt_id",
+    "project_id",
+    "created_at"
+  ],
+  "title": "AttemptRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/attempt-record.schema.json"
+}

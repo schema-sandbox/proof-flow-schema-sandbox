@@ -1,0 +1,115 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "RepairLineageType": {
+      "enum": [
+        "REPAIR",
+        "REVERSION",
+        "SUPERSESSION",
+        "FOLLOW_UP"
+      ],
+      "title": "RepairLineageType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 0,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "idempotency_key": {
+      "maxLength": 240,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "repair_type": {
+      "$ref": "#/$defs/RepairLineageType"
+    },
+    "input_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Refs",
+      "type": "array"
+    },
+    "output_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Refs",
+      "type": "array"
+    },
+    "affected_claim_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Affected Claim Refs",
+      "type": "array"
+    },
+    "downstream_reopen_obligations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Downstream Reopen Obligations",
+      "type": "array"
+    },
+    "actor": {
+      "$ref": "#/$defs/Actor"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "idempotency_key",
+    "repair_type",
+    "actor"
+  ],
+  "title": "RepairLineageCreate",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/repair-lineage-create.schema.json"
+}

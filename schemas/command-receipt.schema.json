@@ -1,0 +1,90 @@
+{
+  "additionalProperties": false,
+  "description": "Stable receipt returned by a command that touched the event stream.",
+  "properties": {
+    "command_id": {
+      "format": "uuid",
+      "title": "Command Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "operation": {
+      "title": "Operation",
+      "type": "string"
+    },
+    "accepted": {
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "idempotent_replay": {
+      "default": false,
+      "title": "Idempotent Replay",
+      "type": "boolean"
+    },
+    "from_revision": {
+      "minimum": 0,
+      "title": "From Revision",
+      "type": "integer"
+    },
+    "to_revision": {
+      "minimum": 0,
+      "title": "To Revision",
+      "type": "integer"
+    },
+    "event_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "title": "Event Ids",
+      "type": "array"
+    },
+    "batch_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Batch Id"
+    },
+    "projection_revision": {
+      "minimum": 0,
+      "title": "Projection Revision",
+      "type": "integer"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    }
+  },
+  "required": [
+    "command_id",
+    "project_id",
+    "operation",
+    "accepted",
+    "from_revision",
+    "to_revision",
+    "projection_revision"
+  ],
+  "title": "CommandReceipt",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/command-receipt.schema.json"
+}

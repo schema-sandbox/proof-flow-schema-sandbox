@@ -38,6 +38,14 @@ class TestMigrateRecord:
         assert result["payload"]["existing"] == "data"
         assert result["payload"]["trace_class"] == "FINAL_ONLY_ARTIFACT"
 
+    def test_v05_to_v06_adds_control_plane_metadata_without_rewriting_payload(self):
+        rec = {"schema_version": "0.5", "payload": {"claim": "legacy"}}
+        result = SchemaMigrator().migrate_record(rec, "0.6")
+        assert result["schema_version"] == "0.6"
+        assert result["payload"]["claim"] == "legacy"
+        assert result["revision"] is None
+        assert result["idempotency_key"] is None
+
     def test_v03_to_v05_chain(self):
         rec = {"schema_version": "0.3", "payload": {}}
         m = SchemaMigrator()

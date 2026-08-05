@@ -1,11 +1,18 @@
 # ProofFlow Schema Sandbox
 
-## 图式证明流实验沙箱 `0.1.0-alpha.4`
+## 图式证明流实验沙箱 `0.1.0-alpha.5`
 
 正式名称是 **ProofFlow Schema Sandbox**，简称 **ProofFlow**。
 
 ProofFlow 是本地优先、人类主导的实验数学研究沙箱。它不保证解题，不会声称访问模型隐藏思维链，也不会自动把项目标成“已解决”。`UNRESOLVED`
 是一等结果；提出异议保持容易，而认证关闭路线仍需要高强度证据和人类确认。
+
+## Alpha.5 内容
+
+- 事件批次具备 revision、幂等键、批次 ID，并以原子方式写入。
+- 四个研究状态平面通过提案、接受/拒绝事件写回；新增类型化延续合同和 V2 交接回执。
+- ClaimAtom、六维独立证据卡、审查血缘、执行 manifest、覆盖绑定、仓库快照和修复血缘均可持久化。
+- 新增层级节点、尝试结果、CostVector、微型反驳计划、BenchmarkBinding 与 27 项 dossier V2；`/app/` 显示四平面摘要。
 
 ## Alpha.4 内容
 
@@ -23,6 +30,23 @@ ProofFlow 是本地优先、人类主导的实验数学研究沙箱。它不保�
 - 新增类型化 epistemic delta、历史路线检索和近重复路线提示。
 - `/app/` 提供 React Flow 与 Excalidraw 双画布。原始草图不可变；机器解释单独保存；只有人类能确认草图到研究图的映射。
 - Alpha.2 `.smath.zip` 导入、事件回放和已有能力均有回归测试；不重写历史事件。
+
+## 论文 v0.14 与 Alpha.5 边界
+
+`From_Prompt_to_Proof_v0.14.md` 提出四个彼此独立的研究状态平面、状态转移接受、
+类型化延续决定、证据化交接、声明到正式证书的覆盖矩阵和仓库快照谱系。
+这些要求已在 Alpha.5 控制面实现；Alpha.4 事件仍保持只读兼容，不重写历史。
+
+规范见 [v0.14 理论对齐升级要求](docs/V0_14_THEORY_REQUIREMENTS_CN.md) 和
+[目标架构](docs/ARCHITECTURE.md)。Alpha.4 仍以轨迹保留为强项；Alpha.5 已补齐
+转移接受、延续控制、向量化声明证据和正式发布覆盖控制面。真实 Lean、依赖审计和
+干净发布证据仍是独立发布门禁，不能由本地静态检查推断。
+
+本次逐项结果见 [v0.14 软件审计](docs/V0_14_SOFTWARE_AUDIT_CN.md)，实施顺序见
+[Alpha.5 升级计划](docs/ALPHA_5_UPGRADE_PLAN_CN.md)，发布门禁见
+[Alpha.5 验收矩阵](docs/ALPHA_5_ACCEPTANCE_MATRIX_CN.md)。这些文件保留审计依据和验收门禁；
+新写入使用 Schema `0.6`。
+另见 [Alpha.5 实施报告](docs/ALPHA_5_IMPLEMENTATION_REPORT_CN.md)，其中记录本地验证和外部证据边界。
 
 ## 本地运行
 
@@ -49,9 +73,9 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up --build
 生产配置将数据持久化到 `/data`、端口绑定到回环地址，并默认禁用本地进程插件；`/app/`
 在收到 401 后会提示输入 API key，密钥只保存在当前浏览器会话中。
 
-优先使用 `PROOFFLOW_WORKSPACE`、`PROOFFLOW_PLUGIN_ROOT` 等
-`PROOFFLOW_*` 环境变量。为兼容 Alpha.2，对应的 `SCHEMAMATH_*`
-变量仍然有效。
+优先使用 `PROOFFLOW_ENV`、`PROOFFLOW_WORKSPACE`、`PROOFFLOW_PLUGIN_ROOT` 等
+`PROOFFLOW_*` 环境变量，`PROOFFLOW_ENV=production` 切换到 fail-closed 行为。
+为兼容 Alpha.2，对应的 `SCHEMAMATH_*` 变量仍然有效。
 
 ## 验证
 
@@ -59,13 +83,19 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up --build
 .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
 .\.venv\Scripts\ruff.exe check apps/api tests scripts
 .\.venv\Scripts\python.exe scripts/validate_schemas.py
+.\.venv\Scripts\python.exe scripts/export_runtime_schemas.py
+.\.venv\Scripts\python.exe scripts/export_k0_schemas.py
+.\.venv\Scripts\python.exe scripts/export_openapi.py
 npm run build --prefix apps/web
 npm audit --prefix apps/web --audit-level=high
+python scripts/stage_wheel_ui.py
+python -m pip wheel . --no-deps --no-build-isolation -w /tmp/proofflow-wheel
 ```
 
 进一步参见 [Alpha.4 发布说明](docs/ALPHA_4_RELEASE_NOTES_CN.md)、
 [Alpha.3 到 Alpha.4 迁移说明](docs/MIGRATION_ALPHA3_TO_ALPHA4_CN.md) 和
-[验证报告](VALIDATION_REPORT.txt)。
+[验证报告](VALIDATION_REPORT.txt)。Alpha.5 要求以
+[v0.14 理论对齐升级要求](docs/V0_14_THEORY_REQUIREMENTS_CN.md) 为准。
 
 ## 安全边界
 

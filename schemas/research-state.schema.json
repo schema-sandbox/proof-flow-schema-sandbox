@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "description": "Rebuildable four-plane state snapshot for the Alpha.5 transition kernel.",
+  "properties": {
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "revision": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "operational": {
+      "additionalProperties": true,
+      "title": "Operational",
+      "type": "object"
+    },
+    "epistemic": {
+      "additionalProperties": true,
+      "title": "Epistemic",
+      "type": "object"
+    },
+    "claim": {
+      "additionalProperties": true,
+      "title": "Claim",
+      "type": "object"
+    },
+    "artifact": {
+      "additionalProperties": true,
+      "title": "Artifact",
+      "type": "object"
+    },
+    "as_of": {
+      "format": "date-time",
+      "title": "As Of",
+      "type": "string"
+    }
+  },
+  "required": [
+    "project_id",
+    "as_of"
+  ],
+  "title": "ResearchStateSnapshot",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/research-state.schema.json"
+}

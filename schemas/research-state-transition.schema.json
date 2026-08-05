@@ -1,0 +1,184 @@
+{
+  "$defs": {
+    "Actor": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/ActorType"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 240,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        }
+      },
+      "required": [
+        "type",
+        "id"
+      ],
+      "title": "Actor",
+      "type": "object"
+    },
+    "ActorType": {
+      "enum": [
+        "human",
+        "model",
+        "tool",
+        "runtime"
+      ],
+      "title": "ActorType",
+      "type": "string"
+    },
+    "TransitionTriggerClass": {
+      "enum": [
+        "OBSERVATION",
+        "TOOL_RESULT",
+        "MODEL_PROPOSAL",
+        "HUMAN_DECISION",
+        "EXACT_CHECK",
+        "EXTERNAL_UPDATE",
+        "PUBLIC_CORRECTION"
+      ],
+      "title": "TransitionTriggerClass",
+      "type": "string"
+    },
+    "TransitionVisibility": {
+      "enum": [
+        "DIRECT_OBSERVATION",
+        "PUBLIC_TRACE_DERIVATION",
+        "AUTHOR_REPORTED",
+        "NOT_ESTABLISHED"
+      ],
+      "title": "TransitionVisibility",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Accepted or rejected transition with explicit M2 provenance.",
+  "properties": {
+    "transition_id": {
+      "format": "uuid",
+      "title": "Transition Id",
+      "type": "string"
+    },
+    "proposal_id": {
+      "format": "uuid",
+      "title": "Proposal Id",
+      "type": "string"
+    },
+    "project_id": {
+      "format": "uuid",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "from_revision": {
+      "minimum": 0,
+      "title": "From Revision",
+      "type": "integer"
+    },
+    "to_revision": {
+      "minimum": 0,
+      "title": "To Revision",
+      "type": "integer"
+    },
+    "trigger_class": {
+      "$ref": "#/$defs/TransitionTriggerClass"
+    },
+    "trigger_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Trigger Evidence Refs",
+      "type": "array"
+    },
+    "proposal_actor": {
+      "$ref": "#/$defs/Actor"
+    },
+    "acceptance_actor_or_mechanism_ref": {
+      "title": "Acceptance Actor Or Mechanism Ref",
+      "type": "string"
+    },
+    "accepted_delta": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Accepted Delta",
+      "type": "object"
+    },
+    "rejected_components": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rejected Components",
+      "type": "array"
+    },
+    "next_obligation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Next Obligation Refs",
+      "type": "array"
+    },
+    "handoff_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Handoff Refs",
+      "type": "array"
+    },
+    "visibility": {
+      "$ref": "#/$defs/TransitionVisibility"
+    },
+    "accepted": {
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "rejection_reason": {
+      "default": "",
+      "title": "Rejection Reason",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "accepted_at": {
+      "format": "date-time",
+      "title": "Accepted At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "transition_id",
+    "proposal_id",
+    "project_id",
+    "from_revision",
+    "to_revision",
+    "trigger_class",
+    "proposal_actor",
+    "acceptance_actor_or_mechanism_ref",
+    "visibility",
+    "accepted",
+    "idempotency_key",
+    "accepted_at"
+  ],
+  "title": "ResearchStateTransitionRecord",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemamath.org/schemas/runtime/research-state-transition.schema.json"
+}
