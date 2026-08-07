@@ -4,11 +4,30 @@
 **Short name:** ProofFlow  
 **Status:** local-first experimental mathematics research sandbox
 
-ProofFlow preserves observable mathematical research trajectories. It is not a
-guaranteed solver, does not claim access to hidden model reasoning, and never
-automatically marks a project solved. `UNRESOLVED` is a first-class outcome;
-objections remain easy while certified route closure intentionally requires
-strong evidence and a human actor.
+ProofFlow is a local-first, human-guided sandbox for experimental mathematics
+research. It tracks a project the way it actually unfolds — routes, dead ends,
+objections, and bridges — as an append-only, SHA-256-chained event stream that
+can be replayed and audited.
+
+ProofFlow does not promise to solve problems. It does not claim access to hidden
+model reasoning, and it never automatically marks a project "solved."
+`UNRESOLVED` is a first-class outcome. Objections are cheap to raise; a certified
+route closure deliberately requires strong evidence and a human actor.
+
+## Why ProofFlow
+
+- **Observable**: research is captured as an event stream you can replay and
+  audit, not a black-box answer.
+- **Honest**: `UNRESOLVED` is a first-class outcome. Objections stay cheap;
+  certified closure is deliberately expensive and requires a human.
+- **Human in the loop**: models can propose, but only a human confirms mappings
+  and state transitions.
+
+## Who it is for
+
+- Mathematicians who want LLM assistance without losing the decision trail.
+- Formal-verification and Lean-adjacent researchers.
+- Anyone studying how AI reasoning on hard problems actually unfolds.
 
 ## Alpha.5
 
