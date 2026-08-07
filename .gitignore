@@ -32,3 +32,9 @@ ProofFlow_Schema_Sandbox_*/
 SchemaMath_Experimental_Sandbox_*/
 SchemaMath_Experimental_Sandbox_Design_*/
 .claude/
+# Research papers (large background material, not shipped)
+internal_kb_schema_sandbox_paper_V*.md
+From_Prompt_to_Proof_v0.11*.md
+From_Prompt_to_Proof_v0.12*.md
+From_Prompt_to_Proof_v0.13*.md
+operational_evidence_map_*
