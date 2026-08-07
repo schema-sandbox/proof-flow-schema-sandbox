@@ -456,6 +456,13 @@ button:disabled {
   background: var(--surface-muted);
 }
 
+.search-empty {
+  padding: 16px 12px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 .search-results span {
   color: var(--accent-strong);
   font-family: "Cascadia Mono", "SFMono-Regular", monospace;
@@ -493,7 +500,36 @@ button:disabled {
 }
 
 .route-panel {
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.node-detail {
+  display: grid;
+  gap: 3px;
+  padding: 8px 13px;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.node-detail span {
+  color: var(--accent-strong);
+  font-family: "Cascadia Mono", "SFMono-Regular", monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.node-detail p {
+  margin: 0;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 64px;
+}
+
+.node-detail .node-detail-hint {
+  color: var(--text-muted);
+  font-size: 10px;
 }
 
 .sketch-panel {
@@ -694,6 +730,27 @@ button:disabled {
   min-height: 44px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--line);
+}
+
+.section-heading > div:first-child {
+  min-width: 0;
+}
+
+.section-heading .expand-toggle {
+  padding: 4px 10px;
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: var(--radius);
+}
+
+.section-heading .expand-toggle:hover {
+  color: #f5f8f9;
+  background: var(--accent-strong);
 }
 
 .section-heading h3,

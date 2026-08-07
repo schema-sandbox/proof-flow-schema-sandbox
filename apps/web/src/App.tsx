@@ -194,12 +194,19 @@ export function App() {
   const [selectedNode, setSelectedNode] = useState<GraphData | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchHits, setSearchHits] = useState<HistoricalSearchHit[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [deltasExpanded, setDeltasExpanded] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [canvasNote, setCanvasNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [apiKeyDraft, setApiKeyDraft] = useState("");
+  const [systemDark, setSystemDark] = useState(
+    () => window.matchMedia("(prefers-color-scheme: dark)").matches,
+  );
   const sceneDraft = useRef<SceneDraft | null>(null);
   const selectedElementIds = useRef<string[]>([]);
   const flowInstance = useRef<ReactFlowInstance<Node<GraphData>, Edge> | null>(null);
@@ -218,6 +225,27 @@ export function App() {
     [graph.nodes, selectedNodeId],
   );
   const openChallenges = challenges.filter((item) => item.status !== "RESOLVED").length;
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (event: MediaQueryListEvent) => setSystemDark(event.matches);
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onMouseDown = (event: MouseEvent) => {
+      if (
+        searchWrapRef.current &&
+        !searchWrapRef.current.contains(event.target as Element)
+      ) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, [searchOpen]);
 
   useEffect(() => {
     api
@@ -315,11 +343,13 @@ export function App() {
   async function runSearch() {
     if (!project || !searchQuery.trim()) {
       setSearchHits([]);
+      setSearchOpen(false);
       return;
     }
     setError("");
     try {
       setSearchHits(await api.search(project.project_id, searchQuery.trim()));
+      setSearchOpen(true);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "历史检索失败");
     }
@@ -528,32 +558,46 @@ export function App() {
             {error && <div className="message error-message" role="alert">{error}</div>}
             {notice && <div className="message notice-message" role="status">{notice}</div>}
 
-            <div className="search-strip">
+            <div className="search-strip" ref={searchWrapRef}>
               <label htmlFor="history-search">历史路线与失败资产</label>
               <div>
                 <input
                   id="history-search"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+                    setSearchHits([]);
+                    setSearchOpen(false);
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter") void runSearch();
+                    if (event.key === "Escape") setSearchOpen(false);
                   }}
                   placeholder="检索死路、桥接结果、挑战或复活条件"
                 />
                 <button onClick={() => void runSearch()}>检索</button>
               </div>
-              {searchHits.length > 0 && (
+              {searchOpen && (
                 <div className="search-results">
-                  {searchHits.map((hit) => (
-                    <button
-                      key={`${hit.kind}-${hit.object_id}`}
-                      onClick={() => focusGraphNode(hit.route_id ?? hit.object_id)}
-                    >
-                      <span>{hit.kind}</span>
-                      <strong>{hit.title}</strong>
-                      <small>{hit.excerpt}</small>
-                    </button>
-                  ))}
+                  {searchHits.length > 0 ? (
+                    searchHits.map((hit) => (
+                      <button
+                        key={`${hit.kind}-${hit.object_id}`}
+                        onClick={() => {
+                          focusGraphNode(hit.route_id ?? hit.object_id);
+                          setSearchOpen(false);
+                        }}
+                      >
+                        <span>{hit.kind}</span>
+                        <strong>{hit.title}</strong>
+                        <small>{hit.excerpt}</small>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="search-empty">
+                      未找到匹配的历史路线、挑战或桥接结果。
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -570,6 +614,16 @@ export function App() {
                       <span>{selectedNode.kind}</span>
                       <strong>{selectedNode.label}</strong>
                     </div>
+                  )}
+                </div>
+                <div className="node-detail">
+                  {selectedNode ? (
+                    <>
+                      <span>{selectedNode.kind} · {selectedNode.state}</span>
+                      <p>{selectedNode.detail || "该节点暂无详情说明。"}</p>
+                    </>
+                  ) : (
+                    <p className="node-detail-hint">点击路线图节点查看完整描述、质疑或桥接摘要</p>
                   )}
                 </div>
                 <div className="flow-stage">
@@ -610,6 +664,7 @@ export function App() {
                     >
                       <Excalidraw
                         key={project.project_id}
+                        theme={systemDark ? "dark" : "light"}
                         initialData={canvasScene as never}
                         onChange={(elements, appState, files) => {
                           sceneDraft.current = {
@@ -656,37 +711,61 @@ export function App() {
             <div className="lower-deck">
               <section className="timeline-panel">
                 <div className="section-heading">
-                  <h3>可观察时间线</h3>
-                  <span>点击定位到路线节点</span>
+                  <div>
+                    <h3>可观察时间线</h3>
+                    <span>点击定位到路线节点</span>
+                  </div>
+                  {events.length > 30 && (
+                    <button
+                      className="expand-toggle"
+                      onClick={() => setTimelineExpanded((value) => !value)}
+                    >
+                      {timelineExpanded ? "收起" : `查看全部 ${events.length} 条`}
+                    </button>
+                  )}
                 </div>
                 <div className="timeline-list">
-                  {events.slice(-30).reverse().map((event) => (
-                    <button
-                      key={event.event_id}
-                      onClick={() => focusGraphNode(event.branch_id ?? event.route_id)}
-                    >
-                      <time>{formatTime(event.timestamp)}</time>
-                      <strong>{event.event_type.replaceAll("_", " ")}</strong>
-                      <span>{event.epistemic_delta ?? "事件已记录，无状态增量说明"}</span>
-                    </button>
-                  ))}
+                  {(timelineExpanded ? events : events.slice(-30))
+                    .reverse()
+                    .map((event) => (
+                      <button
+                        key={event.event_id}
+                        onClick={() => focusGraphNode(event.branch_id ?? event.route_id)}
+                      >
+                        <time>{formatTime(event.timestamp)}</time>
+                        <strong>{event.event_type.replaceAll("_", " ")}</strong>
+                        <span>{event.epistemic_delta ?? "事件已记录，无状态增量说明"}</span>
+                      </button>
+                    ))}
                 </div>
               </section>
               <section className="delta-panel">
                 <div className="section-heading">
-                  <h3>本轮改变了什么</h3>
-                  <span>NO_STATE_CHANGE 默认折叠</span>
+                  <div>
+                    <h3>本轮改变了什么</h3>
+                    <span>已排除无状态变化事件</span>
+                  </div>
+                  {deltas.length > 12 && (
+                    <button
+                      className="expand-toggle"
+                      onClick={() => setDeltasExpanded((value) => !value)}
+                    >
+                      {deltasExpanded ? "收起" : `查看全部 ${deltas.length} 条`}
+                    </button>
+                  )}
                 </div>
                 <div className="delta-list">
-                  {deltas.slice(-12).reverse().map((delta) => (
-                    <button
-                      key={delta.event_id}
-                      onClick={() => focusGraphNode(delta.branch_id ?? delta.route_id)}
-                    >
-                      <strong>{delta.delta_type.replaceAll("_", " ")}</strong>
-                      <span>{delta.description}</span>
-                    </button>
-                  ))}
+                  {(deltasExpanded ? deltas : deltas.slice(-12))
+                    .reverse()
+                    .map((delta) => (
+                      <button
+                        key={delta.event_id}
+                        onClick={() => focusGraphNode(delta.branch_id ?? delta.route_id)}
+                      >
+                        <strong>{delta.delta_type.replaceAll("_", " ")}</strong>
+                        <span>{delta.description}</span>
+                      </button>
+                    ))}
                   {deltas.length === 0 && (
                     <div className="empty-copy">尚无可展开的认识增量。</div>
                   )}
