@@ -31,3 +31,4 @@ apps/api/schemamath_api/_ui/
 ProofFlow_Schema_Sandbox_*/
 SchemaMath_Experimental_Sandbox_*/
 SchemaMath_Experimental_Sandbox_Design_*/
+.claude/

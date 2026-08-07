@@ -1,0 +1,80 @@
+name: Bug Report
+description: Report a bug in ProofFlow Schema Sandbox
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill in the details below.
+
+  - type: input
+    id: version
+    attributes:
+      label: ProofFlow Version
+      description: Which version are you running?
+      placeholder: "0.1.0-alpha.5"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system is affected?
+      options:
+        - API / REST endpoints
+        - CLI (proofflow command)
+        - Event store / Hash chain
+        - Plugin system
+        - K0 Trust Kernel
+        - Web UI
+        - Docker / Deployment
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Start the server with `uvicorn schemamath_api.main:app`
+        2. Send a POST request to `/projects`
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? Include error messages or logs if available.
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        - OS:
+        - Python version:
+        - Node version (if using web UI):
+      placeholder: |
+        - OS: Ubuntu 24.04 / Windows 11 / macOS 15
+        - Python: 3.12.10
+        - Node: 20.x (if applicable)
