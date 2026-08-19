@@ -2,10 +2,10 @@
   "package": "ProofFlow Schema Sandbox",
   "version": "0.1.0-alpha.6",
   "release_date": "2026-08-19",
-  "generated_at": "2026-08-19T18:20:38.398637+00:00",
+  "generated_at": "2026-08-19T18:23:59.205581+00:00",
   "status": "local-first experimental mathematics research sandbox",
   "license": "Apache-2.0",
-  "git_commit": "28ad6e802d8d93c434501cd2595d2fa760fe840b",
+  "git_commit": "9c1aad1c339379a296842e6d20e17fbe609c6adf",
   "git_branch": "master",
   "git_tag": "v0.1.0-alpha.6",
   "entrypoints": {
@@ -34,7 +34,7 @@
     "os_security_sandbox": false
   },
   "file_count_excluding_manifest_and_checksum": 388,
-  "total_bytes_excluding_manifest_and_checksum": 2961270,
+  "total_bytes_excluding_manifest_and_checksum": 2960908,
   "files": [
     {
       "path": ".dockerignore",
@@ -958,8 +958,8 @@
     },
     {
       "path": "docs/RELEASE_NOTES_v0.1.0-alpha.6.md",
-      "size_bytes": 4110,
-      "sha256": "68d76563a32de68f2647d8e0ec3b5471d9295a429f038f2d18b0d7973258d5fe"
+      "size_bytes": 4284,
+      "sha256": "8b3c3898d7437d0e47509e6d185a5b2b4e01f8eb00057daa259c9b1dcfbd0205"
     },
     {
       "path": "docs/REPOSITORY_MAP.md",
@@ -1503,8 +1503,8 @@
     },
     {
       "path": "scripts/build_release.py",
-      "size_bytes": 14243,
-      "sha256": "7c67649d3cff4424c5c20e28256be416cbe012e1dc4cda06aa118b1e5ccbc4c9"
+      "size_bytes": 13707,
+      "sha256": "85f660c81c949bb9b335b689bc2e6cd79783d8d231f33c80d476d8c09487ec45"
     },
     {
       "path": "scripts/create_demo.sh",

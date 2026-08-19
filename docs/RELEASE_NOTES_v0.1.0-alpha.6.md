@@ -1,7 +1,7 @@
 # ProofFlow Schema Sandbox `v0.1.0-alpha.6` Release Notes
 
 **Release Tag:** `v0.1.0-alpha.6`  
-**Git Commit:** `a979040ca085ecf6c7d9ca224ac9b10f1c6300a1`  
+**Git Commit:** `9c1aad1c339379a296842e6d20e17fbe609c6adf`  
 **License:** Apache-2.0  
 **Package:** `proof-flow-schema-sandbox`  
 
@@ -33,13 +33,14 @@ ProofFlow Schema Sandbox `v0.1.0-alpha.6` is a hardened, production-grade milest
 
 ---
 
-## 📦 Release Assets & Checksums
+## 📦 Release Assets
 
-| Asset | Size | SHA-256 Checksum |
+Release asset checksums are cryptographically recorded in [`dist/SHA256SUMS.txt`](../dist/SHA256SUMS.txt) and [`package_manifest.json`](../package_manifest.json).
+
+| Asset | Type | Description |
 |---|---|---|
-| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | 5.28 MB | `64596dc2683b044f26f3ede658d0b140f500e7aecc4b402f63c9f54f398fbf65` |
-| `ProofFlow_Schema_Sandbox_v0.1.0-alpha.6.zip` | 864 KB | `fdf89fc65a1d4cb3cbf31112d260cf8e69ef99638db40a79972f4ff069d7decd` |
-
+| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | Python Wheel | Standalone pip distribution bundled with full UI & built-in plugins |
+| `ProofFlow_Schema_Sandbox_v0.1.0-alpha.6.zip` | Source Archive | Complete release archive containing schemas, engine, UI and verification suites |
 ---
 
 ## 🚀 Quick Start Instructions
