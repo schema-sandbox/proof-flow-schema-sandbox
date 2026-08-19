@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -51,6 +53,14 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
     settings = Settings.from_environment(workspace_root, plugin_root)
     service = SchemaMathService(settings)
 
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        for env_key in ("PROOFFLOW_HOST", "SCHEMAMATH_HOST", "HOST"):
+            val = os.environ.get(env_key)
+            if val:
+                settings.validate_host_security(val)
+        yield
+
     app = FastAPI(
         title="ProofFlow Schema Sandbox Local API",
         version=__version__,
@@ -58,6 +68,7 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
             "Local-first experimental research workspace. It does not promise "
             "solutions and does not automatically label results as solved."
         ),
+        lifespan=lifespan,
     )
     app.state.settings = settings
     app.state.service = service
@@ -81,6 +92,22 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def loopback_security_guard(request, call_next):
+        # When auth is disabled (local mode), fail closed on any non-loopback client request
+        if not settings.auth_enabled:
+            client_host = request.client.host if request.client else None
+            if client_host and client_host not in {"127.0.0.1", "::1", "localhost", "testclient"}:
+                return Response(
+                    content=(
+                        b"Forbidden: Unauthenticated remote access is disabled. "
+                        b"Set PROOFFLOW_SECRET_KEY and PROOFFLOW_API_KEYS to enable authenticated remote access."
+                    ),
+                    status_code=403,
+                    media_type="text/plain",
+                )
+        return await call_next(request)
 
     @app.middleware("http")
     async def security_headers(request, call_next):

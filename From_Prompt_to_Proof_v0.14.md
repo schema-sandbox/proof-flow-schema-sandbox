@@ -1584,21 +1584,16 @@ versioned to `evidence_ledger_2026_v0.6.json` so that the C17 resnapshot,
 Comparator-coverage hierarchy, and optional research-state profile are
 recorded without silently changing population counts.
 
-The local release contains:
+The ProofFlow Schema Sandbox software release packages:
 
-- `evidence_ledger_2026_v0.6.json` and
-  `evidence_ledger_2026_schema_v0.6.json`;
-- `coding_manual_2026_v0.3.md`;
-- `mechanism_signal_matrix_v0.4.csv` and
-  `descriptive_statistics_v0.5.json`;
-- `operational_evidence_map_v0.14.svg` and `.png`, whose coordinates are
-  unchanged from the prior seventeen-case map;
-- `C17_Ten_Proofs_Reaudit_v0.2_CN.md`;
-- `C17_Comparator_Coverage_v0.1.csv` and `.json`;
-- branch-to-v0.14 diff files, validation report, and SHA-256 manifest; and
-- the source links for the OpenAI announcement, 249-page manuscript,
-  62-page reasoning walkthroughs, current and prior repository commits,
-  Comparator, and LoopX.
+- the executable event-sourced engine, FastAPI REST service, and CLI (`proofflow` / `schemamath`);
+- runtime JSON schemas (`v0.1`–`v0.6`), domain event specifications, and migration engines;
+- the standalone dual-canvas workbench and Explorer UI bundles;
+- full test and verification suites (`pytest`, `ruff`);
+- `operational_evidence_map_v0.14.svg` and `operational_evidence_map_v0.14.png`;
+- release manifests, software bill of materials (`THIRD_PARTY_NOTICES.md`), and SHA-256 signatures.
+
+The theoretical qualitative analysis assets—including `evidence_ledger_2026_v0.6.json`, `coding_manual_2026_v0.3.md`, `mechanism_signal_matrix_v0.4.csv`, `descriptive_statistics_v0.5.json`, `C17_Ten_Proofs_Reaudit_v0.2_CN.md`, and `C17_Comparator_Coverage_v0.1.json`—are maintained in the companion research study dataset repository.
 
 The uploaded PDFs and public repository were used as primary sources. The JSON
 ledger validates against its supplied schema, but the new C17 coverage JSON is

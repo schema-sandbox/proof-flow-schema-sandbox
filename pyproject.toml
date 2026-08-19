@@ -62,4 +62,4 @@ include = ["schemamath_api*"]
 # requires the Vite toolchain and is intentionally optional: the offline builder
 # does not fabricate a bundle, so the API serves a plain-text fallback instead.
 [tool.setuptools.package-data]
-schemamath_api = ["_ui/*", "_ui/*/*", "_ui/*/*/*", "_plugins/*", "_plugins/*/*", "_plugins/*/*/*"]
+schemamath_api = ["_ui/*", "_ui/*/*", "_ui/*/*/*", "_plugins/*", "_plugins/*/*", "_plugins/*/*/*", "THIRD_PARTY_NOTICES.md"]

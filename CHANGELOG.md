@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.6
+
+- Fail-closed security guard on non-loopback network interfaces preventing unauthenticated remote execution across CLI, launcher, and direct Uvicorn mounts.
+- Strict content-addressed blob verification across all artifact reads, archive imports, and project integrity reports.
+- Zero npm vulnerabilities in frontend production bundle with upgraded DOMPurify and Mermaid.
+- Built-in plugins (`graphviz.local`, `python.local`) and complete UI packaged in standalone wheel distribution and container images.
+- Comprehensive Software Bill of Materials (SBOM) and third-party attribution in `THIRD_PARTY_NOTICES.md`.
+- True bilingual (English/Chinese) interface with clean schema label resolution and synchronized release metadata.
+
 ## 0.1.0-alpha.5
 
 - Added atomic event batches with revision checks, idempotency keys, batch IDs and command metadata.

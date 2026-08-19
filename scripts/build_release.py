@@ -267,8 +267,113 @@ def write_zip(destination: Path) -> None:
             raise RuntimeError(f"release archive failed integrity check at {bad}")
 
 
+def sync_release_notes(
+    *,
+    version: str,
+    commit: str | None,
+    tag: str | None,
+    wheel_name: str | None,
+    wheel_sha256: str | None,
+    wheel_size: int | None,
+    zip_name: str | None,
+    zip_sha256: str | None,
+    zip_size: int | None,
+) -> None:
+    notes_path = ROOT / "docs" / f"RELEASE_NOTES_v{version}.md"
+    if not notes_path.exists():
+        return
+
+    content = notes_path.read_text(encoding="utf-8")
+    if tag:
+        import re
+        content = re.sub(r"\*\*Release Tag:\*\* `[^`]+`", f"**Release Tag:** `{tag}`", content)
+    if commit:
+        import re
+        content = re.sub(r"\*\*Git Commit:\*\* `[^`]+`", f"**Git Commit:** `{commit}`", content)
+
+    # Format human readable sizes
+    def fmt_size(sz: int | None) -> str:
+        if sz is None:
+            return ""
+        if sz >= 1024 * 1024:
+            return f"{sz / (1024 * 1024):.2f} MB"
+        return f"{sz / 1024:.0f} KB"
+
+    if wheel_name and wheel_sha256 and zip_name and zip_sha256:
+        table_replacement = (
+            f"| Asset | Size | SHA-256 Checksum |\n"
+            f"|---|---|---|\n"
+            f"| `{wheel_name}` | {fmt_size(wheel_size)} | `{wheel_sha256}` |\n"
+            f"| `{zip_name}` | {fmt_size(zip_size)} | `{zip_sha256}` |"
+        )
+        import re
+        content = re.sub(
+            r"\| Asset \| Size \| SHA-256 Checksum \|[\s\S]*?(?=\n\n|\n---)",
+            table_replacement,
+            content,
+        )
+
+    # Fix CLI command name if present
+    content = content.replace("schemamath-api serve", "proofflow serve")
+
+    notes_path.write_text(content, encoding="utf-8")
+    print(f"Synchronized release notes in {notes_path.relative_to(ROOT)}")
+
+
+def build_dist_assets(version: str, commit: str | None, tag: str | None) -> None:
+    dist_dir = ROOT / "dist"
+    dist_dir.mkdir(parents=True, exist_ok=True)
+
+    # 1. Stage wheel package data
+    stage_cmd = [sys.executable, str(ROOT / "scripts" / "stage_wheel_ui.py")]
+    subprocess.run(stage_cmd, cwd=ROOT, check=True)
+
+    # 2. Build wheel
+    wheel_cmd = [sys.executable, "-m", "pip", "wheel", ".", "-w", "dist", "--no-deps"]
+    subprocess.run(wheel_cmd, cwd=ROOT, check=True)
+
+    # 3. Build release ZIP
+    zip_name = f"ProofFlow_Schema_Sandbox_v{version}.zip"
+    zip_path = dist_dir / zip_name
+    write_zip(zip_path)
+
+    # 4. Compute checksums
+    wheel_name: str | None = None
+    wheel_sha: str | None = None
+    wheel_sz: int | None = None
+    zip_sha = sha256_file(zip_path)
+    zip_sz = zip_path.stat().st_size
+
+    lines: list[str] = []
+    for p in sorted(dist_dir.iterdir()):
+        if p.name == "SHA256SUMS.txt" or not p.is_file():
+            continue
+        h = sha256_file(p)
+        lines.append(f"{h}  {p.name}")
+        if p.suffix == ".whl":
+            wheel_name = p.name
+            wheel_sha = h
+            wheel_sz = p.stat().st_size
+
+    (dist_dir / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Wrote dist/SHA256SUMS.txt for {len(lines)} assets.")
+
+    # 5. Sync release notes
+    sync_release_notes(
+        version=version,
+        commit=commit,
+        tag=tag,
+        wheel_name=wheel_name,
+        wheel_sha256=wheel_sha,
+        wheel_size=wheel_sz,
+        zip_name=zip_name,
+        zip_sha256=zip_sha,
+        zip_size=zip_sz,
+    )
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build release manifest and ZIP archive.")
+    parser = argparse.ArgumentParser(description="Build release manifest, checksums, and distribution packages.")
     parser.add_argument(
         "--zip",
         dest="zip_path",
@@ -276,28 +381,58 @@ def main() -> int:
         help="Optional destination for a release ZIP.",
     )
     parser.add_argument(
+        "--dist",
+        action="store_true",
+        help="Build wheel, release ZIP, checksums, and sync release notes into dist/.",
+    )
+    parser.add_argument(
         "--strict",
         action="store_true",
-        help="Enforce clean git working tree before packaging release.",
+        help="Enforce clean git working tree and exact version tag matching before packaging release.",
     )
     args = parser.parse_args()
+
+    version = project_version()
+    expected_tag = f"v{version}"
+    git_info = git_commit_info()
 
     if args.strict:
         proc = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, check=False)
         dirty_lines = [
             line for line in proc.stdout.decode("utf-8").splitlines()
-            if not any(ign in line for ign in ["package_manifest.json", "SHA256SUMS.txt", ".coverage", "tsconfig.tsbuildinfo"])
+            if not any(
+                ign in line
+                for ign in [
+                    "package_manifest.json",
+                    "SHA256SUMS.txt",
+                    "dist",
+                    "RELEASE_NOTES",
+                    ".coverage",
+                    "tsconfig.tsbuildinfo",
+                ]
+            )
         ]
         if dirty_lines:
             print(f"❌ Strict release build failed: dirty working tree ({len(dirty_lines)} modified/untracked files)")
+            for d in dirty_lines:
+                print(f"   {d}")
+            return 1
+
+        if git_info["tag"] != expected_tag:
+            print(f"❌ Strict release build failed: HEAD must be tagged with exact version tag '{expected_tag}', got '{git_info['tag']}'")
             return 1
 
     manifest = write_manifest()
     write_checksums()
     print(f"Generated manifest for {manifest['file_count_excluding_manifest_and_checksum']} files.")
+
     if args.zip_path:
         write_zip(args.zip_path.resolve())
         print(f"Wrote {args.zip_path.resolve()}")
+
+    if args.dist:
+        build_dist_assets(version, git_info["commit"], git_info["tag"])
+
     return 0
 
 

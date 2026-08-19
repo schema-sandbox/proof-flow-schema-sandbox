@@ -18,7 +18,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PROOFFLOW_PLUGIN_ROOT=/data/plugins
 
 WORKDIR /app
-COPY pyproject.toml README.md requirements.txt LICENSE ./
+COPY pyproject.toml README.md requirements.txt LICENSE THIRD_PARTY_NOTICES.md ./
 COPY apps/api ./apps/api
 RUN pip install --no-cache-dir .
 COPY schemas ./schemas

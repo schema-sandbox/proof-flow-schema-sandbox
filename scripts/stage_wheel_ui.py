@@ -35,6 +35,11 @@ def main() -> int:
     (TARGET_PLUGINS / "builtin").parent.mkdir(parents=True, exist_ok=True)
     shutil.copytree(plugins_builtin, TARGET_PLUGINS / "builtin")
     print(f"Staged wheel plugins under {TARGET_PLUGINS}")
+
+    notices_file = ROOT / "THIRD_PARTY_NOTICES.md"
+    if notices_file.is_file():
+        shutil.copy2(notices_file, PACKAGE / "THIRD_PARTY_NOTICES.md")
+        print(f"Staged THIRD_PARTY_NOTICES.md under {PACKAGE}")
     return 0
 
 

@@ -1,7 +1,7 @@
 # ProofFlow React Web
 
 Production React Flow and Excalidraw dual-canvas application for
-`0.1.0-alpha.4`.
+`0.1.0-alpha.6`.
 
 The route canvas links routes, branches, challenges and bridge results. The
 free canvas persists each save as a new content-addressed artifact and event;

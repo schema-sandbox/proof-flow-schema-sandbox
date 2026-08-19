@@ -151,3 +151,20 @@ def test_host_security_validation_fails_on_insecure_remote_binding(tmp_path: Pat
     with pytest.raises(ValueError, match="Binding to non-loopback host '192.168.1.100'"):
         settings.validate_host_security("192.168.1.100")
 
+
+def test_loopback_security_guard_rejects_remote_client(tmp_path: Path) -> None:
+    from fastapi.testclient import TestClient
+    from schemamath_api.main import create_app
+
+    app = create_app(tmp_path / "workspaces", tmp_path / "plugins")
+    client = TestClient(app, client=("192.168.1.100", 54321))
+    response = client.get("/api/v1/projects")
+    assert response.status_code == 403
+    assert b"Forbidden: Unauthenticated remote access is disabled" in response.content
+
+    # Loopback client must succeed
+    local_client = TestClient(app, client=("127.0.0.1", 54321))
+    local_response = local_client.get("/api/v1/projects")
+    assert local_response.status_code == 200
+
+

@@ -12,7 +12,7 @@ body:
     attributes:
       label: ProofFlow Version
       description: Which version are you running?
-      placeholder: "0.1.0-alpha.5"
+      placeholder: "0.1.0-alpha.6"
     validations:
       required: true
 
