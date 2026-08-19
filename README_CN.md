@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-## 图式证明流实验沙箱 `0.1.0-alpha.6`
+## 图式证明流实验沙箱 `0.1.0-alpha.7`
 
 正式名称是 **ProofFlow Schema Sandbox**，简称 **ProofFlow**。
 
@@ -19,6 +19,14 @@ ProofFlow 不保证解题，不声称访问模型隐藏思维链，也从不自�
 - 想要 LLM 辅助、又不愿丢失决策痕迹的数学研究者。
 - 形式化验证与 Lean 相关的研究者。
 - 任何想观察 AI 在难题上的推理如何真实展开的人。
+
+## Alpha.7 内容
+
+- **完整 CycloneDX 1.5 SBOM**：`sbom.cyclonedx.json` 覆盖 397 个直接和传递依赖（Python 运行时 + 全量 NPM），`THIRD_PARTY_NOTICES.md` 同步扩展至 397 组件完整许可证。
+- **确定性发布流水线**：`build_release.py` 消除循环哈希漂移，使用 UUIDv5 保证可复现序列号，每次构建前清理 `dist/`。
+- **非循环发布说明**：发布说明锚定在标签和外部校验和，不再自引用提交哈希。
+- **伴随研究数据集公开**：论文 v0.14 新增开放数据集仓库 URL 和持久访问链接。
+- **CI 严格发布门禁**：`ci.yml` 新增 `release-gate` 作业，执行 `build_release.py --strict --dist` 并验证隔离 Wheel 安装和内置插件发现。
 
 ## Alpha.6 内容
 

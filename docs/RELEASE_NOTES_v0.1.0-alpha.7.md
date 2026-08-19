@@ -9,7 +9,7 @@
 
 ## 🌟 What's New in Alpha.7
 
-ProofFlow Schema Sandbox `v0.1.0-alpha.7` is a hardened, production-grade milestone focusing on security isolation, end-to-end cryptographic integrity verification, complete packaging of built-in plugins, comprehensive machine-readable SBOM, and robust deterministic release provenance.
+ProofFlow Schema Sandbox `v0.1.0-alpha.7` is a hardened alpha milestone focusing on security isolation, end-to-end cryptographic integrity verification, complete packaging of built-in plugins, comprehensive machine-readable SBOM, and robust deterministic release provenance. ProofFlow remains a local research prototype; it has not undergone a third-party security audit.
 
 ### 1. 🛡️ Network Security & Fail-Closed Guard
 - **Host Security Validation**: The CLI, API runner, and `start.py` launcher enforce a strict security policy. Binding to `0.0.0.0` or non-loopback network interfaces requires explicit authentication (`PROOFFLOW_SECRET_KEY` / `PROOFFLOW_API_KEYS`) and disallows arbitrary local process plugins unless production flags are met.

@@ -5,7 +5,7 @@
   "generated_at": "2026-08-20T00:00:00Z",
   "status": "local-first experimental mathematics research sandbox",
   "license": "Apache-2.0",
-  "git_commit": "c2a05f6fc06f8e3a689ae82bdeb9669c3953267b",
+  "git_commit": "9fd1f4add4823f4889f095b88a5aad62fe571144",
   "git_branch": "master",
   "git_tag": "v0.1.0-alpha.7",
   "entrypoints": {
@@ -34,7 +34,7 @@
     "os_security_sandbox": false
   },
   "file_count_excluding_manifest_and_checksum": 391,
-  "total_bytes_excluding_manifest_and_checksum": 3266577,
+  "total_bytes_excluding_manifest_and_checksum": 3266507,
   "files": [
     {
       "path": ".dockerignore",
@@ -1513,8 +1513,8 @@
     },
     {
       "path": "scripts/build_release.py",
-      "size_bytes": 12725,
-      "sha256": "a8358e4b5a127dd1c7ab9936f0fb2296051a44007276cb42eb9a39c8cce131d9"
+      "size_bytes": 12690,
+      "sha256": "c933127824484df81c22d171299860e32b731764433f3818fee45c284f8af510"
     },
     {
       "path": "scripts/create_demo.sh",
@@ -1538,8 +1538,8 @@
     },
     {
       "path": "scripts/generate_sbom.py",
-      "size_bytes": 11605,
-      "sha256": "a1dfca15967326d36f0e7f72127e37b505cee6aa65bb32600651f210eef56479"
+      "size_bytes": 11570,
+      "sha256": "0fb42f7e4131344d0aca3ff4f89bd7b58000081c9be94b67c6140b03114fc624"
     },
     {
       "path": "scripts/run_api.sh",
@@ -1589,7 +1589,7 @@
     {
       "path": "tests/test_alpha3.py",
       "size_bytes": 13290,
-      "sha256": "7c4fb84a0c9d094559f514d60fe5fa5aeac98a03586f7ec09ea95f03b0cd2718"
+      "sha256": "e47275daac2c7d8e3351eee898b49546c8789c54b888c9a0a36e58de027f42dd"
     },
     {
       "path": "tests/test_api.py",
