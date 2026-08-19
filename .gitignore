@@ -29,6 +29,8 @@ runtime-workspaces/
 apps/api/schemamath_api/_ui/
 apps/api/schemamath_api/_plugins/
 apps/api/schemamath_api/THIRD_PARTY_NOTICES.md
+apps/api/schemamath_api/sbom.cyclonedx.json
+.release-final-pytest*/
 *.zip
 ProofFlow_Schema_Sandbox_*/
 SchemaMath_Experimental_Sandbox_*/

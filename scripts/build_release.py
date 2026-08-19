@@ -5,11 +5,11 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tomllib
 import zipfile
-from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -188,8 +188,8 @@ def write_manifest() -> dict[str, object]:
     manifest: dict[str, object] = {
         "package": "ProofFlow Schema Sandbox",
         "version": project_version(),
-        "release_date": datetime.now(UTC).date().isoformat(),
-        "generated_at": datetime.now(UTC).isoformat(),
+        "release_date": "2026-08-20",
+        "generated_at": "2026-08-20T00:00:00Z",
         "status": "local-first experimental mathematics research sandbox",
         "license": "Apache-2.0",
         "git_commit": git_info["commit"],
@@ -267,65 +267,39 @@ def write_zip(destination: Path) -> None:
             raise RuntimeError(f"release archive failed integrity check at {bad}")
 
 
-def sync_release_notes(
-    *,
-    version: str,
-    commit: str | None,
-    tag: str | None,
-) -> None:
-    notes_path = ROOT / "docs" / f"RELEASE_NOTES_v{version}.md"
-    if not notes_path.exists():
-        return
-
-    content = notes_path.read_text(encoding="utf-8")
-    if tag:
-        import re
-        content = re.sub(r"\*\*Release Tag:\*\* `[^`]+`", f"**Release Tag:** `{tag}`", content)
-    if commit:
-        import re
-        content = re.sub(r"\*\*Git Commit:\*\* `[^`]+`", f"**Git Commit:** `{commit}`", content)
-
-    # Standardize asset table to reference SHA256SUMS.txt without circular self-reference
-    table_replacement = (
-        "## 📦 Release Assets\n\n"
-        "Release asset checksums are cryptographically recorded in [`dist/SHA256SUMS.txt`](../dist/SHA256SUMS.txt) and [`package_manifest.json`](../package_manifest.json).\n\n"
-        "| Asset | Type | Description |\n"
-        "|---|---|---|\n"
-        f"| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | Python Wheel | Standalone pip distribution bundled with full UI & built-in plugins |\n"
-        f"| `ProofFlow_Schema_Sandbox_v{version}.zip` | Source Archive | Complete release archive containing schemas, engine, UI and verification suites |"
-    )
-    import re
-    content = re.sub(
-        r"## 📦 Release Assets[\s\S]*?(?=\n\n## 🚀|\n---)",
-        table_replacement,
-        content,
-    )
-
-    # Fix CLI command name if present
-    content = content.replace("schemamath-api serve", "proofflow serve")
-
-    notes_path.write_text(content, encoding="utf-8")
-    print(f"Synchronized release notes in {notes_path.relative_to(ROOT)}")
-
-
 def build_dist_assets(version: str, commit: str | None, tag: str | None) -> None:
     dist_dir = ROOT / "dist"
+    if dist_dir.exists():
+        shutil.rmtree(dist_dir)
     dist_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. Stage wheel package data
+    # 1. Generate SBOM & third-party notices
+    sbom_cmd = [sys.executable, str(ROOT / "scripts" / "generate_sbom.py")]
+    subprocess.run(sbom_cmd, cwd=ROOT, check=True)
+
+    # 2. Stage wheel package data
     stage_cmd = [sys.executable, str(ROOT / "scripts" / "stage_wheel_ui.py")]
     subprocess.run(stage_cmd, cwd=ROOT, check=True)
 
-    # 2. Build wheel
+    # 3. Build wheel
     wheel_cmd = [sys.executable, "-m", "pip", "wheel", ".", "-w", "dist", "--no-deps"]
     subprocess.run(wheel_cmd, cwd=ROOT, check=True)
 
-    # 3. Build release ZIP
+    # 4. Build release ZIP
     zip_name = f"ProofFlow_Schema_Sandbox_v{version}.zip"
     zip_path = dist_dir / zip_name
     write_zip(zip_path)
 
-    # 4. Compute checksums
+    # 5. Copy manifest and SBOM to dist
+    manifest_src = ROOT / "package_manifest.json"
+    if manifest_src.is_file():
+        shutil.copy2(manifest_src, dist_dir / "package_manifest.json")
+
+    sbom_src = ROOT / "sbom.cyclonedx.json"
+    if sbom_src.is_file():
+        shutil.copy2(sbom_src, dist_dir / "sbom.cyclonedx.json")
+
+    # 6. Compute checksums for all dist files
     lines: list[str] = []
     for p in sorted(dist_dir.iterdir()):
         if p.name == "SHA256SUMS.txt" or not p.is_file():
@@ -334,14 +308,7 @@ def build_dist_assets(version: str, commit: str | None, tag: str | None) -> None
         lines.append(f"{h}  {p.name}")
 
     (dist_dir / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Wrote dist/SHA256SUMS.txt for {len(lines)} assets.")
-
-    # 5. Sync release notes
-    sync_release_notes(
-        version=version,
-        commit=commit,
-        tag=tag,
-    )
+    print(f"Wrote dist/SHA256SUMS.txt for {len(lines)} distribution assets.")
 
 
 def main() -> int:
@@ -355,7 +322,7 @@ def main() -> int:
     parser.add_argument(
         "--dist",
         action="store_true",
-        help="Build wheel, release ZIP, checksums, and sync release notes into dist/.",
+        help="Build wheel, release ZIP, SBOM, and checksums into dist/.",
     )
     parser.add_argument(
         "--strict",
@@ -378,9 +345,13 @@ def main() -> int:
                     "package_manifest.json",
                     "SHA256SUMS.txt",
                     "dist",
-                    "RELEASE_NOTES",
                     ".coverage",
                     "tsconfig.tsbuildinfo",
+                    "schemamath_api/_ui",
+                    "schemamath_api/_plugins",
+                    "schemamath_api/THIRD_PARTY_NOTICES.md",
+                    "schemamath_api/sbom.cyclonedx.json",
+                    ".release-final-pytest",
                 ]
             )
         ]

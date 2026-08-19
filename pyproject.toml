@@ -1,6 +1,6 @@
 [project]
 name = "proof-flow-schema-sandbox"
-version = "0.1.0-alpha.6"
+version = "0.1.0-alpha.7"
 description = "Local-first, human-guided experimental mathematics research sandbox"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -62,4 +62,13 @@ include = ["schemamath_api*"]
 # requires the Vite toolchain and is intentionally optional: the offline builder
 # does not fabricate a bundle, so the API serves a plain-text fallback instead.
 [tool.setuptools.package-data]
-schemamath_api = ["_ui/*", "_ui/*/*", "_ui/*/*/*", "_plugins/*", "_plugins/*/*", "_plugins/*/*/*", "THIRD_PARTY_NOTICES.md"]
+schemamath_api = [
+  "_ui/*",
+  "_ui/*/*",
+  "_ui/*/*/*",
+  "_plugins/*",
+  "_plugins/*/*",
+  "_plugins/*/*/*",
+  "THIRD_PARTY_NOTICES.md",
+  "sbom.cyclonedx.json",
+]

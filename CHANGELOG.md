@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.0-alpha.7
+
+- Deterministic zero-drift release pipeline with detached manifest and signature generation.
+- Full machine-readable CycloneDX 1.5 Software Bill of Materials (`sbom.cyclonedx.json`) and exhaustive 370+ dependency notices in `THIRD_PARTY_NOTICES.md`.
+- Explicit companion research study dataset repository linking and attribution metadata.
+- Clean separation of release notes and git tag provenance.
+
 ## 0.1.0-alpha.6
 
 - Fail-closed security guard on non-loopback network interfaces preventing unauthenticated remote execution across CLI, launcher, and direct Uvicorn mounts.

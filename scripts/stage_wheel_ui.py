@@ -40,6 +40,11 @@ def main() -> int:
     if notices_file.is_file():
         shutil.copy2(notices_file, PACKAGE / "THIRD_PARTY_NOTICES.md")
         print(f"Staged THIRD_PARTY_NOTICES.md under {PACKAGE}")
+
+    sbom_file = ROOT / "sbom.cyclonedx.json"
+    if sbom_file.is_file():
+        shutil.copy2(sbom_file, PACKAGE / "sbom.cyclonedx.json")
+        print(f"Staged sbom.cyclonedx.json under {PACKAGE}")
     return 0
 
 

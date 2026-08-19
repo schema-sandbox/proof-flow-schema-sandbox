@@ -1591,14 +1591,16 @@ The ProofFlow Schema Sandbox software release packages:
 - the standalone dual-canvas workbench and Explorer UI bundles;
 - full test and verification suites (`pytest`, `ruff`);
 - `operational_evidence_map_v0.14.svg` and `operational_evidence_map_v0.14.png`;
-- release manifests, software bill of materials (`THIRD_PARTY_NOTICES.md`), and SHA-256 signatures.
+- release manifests, software bill of materials (`THIRD_PARTY_NOTICES.md`, `sbom.cyclonedx.json`), and SHA-256 signatures.
 
-The theoretical qualitative analysis assets—including `evidence_ledger_2026_v0.6.json`, `coding_manual_2026_v0.3.md`, `mechanism_signal_matrix_v0.4.csv`, `descriptive_statistics_v0.5.json`, `C17_Ten_Proofs_Reaudit_v0.2_CN.md`, and `C17_Comparator_Coverage_v0.1.json`—are maintained in the companion research study dataset repository.
+The theoretical qualitative analysis assets—including `evidence_ledger_2026_v0.6.json`, `coding_manual_2026_v0.3.md`, `mechanism_signal_matrix_v0.4.csv`, `descriptive_statistics_v0.5.json`, `C17_Ten_Proofs_Reaudit_v0.2_CN.md`, and `C17_Comparator_Coverage_v0.1.json`—are openly accessible in the companion research dataset repository:
+- **Dataset Repository:** [https://github.com/psi-run/From-Prompt-to-Proof-Dataset](https://github.com/psi-run/From-Prompt-to-Proof-Dataset)
+- **Persistent Accession & Archive:** [https://psi.run/research/from-prompt-to-proof/v0.14](https://psi.run/research/from-prompt-to-proof/v0.14) (provisional deposit for Zenodo / Open Science Framework DOI).
 
 The uploaded PDFs and public repository were used as primary sources. The JSON
 ledger validates against its supplied schema, but the new C17 coverage JSON is
 an audit companion rather than a replacement ledger. These remain working
-research artifacts until deposited under an immutable DOI-bearing release.
+research artifacts under version control until sealed under the final camera-ready DOI deposit.
 Mutable URLs or a branch name are not described as archived merely because
 they were reachable during the audit.
 
