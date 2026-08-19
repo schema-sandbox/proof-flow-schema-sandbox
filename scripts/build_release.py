@@ -272,12 +272,6 @@ def sync_release_notes(
     version: str,
     commit: str | None,
     tag: str | None,
-    wheel_name: str | None,
-    wheel_sha256: str | None,
-    wheel_size: int | None,
-    zip_name: str | None,
-    zip_sha256: str | None,
-    zip_size: int | None,
 ) -> None:
     notes_path = ROOT / "docs" / f"RELEASE_NOTES_v{version}.md"
     if not notes_path.exists():
@@ -291,27 +285,21 @@ def sync_release_notes(
         import re
         content = re.sub(r"\*\*Git Commit:\*\* `[^`]+`", f"**Git Commit:** `{commit}`", content)
 
-    # Format human readable sizes
-    def fmt_size(sz: int | None) -> str:
-        if sz is None:
-            return ""
-        if sz >= 1024 * 1024:
-            return f"{sz / (1024 * 1024):.2f} MB"
-        return f"{sz / 1024:.0f} KB"
-
-    if wheel_name and wheel_sha256 and zip_name and zip_sha256:
-        table_replacement = (
-            f"| Asset | Size | SHA-256 Checksum |\n"
-            f"|---|---|---|\n"
-            f"| `{wheel_name}` | {fmt_size(wheel_size)} | `{wheel_sha256}` |\n"
-            f"| `{zip_name}` | {fmt_size(zip_size)} | `{zip_sha256}` |"
-        )
-        import re
-        content = re.sub(
-            r"\| Asset \| Size \| SHA-256 Checksum \|[\s\S]*?(?=\n\n|\n---)",
-            table_replacement,
-            content,
-        )
+    # Standardize asset table to reference SHA256SUMS.txt without circular self-reference
+    table_replacement = (
+        "## 📦 Release Assets\n\n"
+        "Release asset checksums are cryptographically recorded in [`dist/SHA256SUMS.txt`](../dist/SHA256SUMS.txt) and [`package_manifest.json`](../package_manifest.json).\n\n"
+        "| Asset | Type | Description |\n"
+        "|---|---|---|\n"
+        f"| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | Python Wheel | Standalone pip distribution bundled with full UI & built-in plugins |\n"
+        f"| `ProofFlow_Schema_Sandbox_v{version}.zip` | Source Archive | Complete release archive containing schemas, engine, UI and verification suites |"
+    )
+    import re
+    content = re.sub(
+        r"## 📦 Release Assets[\s\S]*?(?=\n\n## 🚀|\n---)",
+        table_replacement,
+        content,
+    )
 
     # Fix CLI command name if present
     content = content.replace("schemamath-api serve", "proofflow serve")
@@ -338,22 +326,12 @@ def build_dist_assets(version: str, commit: str | None, tag: str | None) -> None
     write_zip(zip_path)
 
     # 4. Compute checksums
-    wheel_name: str | None = None
-    wheel_sha: str | None = None
-    wheel_sz: int | None = None
-    zip_sha = sha256_file(zip_path)
-    zip_sz = zip_path.stat().st_size
-
     lines: list[str] = []
     for p in sorted(dist_dir.iterdir()):
         if p.name == "SHA256SUMS.txt" or not p.is_file():
             continue
         h = sha256_file(p)
         lines.append(f"{h}  {p.name}")
-        if p.suffix == ".whl":
-            wheel_name = p.name
-            wheel_sha = h
-            wheel_sz = p.stat().st_size
 
     (dist_dir / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Wrote dist/SHA256SUMS.txt for {len(lines)} assets.")
@@ -363,12 +341,6 @@ def build_dist_assets(version: str, commit: str | None, tag: str | None) -> None
         version=version,
         commit=commit,
         tag=tag,
-        wheel_name=wheel_name,
-        wheel_sha256=wheel_sha,
-        wheel_size=wheel_sz,
-        zip_name=zip_name,
-        zip_sha256=zip_sha,
-        zip_size=zip_sz,
     )
 
 

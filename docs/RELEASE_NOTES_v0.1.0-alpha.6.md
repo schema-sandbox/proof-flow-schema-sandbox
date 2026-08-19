@@ -1,7 +1,7 @@
 # ProofFlow Schema Sandbox `v0.1.0-alpha.6` Release Notes
 
 **Release Tag:** `v0.1.0-alpha.6`  
-**Git Commit:** `28ad6e802d8d93c434501cd2595d2fa760fe840b`  
+**Git Commit:** `a979040ca085ecf6c7d9ca224ac9b10f1c6300a1`  
 **License:** Apache-2.0  
 **Package:** `proof-flow-schema-sandbox`  
 
@@ -37,8 +37,8 @@ ProofFlow Schema Sandbox `v0.1.0-alpha.6` is a hardened, production-grade milest
 
 | Asset | Size | SHA-256 Checksum |
 |---|---|---|
-| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | 5.28 MB | `0a22f53a5a1f8b98399dc28d13b89034b16a4bdae0f34f47fe4d8c898fc3d074` |
-| `ProofFlow_Schema_Sandbox_v0.1.0-alpha.6.zip` | 864 KB | `a187dfadefdfd510dd7a60095e054f745185ebfa2c59d7de5ae5189621739b4a` |
+| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | 5.28 MB | `64596dc2683b044f26f3ede658d0b140f500e7aecc4b402f63c9f54f398fbf65` |
+| `ProofFlow_Schema_Sandbox_v0.1.0-alpha.6.zip` | 864 KB | `fdf89fc65a1d4cb3cbf31112d260cf8e69ef99638db40a79972f4ff069d7decd` |
 
 ---
 
