@@ -1,7 +1,7 @@
 # ProofFlow Schema Sandbox `v0.1.0-alpha.6` Release Notes
 
 **Release Tag:** `v0.1.0-alpha.6`  
-**Git Commit:** `5e91807d72545bf72fb8b2a3734fe0d15e2194ff`  
+**Git Commit:** `f173f41911273eeb73c8071415e503dbb8ebd276`  
 **License:** Apache-2.0  
 **Package:** `proof-flow-schema-sandbox`  
 
@@ -37,8 +37,8 @@ ProofFlow Schema Sandbox `v0.1.0-alpha.6` is a hardened, production-grade milest
 
 | Asset | Size | SHA-256 Checksum |
 |---|---|---|
-| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | 5.53 MB | `598c87a3ee79f84a46505675512556c313779ac0252bcadd14c0adea61fd3c91` |
-| `ProofFlow_Schema_Sandbox_v0.1.0-alpha.6.zip` | 749 KB | `262dc219880cfb467e06c9b07e76a52347ea17aeb08f444ff0b08a81eb82bf39` |
+| `proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl` | 5.28 MB | `56c79cc0c5fc9683d053d48081121286a7ae9f7f21f7f56d9cdfe9ae70ddba9e` |
+| `ProofFlow_Schema_Sandbox_v0.1.0-alpha.6.zip` | 864 KB | `c4abff2eea9fdce4925f4cdb340538c2f35f448969638425e8a5bb94b449efdf` |
 
 ---
 
@@ -52,7 +52,7 @@ ProofFlow Schema Sandbox `v0.1.0-alpha.6` is a hardened, production-grade milest
 ### Option 2: Install via Wheel
 ```bash
 pip install proof_flow_schema_sandbox-0.1.0a6-py3-none-any.whl
-schemamath-api serve --port 8000
+proofflow serve --port 8000
 ```
 
 ### Option 3: From Source
@@ -75,7 +75,7 @@ docker run -p 8000:8000 -e PROOFFLOW_SECRET_KEY=your-secret -e PROOFFLOW_API_KEY
 
 ## 🧪 Verification Matrix
 
-- **Unit & Integration Tests**: 419/419 passed (`pytest`)
+- **Unit & Integration Tests**: 420/420 passed (`pytest`)
 - **Linter**: 0 errors (`ruff check .`)
 - **NPM Security Audit**: 0 vulnerabilities (`npm audit --omit=dev`)
-- **Release Manifest**: 385 files tracked & verified
+- **Release Manifest**: 388 files tracked & verified

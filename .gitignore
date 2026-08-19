@@ -28,6 +28,7 @@ runtime-workspaces/
 *.tsbuildinfo
 apps/api/schemamath_api/_ui/
 apps/api/schemamath_api/_plugins/
+apps/api/schemamath_api/THIRD_PARTY_NOTICES.md
 *.zip
 ProofFlow_Schema_Sandbox_*/
 SchemaMath_Experimental_Sandbox_*/
