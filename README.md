@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-**Version:** `0.1.0-alpha.7`  
+**Version:** `0.1.0-alpha.8`  
 **Short name:** ProofFlow  
 **Status:** local-first experimental mathematics research sandbox
 

@@ -1,7 +1,7 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:82df8f77-66b2-5e0c-b916-dfe22cd7883a",
+  "serialNumber": "urn:uuid:5057ba63-4f60-5b8c-a82d-e70f5f3ed12f",
   "version": 1,
   "metadata": {
     "timestamp": "2026-08-20T00:00:00Z",
@@ -9,13 +9,13 @@
       {
         "vendor": "ProofFlow",
         "name": "ProofFlow SBOM Generator",
-        "version": "0.1.0-alpha.7"
+        "version": "0.1.0-alpha.8"
       }
     ],
     "component": {
       "type": "application",
       "name": "ProofFlow Schema Sandbox",
-      "version": "0.1.0-alpha.7",
+      "version": "0.1.0-alpha.8",
       "description": "Local-first experimental mathematics research sandbox",
       "licenses": [
         {

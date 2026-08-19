@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> int:
-    whl_path = ROOT / "dist" / "proof_flow_schema_sandbox-0.1.0a7-py3-none-any.whl"
+    whl_path = ROOT / "dist" / "proof_flow_schema_sandbox-0.1.0a8-py3-none-any.whl"
     if not whl_path.is_file():
         raise SystemExit(f"Wheel not found: {whl_path}")
 
@@ -33,7 +33,7 @@ def main() -> int:
             "import tempfile\n"
             "\n"
             "print('Installed version:', schemamath_api.__version__)\n"
-            "assert schemamath_api.__version__ == '0.1.0-alpha.7', 'Version mismatch'\n"
+            "assert schemamath_api.__version__ == '0.1.0-alpha.8', 'Version mismatch'\n"
             "\n"
             "with tempfile.TemporaryDirectory() as root:\n"
             "    host = PluginHost(\n"

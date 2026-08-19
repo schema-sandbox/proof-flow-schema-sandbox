@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-## 图式证明流实验沙箱 `0.1.0-alpha.7`
+## 图式证明流实验沙箱 `0.1.0-alpha.8`
 
 正式名称是 **ProofFlow Schema Sandbox**，简称 **ProofFlow**。
 

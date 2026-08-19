@@ -1,4 +1,4 @@
-# ProofFlow API 快速示例 — Alpha.7
+# ProofFlow API 快速示例 — Alpha.8
 
 启动服务后：
 

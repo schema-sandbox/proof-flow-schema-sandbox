@@ -111,7 +111,7 @@ def generate_cyclonedx(py_deps: list[dict[str, str]], npm_deps: list[dict[str, s
             comp["hashes"] = [{"alg": "SHA-512", "content": dep["integrity"]}]
         components.append(comp)
 
-    version = "0.1.0-alpha.7"
+    version = "0.1.0-alpha.8"
     deterministic_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"proofflow-schema-sandbox-v{version}")
 
     return {
@@ -139,7 +139,7 @@ def generate_notices_markdown(py_deps: list[dict[str, str]], npm_deps: list[dict
     lines = [
         "# Third-Party Software Notices and Full Software Bill of Materials (SBOM)",
         "",
-        "This project, **ProofFlow Schema Sandbox** (`0.1.0-alpha.7`), incorporates third-party open-source software packages under various permissive open-source licenses (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Python-2.0, MPL-2.0).",
+        "This project, **ProofFlow Schema Sandbox** (`0.1.0-alpha.8`), incorporates third-party open-source software packages under various permissive open-source licenses (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Python-2.0, MPL-2.0).",
         "",
         f"**Total Tracked Components:** {total_deps} (Python Ecosystem: {len(py_deps)}, NPM Ecosystem: {len(npm_deps)})",
         "",

@@ -1,6 +1,6 @@
 # Third-Party Software Notices and Full Software Bill of Materials (SBOM)
 
-This project, **ProofFlow Schema Sandbox** (`0.1.0-alpha.7`), incorporates third-party open-source software packages under various permissive open-source licenses (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Python-2.0, MPL-2.0).
+This project, **ProofFlow Schema Sandbox** (`0.1.0-alpha.8`), incorporates third-party open-source software packages under various permissive open-source licenses (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Python-2.0, MPL-2.0).
 
 **Total Tracked Components:** 397 (Python Ecosystem: 27, NPM Ecosystem: 370)
 

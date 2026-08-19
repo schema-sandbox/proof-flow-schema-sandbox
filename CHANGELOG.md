@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-alpha.8
+
+- CI strict release gate: `release-gate` job executes `build_release.py --strict --dist`, verifies SHA-256 checksums, and runs isolated wheel install with plugin discovery on `v*` tag pushes.
+- Version synchronization: README, README_CN, and all project metadata aligned to a single release version.
+- Messaging alignment: release notes describe "hardened alpha milestone" consistent with SECURITY.md's "local research prototype" disclosure.
+
 ## 0.1.0-alpha.7
 
 - Deterministic zero-drift release pipeline with detached manifest and signature generation.

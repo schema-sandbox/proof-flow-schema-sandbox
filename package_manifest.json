@@ -1,13 +1,13 @@
 {
   "package": "ProofFlow Schema Sandbox",
-  "version": "0.1.0-alpha.7",
+  "version": "0.1.0-alpha.8",
   "release_date": "2026-08-20",
   "generated_at": "2026-08-20T00:00:00Z",
   "status": "local-first experimental mathematics research sandbox",
   "license": "Apache-2.0",
-  "git_commit": "9fd1f4add4823f4889f095b88a5aad62fe571144",
+  "git_commit": "2baecd5fdd957db30ae759f01da2c88289b33c90",
   "git_branch": "master",
-  "git_tag": "v0.1.0-alpha.7",
+  "git_tag": "v0.1.0-alpha.8",
   "entrypoints": {
     "api": "schemamath_api.main:app",
     "application": "/app/",
@@ -19,7 +19,7 @@
     "runtime_schemas_exported": 67,
     "json_schema_documents_present": 68,
     "openapi_paths": 72,
-    "markdown_documents_present": 41,
+    "markdown_documents_present": 42,
     "prototype_javascript_syntax": "not_run_by_offline_builder",
     "demo_export_import": "not_run_by_offline_builder",
     "react_build": "not_run_by_offline_builder",
@@ -33,8 +33,8 @@
     "silent_network_install": false,
     "os_security_sandbox": false
   },
-  "file_count_excluding_manifest_and_checksum": 391,
-  "total_bytes_excluding_manifest_and_checksum": 3266507,
+  "file_count_excluding_manifest_and_checksum": 393,
+  "total_bytes_excluding_manifest_and_checksum": 3283408,
   "files": [
     {
       "path": ".dockerignore",
@@ -53,8 +53,8 @@
     },
     {
       "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
-      "size_bytes": 1962,
-      "sha256": "b1c23fbcff43bacb731df312f34f193b3708e37776d491f8655290af10c2f0ec"
+      "size_bytes": 2042,
+      "sha256": "be35018b9fd940db7efd6179d2ff8420d8b01cc0ceff254583499eebe287f2e0"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
@@ -73,8 +73,8 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "size_bytes": 2338,
-      "sha256": "54aea5cd980eb8998a4f646f4db42b91c0382e583daa9caa21ff45c856cf1dae"
+      "size_bytes": 4766,
+      "sha256": "2e933df17750fceb24fa26aa3bc0f4d592e1d24d955cb36a0dd8319f9f36cd97"
     },
     {
       "path": ".gitignore",
@@ -83,8 +83,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size_bytes": 6170,
-      "sha256": "7d23f6bf19776e0aa0292d24f9475c7323fbfd0f6f4adcf54c49ebd3f217da03"
+      "size_bytes": 6631,
+      "sha256": "5784fce2b8d1de51d018737e571c103b0dd391bc21264a55647892809816e994"
     },
     {
       "path": "CODE_OF_CONDUCT.md",
@@ -118,23 +118,23 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 8778,
-      "sha256": "391fdcd3d1a30d2897e39f3f034080ced47cef0cdfc8a9a6fcde210b627b1912"
+      "size_bytes": 8958,
+      "sha256": "54feb675cc74ba036da39ebe8d3f6f37ab6dd69f1acda43adacccc4de567261a"
     },
     {
       "path": "README_CN.md",
-      "size_bytes": 7399,
-      "sha256": "f0f7b487ce36293be2322c11386679cf3a7a3c6e62795f67916934bebeeef418"
+      "size_bytes": 8288,
+      "sha256": "95d9402967b04de202aaee640cd40048499ac9371c11b7b4960700836f6b4ad5"
     },
     {
       "path": "SECURITY.md",
-      "size_bytes": 1846,
-      "sha256": "d130fbdaf0b68c43818878428c39fd47c1f1842f3d9a5f2b07d3b7f1c9b2bf8a"
+      "size_bytes": 1868,
+      "sha256": "2c4ab60893f48895901b4cabb676bf962afb4709b2074bc7131660b718b7fbc3"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
       "size_bytes": 50288,
-      "sha256": "0af51d20f84219ac865a0bb8dff19b650254675a119ff36a33b05458d4bd1a9a"
+      "sha256": "4754c611e68766a132fc426940871230368c2256b2cdc10b70c9f4dd42b4f231"
     },
     {
       "path": "UI_UX_IMPROVEMENT_PLAN_2026-08-08.md",
@@ -158,8 +158,8 @@
     },
     {
       "path": "apps/api/schemamath_api/__init__.py",
-      "size_bytes": 73,
-      "sha256": "279ac748fa736ae06599f40ff8f1e4db7e0aa3e8db13e815b4ac5a71b568b01c"
+      "size_bytes": 76,
+      "sha256": "c26b1ca97cabc3b70a6b6ee778698b14398a9a6e21868c7722bed3f6ea3a80c6"
     },
     {
       "path": "apps/api/schemamath_api/alphaproof_mcts.py",
@@ -788,8 +788,8 @@
     },
     {
       "path": "apps/web/README.md",
-      "size_bytes": 569,
-      "sha256": "b9bb7ef4a2bd717e0682156820f59ee42576ca801521fa0b31950fddc2f43733"
+      "size_bytes": 587,
+      "sha256": "22ac92b201f4d46631afb0012bc9f61c523b9ab96bffac1784b31d4beef685de"
     },
     {
       "path": "apps/web/index.html",
@@ -798,13 +798,13 @@
     },
     {
       "path": "apps/web/package-lock.json",
-      "size_bytes": 173969,
-      "sha256": "ce0bbeda5e9415a642c523bd21adccf58f2a12fa6fc8df2f86b7cc79fc855803"
+      "size_bytes": 178674,
+      "sha256": "5eecb6c00239f01b64396fffda672ab4f0dc3f37ead09bfeee5bdb449df4086f"
     },
     {
       "path": "apps/web/package.json",
-      "size_bytes": 778,
-      "sha256": "9dc7ad6d40c445c7423a5affdd3ce739714db634a77139346538d36c1f7bd921"
+      "size_bytes": 812,
+      "sha256": "bdddf494863a0ef056f01665c6ee4180deeba90e92ffba56096a8b53b6987e15"
     },
     {
       "path": "apps/web/src/App.tsx",
@@ -863,8 +863,8 @@
     },
     {
       "path": "docker-compose.prod.yml",
-      "size_bytes": 1031,
-      "sha256": "2d73e4721df2c66004cd8c826df28eecadd0602f0fef704ac9cbf963ccbbabe8"
+      "size_bytes": 1064,
+      "sha256": "676a091a5e17e6483b3bbffa1fdb419baa14e571af438400114c1564fc58473c"
     },
     {
       "path": "docker-compose.yml",
@@ -918,8 +918,8 @@
     },
     {
       "path": "docs/API_QUICKSTART_CN.md",
-      "size_bytes": 3880,
-      "sha256": "06f53b012e8961d49df2ba62aa816cf49043a494874c5a627041c850e58f66d0"
+      "size_bytes": 4036,
+      "sha256": "8781269230869f7c80163df378e02a160a9841aa94b2dd1d7965c4ce4d125779"
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -963,8 +963,13 @@
     },
     {
       "path": "docs/RELEASE_NOTES_v0.1.0-alpha.7.md",
-      "size_bytes": 4662,
-      "sha256": "54226fea2ad62184376bf3ea5aed96bd1aa1ab420cfc4e23ee9a4b6776147b9d"
+      "size_bytes": 4747,
+      "sha256": "92fb6d4e57f1a6355d02db21e4113603fcdbf883e2d5467314b4fa93c5897f4c"
+    },
+    {
+      "path": "docs/RELEASE_NOTES_v0.1.0-alpha.8.md",
+      "size_bytes": 4747,
+      "sha256": "502c27d6a82dc2bd42edc90e60a336844da9c4af6b0bfda5c0d95ff0eb0a727b"
     },
     {
       "path": "docs/REPOSITORY_MAP.md",
@@ -1138,8 +1143,8 @@
     },
     {
       "path": "pyproject.toml",
-      "size_bytes": 1837,
-      "sha256": "03c1d2a8c94730e6c0996ac0d342d97fe52383865fa8fda891ed48121d53bf25"
+      "size_bytes": 1911,
+      "sha256": "ea2350f095b9f77e0848aa102daad0b0dd59b6648a38ea7de95ce9e828723212"
     },
     {
       "path": "requirements-dev.txt",
@@ -1154,7 +1159,7 @@
     {
       "path": "sbom.cyclonedx.json",
       "size_bytes": 248806,
-      "sha256": "384a5b0ad5dedbd8219c846bd0d2cd6b7be51f715afe415b4b17f08bda670336"
+      "sha256": "c542b40274ca3f288525ca04130076ebbcea92fe5be852b7a0d5dc268144d87f"
     },
     {
       "path": "schemas/arena-recipe.schema.json",
@@ -1538,8 +1543,8 @@
     },
     {
       "path": "scripts/generate_sbom.py",
-      "size_bytes": 11570,
-      "sha256": "0fb42f7e4131344d0aca3ff4f89bd7b58000081c9be94b67c6140b03114fc624"
+      "size_bytes": 11805,
+      "sha256": "7799fc4b685adc3ebd13055bcf384abe9b2e1fe6f6052abd1cead225a6d9cfae"
     },
     {
       "path": "scripts/run_api.sh",
@@ -1567,6 +1572,11 @@
       "sha256": "b5f2a1d1c79303ae34c8482686d0f2eeb6ebbdba16f92e3df4b248e0165b62cf"
     },
     {
+      "path": "scripts/verify_wheel.py",
+      "size_bytes": 2404,
+      "sha256": "0d51a5b5004d66409e396885838137378cc9c4887c5439b713e94f460a8963cc"
+    },
+    {
       "path": "start.bat",
       "size_bytes": 230,
       "sha256": "fbc63d0cb7453295fb2eabbe8a237f652b4e06bb768df9f25976d1da7ad9b5a3"
@@ -1588,8 +1598,8 @@
     },
     {
       "path": "tests/test_alpha3.py",
-      "size_bytes": 13290,
-      "sha256": "e47275daac2c7d8e3351eee898b49546c8789c54b888c9a0a36e58de027f42dd"
+      "size_bytes": 13637,
+      "sha256": "42b7c2e509da02ea09446ee2ec10c114786c84dbed1cb5e4fd2af65c8e319ea0"
     },
     {
       "path": "tests/test_api.py",
