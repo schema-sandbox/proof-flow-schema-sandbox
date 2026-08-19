@@ -1,10 +1,13 @@
 {
   "package": "ProofFlow Schema Sandbox",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "release_date": "2026-08-19",
-  "generated_at": "2026-08-19T17:26:42.933934+00:00",
-  "status": "local-first experimental research prototype",
+  "generated_at": "2026-08-19T17:46:00.965332+00:00",
+  "status": "local-first experimental mathematics research sandbox",
   "license": "Apache-2.0",
+  "git_commit": "8b0ac47d81883d302a2379214d01a89aaca6d15a",
+  "git_branch": "master",
+  "git_tag": "v0.1.0-alpha.6",
   "entrypoints": {
     "api": "schemamath_api.main:app",
     "application": "/app/",
@@ -12,11 +15,11 @@
     "openapi": "api/openapi.yaml"
   },
   "validated": {
-    "pytest_tests_collected": 418,
+    "pytest_tests_collected": 419,
     "runtime_schemas_exported": 67,
     "json_schema_documents_present": 68,
     "openapi_paths": 72,
-    "markdown_documents_present": 38,
+    "markdown_documents_present": 39,
     "prototype_javascript_syntax": "not_run_by_offline_builder",
     "demo_export_import": "not_run_by_offline_builder",
     "react_build": "not_run_by_offline_builder",
@@ -30,8 +33,8 @@
     "silent_network_install": false,
     "os_security_sandbox": false
   },
-  "file_count_excluding_manifest_and_checksum": 384,
-  "total_bytes_excluding_manifest_and_checksum": 2711838,
+  "file_count_excluding_manifest_and_checksum": 385,
+  "total_bytes_excluding_manifest_and_checksum": 2724164,
   "files": [
     {
       "path": ".dockerignore",
@@ -75,8 +78,8 @@
     },
     {
       "path": ".gitignore",
-      "size_bytes": 673,
-      "sha256": "96e51ada36ebc3aab5188546a0ffb74ac59c3531bff960f7f81a205d38ac76b6"
+      "size_bytes": 707,
+      "sha256": "668123f167ea4e0d51648487fe48b7e867e5bbe262beae70671aa17489ac3146"
     },
     {
       "path": "CHANGELOG.md",
@@ -115,18 +118,23 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 8270,
-      "sha256": "212e293e389c2b3eb1a3cc90bb9a92c6da8501552fced6ebaedd0231371d626d"
+      "size_bytes": 8778,
+      "sha256": "391fdcd3d1a30d2897e39f3f034080ced47cef0cdfc8a9a6fcde210b627b1912"
     },
     {
       "path": "README_CN.md",
-      "size_bytes": 6648,
-      "sha256": "2e1afb3a8471e06e6e011f5c896008482e0114b262e0a23048ee3663c6d8ca5a"
+      "size_bytes": 7399,
+      "sha256": "f0f7b487ce36293be2322c11386679cf3a7a3c6e62795f67916934bebeeef418"
     },
     {
       "path": "SECURITY.md",
       "size_bytes": 1846,
       "sha256": "a6b08714697afe6473d38a10c94656320355a6359e9dc39b23a6b13935fdbe8e"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "size_bytes": 2967,
+      "sha256": "269b0d22d0ed818293120df7b212ee7537619498a2c32e0f23df68a55c12823f"
     },
     {
       "path": "UI_UX_IMPROVEMENT_PLAN_2026-08-08.md",
@@ -141,17 +149,17 @@
     {
       "path": "api/openapi.json",
       "size_bytes": 358582,
-      "sha256": "1be19997e3483b5d91b28e71df2b7fe2886341a63827205f9364c4cf5b2052c3"
+      "sha256": "da20c68d29d24aeeb8178d1d6ab0db85b1662662d75426fbf97a02e97da63d71"
     },
     {
       "path": "api/openapi.yaml",
       "size_bytes": 247068,
-      "sha256": "afb91386d964ef9c3f11ff0cbcb6670fb9754e1a256c7d9dde6533072ea4a512"
+      "sha256": "99ae6d59cda5cf7e87bdca163689779662e5e37f737e57a6d752f0d46dd3ed9a"
     },
     {
       "path": "apps/api/schemamath_api/__init__.py",
       "size_bytes": 73,
-      "sha256": "5c97ce492200f62e54768200cbf9d61e12fce63783b11f15ac4af69eff702a38"
+      "sha256": "12af275e9abb25fc3c6caee7c162a8e350f43409cbbbac69606a5368ed9a27aa"
     },
     {
       "path": "apps/api/schemamath_api/alphaproof_mcts.py",
@@ -595,8 +603,8 @@
     },
     {
       "path": "apps/api/schemamath_api/service.py",
-      "size_bytes": 161118,
-      "sha256": "6e8500fa462f2aaddbf7d4c4a894462e7a117b7d3e3e432a8d5f5800cc2b92d5"
+      "size_bytes": 164763,
+      "sha256": "d6de3d791102c06521358b16996cb537a233b70f9d142fb60d6311ae60f4889f"
     },
     {
       "path": "apps/api/schemamath_api/singularity_core.py",
@@ -796,7 +804,7 @@
     {
       "path": "apps/web/package.json",
       "size_bytes": 778,
-      "sha256": "e4dc6e09b89a2e3dbdf03cd159cf268d5a3e533ebc7006cef002f8d10f64343f"
+      "sha256": "b99c8afc1925d0ceb9214f46c48398745e1a25e04da0f7aaae3bcf88d713fc2b"
     },
     {
       "path": "apps/web/src/App.tsx",
@@ -1111,7 +1119,7 @@
     {
       "path": "pyproject.toml",
       "size_bytes": 1769,
-      "sha256": "6bfa64b346594719aeb7506910479bba2e3de4c282945072c083a5af71a12130"
+      "sha256": "dc789ad18d5faf1a03874240df6f90ef6e33df54f01012b0a30275d6707db0ac"
     },
     {
       "path": "requirements-dev.txt",
@@ -1480,8 +1488,8 @@
     },
     {
       "path": "scripts/build_release.py",
-      "size_bytes": 8017,
-      "sha256": "30878e38e67e50a0bbf9b7bc23f75b875490d25cf3a21bc82b21e591526487f1"
+      "size_bytes": 10027,
+      "sha256": "ad051f4340d2e86bd4f63e8c5cb6953840ced0e72f9f5fc604f48d00254808bf"
     },
     {
       "path": "scripts/create_demo.sh",
@@ -1515,8 +1523,8 @@
     },
     {
       "path": "scripts/stage_wheel_ui.py",
-      "size_bytes": 942,
-      "sha256": "3493feca370cb0caa39cf381b899ea6be3628325af783a714616efcf782f62be"
+      "size_bytes": 1441,
+      "sha256": "2fba7041760b3afb59ae6025c4f38084ffd6ac68066c15b6e03e4a74a7b0efc0"
     },
     {
       "path": "scripts/test.sh",
@@ -1540,8 +1548,8 @@
     },
     {
       "path": "start.py",
-      "size_bytes": 3915,
-      "sha256": "97c704c71ee4095d6c4eac6e7e786f4c97ce5d30f41731b6f827ea513a7925a1"
+      "size_bytes": 4235,
+      "sha256": "94809a97d385e843a1cc605e6826ad5dd8ae30627caf636c15d5f8067074123e"
     },
     {
       "path": "tests/conftest.py",
@@ -1550,8 +1558,8 @@
     },
     {
       "path": "tests/test_alpha3.py",
-      "size_bytes": 11698,
-      "sha256": "50112c49c76af3a17fabca8e6f5bfa66d97a107fe4b9b1bfdfdc27641521a0ba"
+      "size_bytes": 13290,
+      "sha256": "7c4fb84a0c9d094559f514d60fe5fa5aeac98a03586f7ec09ea95f03b0cd2718"
     },
     {
       "path": "tests/test_api.py",
