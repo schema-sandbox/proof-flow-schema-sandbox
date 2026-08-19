@@ -53,10 +53,22 @@ class PluginHost:
 
     def available_manifests(self) -> list[PluginManifestRecord]:
         manifests: dict[tuple[str, str], PluginManifestRecord] = {}
+        package_plugins: Path | None = None
+        try:
+            from importlib.resources import files as _package_files
+
+            candidate = Path(_package_files("schemamath_api").joinpath("_plugins"))
+            if candidate.is_dir():
+                package_plugins = candidate
+        except Exception:
+            package_plugins = None
+
         roots = [
             self.repository_root / "plugins" / "builtin",
             self.plugin_root / "registry",
         ]
+        if package_plugins is not None:
+            roots.append(package_plugins)
         for root in roots:
             if not root.exists():
                 continue

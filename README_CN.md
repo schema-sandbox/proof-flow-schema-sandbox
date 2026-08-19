@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-## 图式证明流实验沙箱 `0.1.0-alpha.5`
+## 图式证明流实验沙箱 `0.1.0-alpha.6`
 
 正式名称是 **ProofFlow Schema Sandbox**，简称 **ProofFlow**。
 
@@ -19,6 +19,14 @@ ProofFlow 不保证解题，不声称访问模型隐藏思维链，也从不自�
 - 想要 LLM 辅助、又不愿丢失决策痕迹的数学研究者。
 - 形式化验证与 Lean 相关的研究者。
 - 任何想观察 AI 在难题上的推理如何真实展开的人。
+
+## Alpha.6 内容
+
+- **非回环监听安全防护**：当监听 `0.0.0.0` 或外网接口时，未开启认证强制拒绝本地 Python 插件执行，彻底杜绝未授权远程执行风险。
+- **磁盘与导入工件全量哈希校验**：`.smath.zip` 导入预检、项目完整性报告及工件读取均强制核对内容寻址路径、SHA-256 哈希与字节大小，杜绝证据篡改。
+- **前端生产依赖 0 漏洞**：升级 DOMPurify 与 Mermaid，`npm audit --omit=dev` 保持 0 漏洞。
+- **内置插件与容器打包闭环**：Wheel 安装包与 Docker 镜像完整打包 `graphviz.local` 与 `python.local` 插件及许可证。
+- **第三方合规清单**：提供完整的 `THIRD_PARTY_NOTICES.md` 许可证与依赖归属。
 
 ## Alpha.5 内容
 

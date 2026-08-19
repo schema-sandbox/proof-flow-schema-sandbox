@@ -13,15 +13,17 @@ FROM python:3.12-slim@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4d
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app/apps/api \
+    PROOFFLOW_ENV=production \
     PROOFFLOW_WORKSPACE=/data/workspaces \
     PROOFFLOW_PLUGIN_ROOT=/data/plugins
 
 WORKDIR /app
-COPY pyproject.toml README.md requirements.txt ./
+COPY pyproject.toml README.md requirements.txt LICENSE ./
 COPY apps/api ./apps/api
 RUN pip install --no-cache-dir .
 COPY schemas ./schemas
 COPY prototype ./prototype
+COPY plugins ./plugins
 COPY --from=web-build /src/apps/web/dist ./apps/web/dist
 
 RUN useradd --create-home --uid 10001 proofflow \

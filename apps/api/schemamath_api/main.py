@@ -128,7 +128,7 @@ def create_app(workspace_root: Path | None = None, plugin_root: Path | None = No
 
     @app.get("/", include_in_schema=False)
     def root() -> RedirectResponse:
-        return RedirectResponse(url="/app/" if web_dist_path is not None else "/prototype/")
+        return RedirectResponse(url="/prototype/" if prototype_path is not None else "/app/")
 
     return app
 

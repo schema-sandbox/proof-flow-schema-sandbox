@@ -127,6 +127,11 @@ def main(args: Sequence[str] | None = None) -> int:
 
         elif parsed.command == "serve":
             import uvicorn
+            try:
+                settings.validate_host_security(parsed.host)
+            except ValueError as exc:
+                print(f"❌ Security configuration error: {exc}")
+                return 1
             print(f"🚀 Starting ProofFlow server on http://{parsed.host}:{parsed.port}")
             uvicorn.run("schemamath_api.main:app", host=parsed.host, port=parsed.port, reload=False)
 

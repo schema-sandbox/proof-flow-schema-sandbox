@@ -130,7 +130,31 @@ export type CanvasSnapshotResponse = {
   scene: Record<string, unknown>;
 };
 
+export type IntegrityReport = {
+  project_id: string;
+  event_count: number;
+  valid: boolean;
+  projection_schema_version?: number;
+  first_invalid_index: number | null;
+  error: string | null;
+};
+
 const API_KEY_STORAGE_KEY = "proofflow_api_key";
+
+export class ApiError extends Error {
+  status: number;
+  detail: unknown;
+  constructor(status: number, message: string, detail?: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.detail = detail;
+  }
+}
+
+export function isAuthError(reason: unknown): boolean {
+  return reason instanceof ApiError && (reason.status === 401 || reason.status === 403);
+}
 
 function storedApiKey(): string {
   try {
@@ -160,7 +184,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
-    throw new Error(body.detail ?? response.statusText);
+    const message = (
+      typeof body.detail === "string" ? body.detail : response.statusText
+    ) || response.statusText;
+    throw new ApiError(response.status, message, body.detail);
   }
   return response.json() as Promise<T>;
 }
@@ -204,4 +231,42 @@ export const api = {
       revival_conditions: [],
       actor: { type: "human", id: "local-researcher" },
     }),
+  createProject: (title: string, problem: string, notes: string) =>
+    jsonPost<ProjectManifest>("/api/v1/projects", {
+      title,
+      description: "",
+      problem: {
+        source_text: problem,
+        author_notes: notes,
+        definitions: [],
+        assumptions: [],
+      },
+      actor: { type: "human", id: "local-researcher" },
+    }),
+  integrity: (id: string) =>
+    request<IntegrityReport>(`/api/v1/projects/${id}/integrity`),
+  exportUrl: (id: string) => `/api/v1/projects/${id}/export`,
+  /** Authenticated download: anchor navigation cannot send X-API-Key. */
+  downloadExport: async (id: string, filename?: string) => {
+    const headers = new Headers();
+    const apiKey = storedApiKey();
+    if (apiKey) headers.set("X-API-Key", apiKey);
+    const response = await fetch(`/api/v1/projects/${id}/export`, { headers });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      const message =
+        (typeof body.detail === "string" ? body.detail : response.statusText) ||
+        response.statusText;
+      throw new ApiError(response.status, message, body.detail);
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename ?? `project-${id.slice(0, 8)}.smath.zip`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  },
 };

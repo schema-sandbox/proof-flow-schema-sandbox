@@ -258,11 +258,90 @@ def test_production_app_mount_and_alpha4_openapi(tmp_path: Path) -> None:
     with TestClient(app) as client:
         root = client.get("/", follow_redirects=False)
         assert root.status_code in {302, 307}
-        assert root.headers["location"] == "/app/"
+        assert root.headers["location"] == "/prototype/"
         page = client.get("/app/")
         assert page.status_code == 200
         assert "ProofFlow Schema Sandbox" in page.text
         openapi = client.get("/openapi.json").json()
-        assert openapi["info"]["version"] == "0.1.0-alpha.5"
+        assert openapi["info"]["version"] == "0.1.0-alpha.6"
         assert "/api/v1/projects/{project_id}/epistemic-deltas" in openapi["paths"]
         assert "/api/v1/projects/{project_id}/routes/similar" in openapi["paths"]
+
+
+def test_import_archive_rejects_tampered_blob_sha256(service: SchemaMathService, tmp_path: Path) -> None:
+    import zipfile
+    project = make_project(service)
+    from schemamath_api.domain import ArtifactOrigin, ArtifactType, InterpretationStatus
+    artifact = service.add_artifact(
+        project_id=project.project_id,
+        filename="evidence.txt",
+        content=b"authentic research data",
+        artifact_type=ArtifactType.TEXT,
+        origin=ArtifactOrigin.HUMAN,
+        media_type="text/plain",
+        interpretation_status=InterpretationStatus.RAW,
+        actor=HUMAN,
+    )
+    assert artifact.sha256
+
+    exported_zip = service.export_project_zip(project.project_id)
+
+    # Create a tampered copy of the zip archive where the blob content is altered
+    tampered_zip = tmp_path / "tampered.smath.zip"
+    with zipfile.ZipFile(exported_zip, "r") as src, zipfile.ZipFile(tampered_zip, "w") as dst:
+        for item in src.infolist():
+            content = src.read(item.filename)
+            if item.filename == artifact.blob_relpath:
+                content = b"maliciously tampered content"
+            dst.writestr(item, content)
+
+    # Preflight must detect SHA-256 mismatch
+    preflight = service.preflight_project_zip(tampered_zip)
+    assert not preflight.can_import
+    assert any("SHA-256 mismatch" in err or "size mismatch" in err for err in preflight.errors)
+
+    # Direct import must raise ConflictError
+    with pytest.raises(ConflictError, match="archive preflight failed"):
+        service.import_project_zip(tampered_zip)
+
+
+def test_integrity_report_and_artifact_bytes_detect_disk_blob_tampering(
+    service: SchemaMathService,
+) -> None:
+    project = make_project(service)
+    from schemamath_api.domain import ArtifactOrigin, ArtifactType, InterpretationStatus
+
+    artifact = service.add_artifact(
+        project_id=project.project_id,
+        filename="notes.txt",
+        content=b"pristine research notes",
+        artifact_type=ArtifactType.TEXT,
+        origin=ArtifactOrigin.HUMAN,
+        media_type="text/plain",
+        interpretation_status=InterpretationStatus.RAW,
+        actor=HUMAN,
+    )
+
+    # Initial integrity report must be valid
+    report = service.integrity_report(project.project_id)
+    assert report.valid is True
+
+    # Reading artifact bytes succeeds
+    art_rec, data = service.artifact_bytes(project.project_id, artifact.artifact_id)
+    assert data == b"pristine research notes"
+
+    # Now tamper with the blob file directly on disk
+    blob_on_disk = service.project_dir(project.project_id) / artifact.blob_relpath
+    assert blob_on_disk.is_file()
+    blob_on_disk.write_bytes(b"tampered notes content on disk")
+
+    # Integrity report must now flag the project as invalid
+    report_tampered = service.integrity_report(project.project_id)
+    assert report_tampered.valid is False
+    assert "blob SHA-256 mismatch" in (report_tampered.error or "")
+
+    # Reading artifact bytes directly must now fail with ConflictError
+    with pytest.raises(ConflictError, match="artifact blob SHA-256 mismatch"):
+        service.artifact_bytes(project.project_id, artifact.artifact_id)
+
+

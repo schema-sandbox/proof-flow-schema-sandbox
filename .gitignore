@@ -27,6 +27,7 @@ runtime-workspaces/
 *.egg-info/
 *.tsbuildinfo
 apps/api/schemamath_api/_ui/
+apps/api/schemamath_api/_plugins/
 *.zip
 ProofFlow_Schema_Sandbox_*/
 SchemaMath_Experimental_Sandbox_*/

@@ -1,10 +1,15 @@
 @echo off
-title ProofFlow Startup
+chcp 65001 >nul
+title ProofFlow Launcher
 cd /d "%~dp0"
-echo Starting ProofFlow Schema Sandbox...
-python start.py
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo An error occurred starting ProofFlow.
+
+set "PYTHON_EXE=.venv\Scripts\python.exe"
+if not exist "%PYTHON_EXE%" (
+    set "PYTHON_EXE=python"
+)
+
+"%PYTHON_EXE%" start.py
+
+if %errorlevel% neq 0 (
     pause
 )

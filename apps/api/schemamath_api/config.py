@@ -152,3 +152,20 @@ class Settings:
             maximum_plugin_output_bytes=max_plugin_output,
             maximum_plugin_output_files=max_plugin_files,
         )
+
+    def validate_host_security(self, host: str) -> None:
+        """Enforce fail-closed security for non-loopback network bindings.
+
+        If binding to an external interface (e.g. 0.0.0.0, public IP) while authentication
+        is disabled and local process plugins are enabled, unauthenticated remote callers
+        could execute code.
+        """
+        loopback_hosts = {"127.0.0.1", "localhost", "::1", "testclient"}
+        normalized_host = host.strip().lower()
+        if normalized_host not in loopback_hosts and not self.auth_enabled and self.allow_local_plugins:
+            raise ValueError(
+                f"Binding to non-loopback host {host!r} with local Python plugins enabled "
+                "requires API authentication. Either set PROOFFLOW_AUTH_ENABLED=true "
+                "(with PROOFFLOW_API_KEYS and PROOFFLOW_SECRET_KEY) or disable local plugins "
+                "with PROOFFLOW_ALLOW_LOCAL_PLUGINS=false."
+            )

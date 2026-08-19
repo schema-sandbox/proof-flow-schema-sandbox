@@ -119,3 +119,35 @@ def test_plugin_output_larger_than_limit_is_truncated(
     assert outcome.output_truncated is True
     big = next(p for p in outcome.output_files if p.name == "big.bin")
     assert big.stat().st_size == 4096
+
+
+def test_host_security_validation_fails_on_insecure_remote_binding(tmp_path: Path) -> None:
+    from schemamath_api.config import Settings
+
+    settings = Settings(
+        workspace_root=tmp_path / "workspaces",
+        plugin_root=tmp_path / "plugins",
+        environment="local",
+        auth_enabled=False,
+        secret_key=None,
+        api_keys=(),
+        allow_local_plugins=True,
+        maximum_import_bytes=10_000_000,
+        maximum_upload_bytes=10_000_000,
+        maximum_chat_import_chars=500_000,
+        maximum_plugin_output_bytes=4096,
+        maximum_plugin_output_files=8,
+    )
+
+    # Loopback bindings must succeed
+    settings.validate_host_security("127.0.0.1")
+    settings.validate_host_security("localhost")
+    settings.validate_host_security("::1")
+
+    # Non-loopback binding without auth must fail closed
+    with pytest.raises(ValueError, match="Binding to non-loopback host '0.0.0.0'"):
+        settings.validate_host_security("0.0.0.0")
+
+    with pytest.raises(ValueError, match="Binding to non-loopback host '192.168.1.100'"):
+        settings.validate_host_security("192.168.1.100")
+

@@ -19,6 +19,7 @@ import {
 import {
   api,
   setApiKey,
+  isAuthError,
   type BranchRecord,
   type BridgeResultRecord,
   type ChallengeRecord,
@@ -33,6 +34,20 @@ import {
   type TransitionProposalRecord,
   type RouteRecord,
 } from "./api";
+import { AuthGate } from "./components/AuthGate";
+import { Sidebar } from "./components/Sidebar";
+import { ControlPlane } from "./components/ControlPlane";
+import {
+  labelChallengeType,
+  labelEnum,
+  labelKind,
+} from "./labels";
+import {
+  getInitialLanguage,
+  saveLanguage,
+  translations,
+  type SupportedLanguage,
+} from "./i18n";
 
 const Excalidraw = lazy(async () => {
   const module = await import("@excalidraw/excalidraw");
@@ -57,6 +72,7 @@ function buildGraph(
   branches: BranchRecord[],
   challenges: ChallengeRecord[],
   bridges: BridgeResultRecord[],
+  lang: SupportedLanguage,
 ): { nodes: Node<GraphData>[]; edges: Edge[] } {
   const nodes: Node<GraphData>[] = [];
   const edges: Edge[] = [];
@@ -117,7 +133,7 @@ function buildGraph(
       id: challenge.challenge_id,
       position: { x: 1020 + (index % 2) * 245, y: index * 105 },
       data: {
-        label: challenge.challenge_type.replaceAll("_", " "),
+        label: labelChallengeType(challenge.challenge_type, lang),
         detail: challenge.statement,
         kind: "challenge",
         state: challenge.status,
@@ -157,18 +173,18 @@ function buildGraph(
   return { nodes, edges };
 }
 
-function nodeLabel({ data }: { data: GraphData }) {
+function nodeLabel({ data, lang }: { data: GraphData; lang: SupportedLanguage }) {
   return (
     <div className="node-copy">
-      <span className="node-kind">{data.kind}</span>
+      <span className="node-kind">{labelKind(data.kind, lang)}</span>
       <strong>{data.label}</strong>
-      <small>{data.state}</small>
+      <small title={data.state}>{labelEnum(data.state, lang)}</small>
     </div>
   );
 }
 
-function formatTime(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", {
+function formatTime(value: string, lang: SupportedLanguage) {
+  return new Intl.DateTimeFormat(lang === "en" ? "en-US" : "zh-CN", {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -177,6 +193,7 @@ function formatTime(value: string) {
 }
 
 export function App() {
+  const [lang, setLang] = useState<SupportedLanguage>(getInitialLanguage);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [project, setProject] = useState<ProjectManifest | null>(null);
   const [routes, setRoutes] = useState<RouteRecord[]>([]);
@@ -199,11 +216,18 @@ export function App() {
   const [deltasExpanded, setDeltasExpanded] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [canvasNote, setCanvasNote] = useState("");
+  const [selectedCount, setSelectedCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [apiKeyDraft, setApiKeyDraft] = useState("");
+  const [authRequired, setAuthRequired] = useState(false);
+  const [version, setVersion] = useState("");
+  const [integrityResult, setIntegrityResult] = useState<{
+    valid: boolean;
+    text: string;
+  } | null>(null);
   const [systemDark, setSystemDark] = useState(
     () => window.matchMedia("(prefers-color-scheme: dark)").matches,
   );
@@ -211,19 +235,48 @@ export function App() {
   const selectedElementIds = useRef<string[]>([]);
   const flowInstance = useRef<ReactFlowInstance<Node<GraphData>, Edge> | null>(null);
 
+  const t = translations[lang];
+
+  function handleLanguageChange(nextLang: SupportedLanguage) {
+    setLang(nextLang);
+    saveLanguage(nextLang);
+  }
+
+  useEffect(() => {
+    const onLangChange = (e: Event) => {
+      const customEvent = e as CustomEvent<SupportedLanguage>;
+      if (customEvent.detail && (customEvent.detail === "en" || customEvent.detail === "zh")) {
+        setLang(customEvent.detail);
+      }
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "proofflow_lang" && (e.newValue === "en" || e.newValue === "zh")) {
+        setLang(e.newValue);
+      }
+    };
+    window.addEventListener("proofflow-lang-change", onLangChange);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("proofflow-lang-change", onLangChange);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
   const graph = useMemo(
-    () => buildGraph(routes, branches, challenges, bridges),
-    [routes, branches, challenges, bridges],
+    () => buildGraph(routes, branches, challenges, bridges, lang),
+    [routes, branches, challenges, bridges, lang],
   );
+
   const renderedNodes = useMemo<Node<GraphData>[]>(
     () =>
       graph.nodes.map((node): Node<GraphData> => ({
         ...node,
         selected: node.id === selectedNodeId,
-        data: { ...node.data, label: nodeLabel({ data: node.data }) },
+        data: { ...node.data, label: nodeLabel({ data: node.data, lang }) },
       })),
-    [graph.nodes, selectedNodeId],
+    [graph.nodes, selectedNodeId, lang],
   );
+
   const openChallenges = challenges.filter((item) => item.status !== "RESOLVED").length;
 
   useEffect(() => {
@@ -248,16 +301,55 @@ export function App() {
   }, [searchOpen]);
 
   useEffect(() => {
-    api
-      .projects()
-      .then((items) => {
-        setProjects(items);
-        if (items[0]) return openProject(items[0].project_id);
-        return undefined;
-      })
-      .catch((reason: Error) => setError(reason.message))
-      .finally(() => setLoading(false));
+    void startup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  async function startup() {
+    setLoading(true);
+    setAuthRequired(false);
+    setError("");
+    try {
+      const health = await fetch("/health").then((response) =>
+        response.json().catch(() => ({})),
+      );
+      if (health.version) setVersion(String(health.version));
+    } catch {
+      // Health endpoint is optional; the project list is authoritative.
+    }
+    try {
+      const items = await api.projects();
+      setProjects(items);
+      if (items[0]) return openProject(items[0].project_id);
+      return undefined;
+    } catch (reason) {
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.projectListLoadFailed);
+      return undefined;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function connectWithApiKey() {
+    setApiKey(apiKeyDraft);
+    setApiKeyDraft("");
+    void startup();
+  }
+
+  async function createProject(title: string, problem: string, notes: string) {
+    try {
+      const created = await api.createProject(title, problem, notes);
+      setProjects((items) => [created, ...items]);
+      await openProject(created.project_id);
+      setNotice(t.notices.projectCreated);
+      return true;
+    } catch (reason) {
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.projectCreateFailed);
+      return false;
+    }
+  }
 
   async function openProject(id: string) {
     setLoading(true);
@@ -318,9 +410,12 @@ export function App() {
       };
       setSelectedNodeId(null);
       setSelectedNode(null);
+      setSelectedCount(0);
+      setIntegrityResult(null);
       setNotice("");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "项目加载失败");
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.projectLoadFailed);
     } finally {
       setLoading(false);
     }
@@ -351,7 +446,46 @@ export function App() {
       setSearchHits(await api.search(project.project_id, searchQuery.trim()));
       setSearchOpen(true);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "历史检索失败");
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.searchFailed);
+    }
+  }
+
+  useEffect(() => {
+    if (!project || !searchQuery.trim()) return;
+    const timer = setTimeout(() => void runSearch(), 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, project?.project_id]);
+
+  async function runIntegrity() {
+    if (!project) return;
+    setError("");
+    setIntegrityResult(null);
+    try {
+      const report = await api.integrity(project.project_id);
+      setIntegrityResult({
+        valid: report.valid,
+        text: report.valid
+          ? t.notices.integrityValid(report.event_count)
+          : report.error ?? t.notices.integrityCorrupted(report.first_invalid_index ?? 0),
+      });
+    } catch (reason) {
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.integrityFailed);
+    }
+  }
+
+  async function runExport() {
+    if (!project) return;
+    setError("");
+    setNotice("");
+    try {
+      await api.downloadExport(project.project_id, `${project.title || "project"}.smath.zip`);
+      setNotice(t.notices.exportStarted);
+    } catch (reason) {
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.exportFailed);
     }
   }
 
@@ -389,7 +523,7 @@ export function App() {
         element_links: links,
         actor: { type: "human", id: "local-researcher" },
       });
-      setNotice(`画布快照已保存，工件 ${saved.original_artifact_ref.slice(0, 8)}`);
+      setNotice(t.notices.canvasSaved(saved.original_artifact_ref.slice(0, 8)));
       setCanvasNote("");
       const [eventItems, deltaItems] = await Promise.all([
         api.events(project.project_id),
@@ -399,7 +533,8 @@ export function App() {
       setDeltas(deltaItems);
       return saved;
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "画布保存失败");
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.canvasSaveFailed);
       return null;
     } finally {
       setSaving(false);
@@ -408,12 +543,12 @@ export function App() {
 
   async function deriveRouteFromSelection() {
     if (!project || selectedElementIds.current.length === 0) {
-      setError("请先在自由草图中选择至少一个元素。");
+      setError(t.notices.deriveRouteSelectElement);
       return;
     }
     const title = canvasNote.trim();
     if (!title) {
-      setError("请先填写作者说明，作为派生路线标题。");
+      setError(t.notices.deriveRouteProvideTitle);
       return;
     }
     setSaving(true);
@@ -421,14 +556,15 @@ export function App() {
       const route = await api.createRoute(
         project.project_id,
         title,
-        `由自由草图元素派生。原始草图保持为不可变内容寻址工件。`,
+        t.notices.derivedRouteDesc,
       );
       setSelectedNodeId(route.route_id);
       await saveCanvas("CONFIRMED", route.route_id);
       setRoutes(await api.routes(project.project_id));
-      setNotice("派生路线已建立，草图原件未被覆盖。");
+      setNotice(t.notices.deriveRouteSuccess);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "派生路线创建失败");
+      if (isAuthError(reason)) setAuthRequired(true);
+      setError(reason instanceof Error ? reason.message : t.notices.deriveRouteFailed);
     } finally {
       setSaving(false);
     }
@@ -436,42 +572,32 @@ export function App() {
 
   return (
     <main className="app-shell">
-      <aside className="project-sidebar" aria-label="项目列表">
-        <div className="brand-block">
-          <span className="brand-mark" aria-hidden="true">PF</span>
-          <div>
-            <h1>ProofFlow</h1>
-            <p>Schema Sandbox</p>
-          </div>
-        </div>
-        <p className="constitution">
-          实验数学沙盒。UNRESOLVED 是有效结果，不自动宣称问题已解决。
-        </p>
-        <nav className="project-list" aria-label="研究项目">
-          {projects.map((item) => (
-            <button
-              className={project?.project_id === item.project_id ? "active" : ""}
-              key={item.project_id}
-              onClick={() => openProject(item.project_id)}
-            >
-              <strong>{item.title}</strong>
-              <span>{item.project_status.join(" / ")}</span>
-            </button>
-          ))}
-          {!loading && projects.length === 0 && (
-            <div className="empty-copy">
-              尚无项目。先通过本地 API 或原型界面创建研究空间。
-            </div>
-          )}
-        </nav>
-        <div className="sidebar-rule">
-          事件流为规范记录。SQLite、路线图和时间线均可重建。
-        </div>
-      </aside>
+      <Sidebar
+        projects={projects}
+        activeProjectId={project?.project_id}
+        version={version || undefined}
+        busy={loading}
+        lang={lang}
+        onLanguageChange={handleLanguageChange}
+        t={t.sidebar}
+        onOpen={(id) => void openProject(id)}
+        onCreate={createProject}
+      />
 
       <section className="research-space">
+        {authRequired && (
+          <div className="auth-banner" role="region" aria-label={t.authGate.title}>
+            <AuthGate
+              apiKeyDraft={apiKeyDraft}
+              setApiKeyDraft={setApiKeyDraft}
+              onConnect={connectWithApiKey}
+              message={t.authGate.bannerMessage}
+              t={t.authGate}
+            />
+          </div>
+        )}
         {loading && (
-          <div className="loading-layout" aria-label="正在加载">
+          <div className="loading-layout" aria-label={t.explorer.loadingAria}>
             <span />
             <span />
             <span />
@@ -479,30 +605,23 @@ export function App() {
         )}
         {!loading && !project && (
           <div className="welcome">
-            {error.toLowerCase().includes("authentication required") && (
-              <div className="auth-box">
-                <h3>API 认证</h3>
-                <p>生产模式需要 API key；密钥只保存在本次浏览器会话中。</p>
-                <input
-                  aria-label="API key"
-                  type="password"
-                  value={apiKeyDraft}
-                  onChange={(event) => setApiKeyDraft(event.target.value)}
-                  placeholder="输入 PROOFFLOW_API_KEYS 中的一个 key"
-                />
-                <button
-                  disabled={!apiKeyDraft.trim()}
-                  onClick={() => {
-                    setApiKey(apiKeyDraft);
-                    window.location.reload();
-                  }}
-                >
-                  连接 API
-                </button>
-              </div>
+            {error && !authRequired && (
+              <div className="message error-message" role="alert">{error}</div>
             )}
-            <h2>选择研究项目</h2>
-            <p>双画布会保留路线、失败、异议、桥接结果和人工介入。</p>
+            <h2>{t.explorer.welcomeTitle}</h2>
+            <p>{t.explorer.welcomeDesc}</p>
+            <ul className="capability-list">
+              <li>
+                <strong>{t.explorer.capabilityList[0].bold}</strong>：{t.explorer.capabilityList[0].text}
+              </li>
+              <li>
+                <strong>{t.explorer.capabilityList[1].bold}</strong>
+                （
+                <a href="/prototype/">{t.explorer.capabilityList[1].linkText}</a>
+                ）：{t.explorer.capabilityList[1].text}
+              </li>
+            </ul>
+            <p className="welcome-hint">{t.explorer.welcomeHint}</p>
           </div>
         )}
         {!loading && project && (
@@ -511,55 +630,59 @@ export function App() {
               <div>
                 <div className="status-line">
                   {project.project_status.map((status) => (
-                    <span key={status}>{status}</span>
+                    <span key={status} title={status}>
+                      {labelEnum(status, lang)}
+                    </span>
                   ))}
                 </div>
                 <h2>{project.title}</h2>
                 <p>{project.original_problem.source_text}</p>
               </div>
               <dl className="project-facts">
-                <div><dt>路线</dt><dd>{routes.length}</dd></div>
-                <div><dt>开放挑战</dt><dd>{openChallenges}</dd></div>
-                <div><dt>桥接结果</dt><dd>{bridges.length}</dd></div>
-                <div><dt>事件</dt><dd>{events.length}</dd></div>
+                <div><dt>{t.explorer.routesStat}</dt><dd>{routes.length}</dd></div>
+                <div><dt>{t.explorer.openChallengesStat}</dt><dd>{openChallenges}</dd></div>
+                <div><dt>{t.explorer.bridgesStat}</dt><dd>{bridges.length}</dd></div>
+                <div><dt>{t.explorer.eventsStat}</dt><dd>{events.length}</dd></div>
               </dl>
-            </header>
-
-            <section className="control-plane-panel" aria-label="Alpha 5 研究控制面板">
-              <div className="section-heading">
-                <div>
-                  <h3>规范研究状态</h3>
-                  <span>
-                    修订 {researchState?.revision ?? "—"} · 提案 {transitionProposals.length} · Claim {claimAtoms.length} · Evidence {evidenceCards.length}
-                  </span>
-                </div>
-                <span className="control-plane-note">状态只能由已接受 transition 写回</span>
+              <div className="project-tools">
+                <button type="button" onClick={() => void runExport()}>
+                  {t.explorer.exportButton}
+                </button>
+                <button type="button" onClick={() => void runIntegrity()}>
+                  {t.explorer.integrityButton}
+                </button>
+                <a
+                  className="workbench-link-inline"
+                  href={`/prototype/?project=${project.project_id}`}
+                  title={t.explorer.openWorkbenchTitle}
+                >
+                  {t.explorer.openWorkbench}
+                </a>
               </div>
-              <div className="plane-grid">
-                {(["operational", "epistemic", "claim", "artifact"] as const).map((plane) => (
-                  <article key={plane} className="plane-card">
-                    <span>{plane}</span>
-                    <strong>{Object.keys(researchState?.[plane] ?? {}).length}</strong>
-                    <small>{plane === "claim" ? "Claim 保持未决/候选分离" : "可重建平面摘要"}</small>
-                  </article>
-                ))}
-              </div>
-              {transitionProposals.length > 0 && (
-                <div className="proposal-strip">
-                  {transitionProposals.slice(-4).reverse().map((proposal) => (
-                    <span key={proposal.proposal_id} className={`proposal-status ${proposal.status.toLowerCase()}`}>
-                      {proposal.status} · {proposal.trigger_class}
-                    </span>
-                  ))}
+              {integrityResult && (
+                <div
+                  className={`message ${integrityResult.valid ? "notice-message" : "error-message"}`}
+                  role={integrityResult.valid ? "status" : "alert"}
+                >
+                  {integrityResult.text}
                 </div>
               )}
-            </section>
+            </header>
+
+            <ControlPlane
+              researchState={researchState}
+              transitionProposals={transitionProposals}
+              claimAtoms={claimAtoms}
+              evidenceCards={evidenceCards}
+              lang={lang}
+              t={t.controlPlane}
+            />
 
             {error && <div className="message error-message" role="alert">{error}</div>}
             {notice && <div className="message notice-message" role="status">{notice}</div>}
 
             <div className="search-strip" ref={searchWrapRef}>
-              <label htmlFor="history-search">历史路线与失败资产</label>
+              <label htmlFor="history-search">{t.explorer.searchLabel}</label>
               <div>
                 <input
                   id="history-search"
@@ -573,9 +696,9 @@ export function App() {
                     if (event.key === "Enter") void runSearch();
                     if (event.key === "Escape") setSearchOpen(false);
                   }}
-                  placeholder="检索死路、桥接结果、挑战或复活条件"
+                  placeholder={t.explorer.searchPlaceholder}
                 />
-                <button onClick={() => void runSearch()}>检索</button>
+                <button onClick={() => void runSearch()}>{t.explorer.searchButton}</button>
               </div>
               {searchOpen && (
                 <div className="search-results">
@@ -588,14 +711,14 @@ export function App() {
                           setSearchOpen(false);
                         }}
                       >
-                        <span>{hit.kind}</span>
+                        <span title={hit.kind}>{labelEnum(hit.kind, lang)}</span>
                         <strong>{hit.title}</strong>
                         <small>{hit.excerpt}</small>
                       </button>
                     ))
                   ) : (
                     <div className="search-empty">
-                      未找到匹配的历史路线、挑战或桥接结果。
+                      {t.explorer.searchEmpty}
                     </div>
                   )}
                 </div>
@@ -603,15 +726,15 @@ export function App() {
             </div>
 
             <div className="dual-canvas">
-              <section className="canvas-panel route-panel" aria-label="结构化路线图">
+              <section className="canvas-panel route-panel" aria-label={t.explorer.routePanelTitle}>
                 <div className="panel-heading">
                   <div>
-                    <h3>研究路线图</h3>
-                    <p>路线、分支、挑战和桥接工件</p>
+                    <h3>{t.explorer.routePanelTitle}</h3>
+                    <p>{t.explorer.routePanelDesc}</p>
                   </div>
                   {selectedNode && (
                     <div className="selected-summary">
-                      <span>{selectedNode.kind}</span>
+                      <span>{labelKind(selectedNode.kind, lang)}</span>
                       <strong>{selectedNode.label}</strong>
                     </div>
                   )}
@@ -619,11 +742,13 @@ export function App() {
                 <div className="node-detail">
                   {selectedNode ? (
                     <>
-                      <span>{selectedNode.kind} · {selectedNode.state}</span>
-                      <p>{selectedNode.detail || "该节点暂无详情说明。"}</p>
+                      <span title={selectedNode.state}>
+                        {labelKind(selectedNode.kind, lang)} · {labelEnum(selectedNode.state, lang)}
+                      </span>
+                      <p>{selectedNode.detail || t.explorer.nodeDetailNone}</p>
                     </>
                   ) : (
-                    <p className="node-detail-hint">点击路线图节点查看完整描述、质疑或桥接摘要</p>
+                    <p className="node-detail-hint">{t.explorer.nodeDetailEmpty}</p>
                   )}
                 </div>
                 <div className="flow-stage">
@@ -647,20 +772,20 @@ export function App() {
                 </div>
               </section>
 
-              <section className="canvas-panel sketch-panel" aria-label="自由草图">
+              <section className="canvas-panel sketch-panel" aria-label={t.explorer.sketchPanelTitle}>
                 <div className="panel-heading">
                   <div>
-                    <h3>自由草图</h3>
-                    <p>每次保存都创建不可变快照</p>
+                    <h3>{t.explorer.sketchPanelTitle}</h3>
+                    <p>{t.explorer.sketchPanelDesc}</p>
                   </div>
                   <button disabled={saving} onClick={() => void saveCanvas()}>
-                    {saving ? "保存中" : "保存快照"}
+                    {saving ? t.explorer.savingSnapshot : t.explorer.saveSnapshot}
                   </button>
                 </div>
                 <div className="sketch-stage">
                   {canvasScene && (
                     <Suspense
-                      fallback={<div className="canvas-loading">正在加载自由草图</div>}
+                      fallback={<div className="canvas-loading">{t.explorer.sketchLoading}</div>}
                     >
                       <Excalidraw
                         key={project.project_id}
@@ -681,6 +806,7 @@ export function App() {
                           selectedElementIds.current = Object.keys(
                             appState.selectedElementIds,
                           );
+                          setSelectedCount(selectedElementIds.current.length);
                         }}
                         UIOptions={{
                           canvasActions: { saveAsImage: true, export: false },
@@ -690,19 +816,29 @@ export function App() {
                   )}
                 </div>
                 <div className="canvas-actions">
-                  <label htmlFor="canvas-note">作者说明</label>
+                  <label htmlFor="canvas-note">{t.explorer.authorNoteLabel}</label>
                   <textarea
                     id="canvas-note"
                     value={canvasNote}
                     onChange={(event) => setCanvasNote(event.target.value)}
-                    placeholder="说明所选草图元素的研究含义"
+                    placeholder={t.explorer.authorNotePlaceholder}
                   />
+                  <p className="canvas-note-hint">
+                    {t.explorer.canvasNoteHint}
+                  </p>
                   <button
                     className="secondary-action"
-                    disabled={saving}
+                    disabled={saving || selectedCount === 0 || !canvasNote.trim()}
+                    title={
+                      selectedCount === 0
+                        ? t.explorer.deriveRouteTooltipNoSelection
+                        : !canvasNote.trim()
+                          ? t.explorer.deriveRouteTooltipNoNote
+                          : t.explorer.deriveRouteTooltipReady
+                    }
                     onClick={() => void deriveRouteFromSelection()}
                   >
-                    从所选元素建立派生路线
+                    {t.explorer.deriveRouteButton}
                   </button>
                 </div>
               </section>
@@ -712,15 +848,15 @@ export function App() {
               <section className="timeline-panel">
                 <div className="section-heading">
                   <div>
-                    <h3>可观察时间线</h3>
-                    <span>点击定位到路线节点</span>
+                    <h3>{t.explorer.timelineTitle}</h3>
+                    <span>{t.explorer.timelineSubtitle}</span>
                   </div>
                   {events.length > 30 && (
                     <button
                       className="expand-toggle"
                       onClick={() => setTimelineExpanded((value) => !value)}
                     >
-                      {timelineExpanded ? "收起" : `查看全部 ${events.length} 条`}
+                      {timelineExpanded ? t.explorer.timelineCollapse : t.explorer.timelineShowAll(events.length)}
                     </button>
                   )}
                 </div>
@@ -732,9 +868,9 @@ export function App() {
                         key={event.event_id}
                         onClick={() => focusGraphNode(event.branch_id ?? event.route_id)}
                       >
-                        <time>{formatTime(event.timestamp)}</time>
-                        <strong>{event.event_type.replaceAll("_", " ")}</strong>
-                        <span>{event.epistemic_delta ?? "事件已记录，无状态增量说明"}</span>
+                        <time>{formatTime(event.timestamp, lang)}</time>
+                        <strong title={event.event_type}>{labelEnum(event.event_type, lang)}</strong>
+                        <span>{event.epistemic_delta ?? t.explorer.timelineNoDelta}</span>
                       </button>
                     ))}
                 </div>
@@ -742,15 +878,15 @@ export function App() {
               <section className="delta-panel">
                 <div className="section-heading">
                   <div>
-                    <h3>本轮改变了什么</h3>
-                    <span>已排除无状态变化事件</span>
+                    <h3>{t.explorer.deltaTitle}</h3>
+                    <span>{t.explorer.deltaSubtitle}</span>
                   </div>
                   {deltas.length > 12 && (
                     <button
                       className="expand-toggle"
                       onClick={() => setDeltasExpanded((value) => !value)}
                     >
-                      {deltasExpanded ? "收起" : `查看全部 ${deltas.length} 条`}
+                      {deltasExpanded ? t.explorer.deltaCollapse : t.explorer.deltaShowAll(deltas.length)}
                     </button>
                   )}
                 </div>
@@ -762,12 +898,12 @@ export function App() {
                         key={delta.event_id}
                         onClick={() => focusGraphNode(delta.branch_id ?? delta.route_id)}
                       >
-                        <strong>{delta.delta_type.replaceAll("_", " ")}</strong>
+                        <strong title={delta.delta_type}>{labelEnum(delta.delta_type, lang)}</strong>
                         <span>{delta.description}</span>
                       </button>
                     ))}
                   {deltas.length === 0 && (
-                    <div className="empty-copy">尚无可展开的认识增量。</div>
+                    <div className="empty-copy">{t.explorer.deltaEmpty}</div>
                   )}
                 </div>
               </section>

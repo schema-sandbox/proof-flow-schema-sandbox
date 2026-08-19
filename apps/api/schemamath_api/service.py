@@ -1934,10 +1934,28 @@ class SchemaMathService:
 
     def artifact_bytes(self, project_id: UUID, artifact_id: UUID) -> tuple[ArtifactRecord, bytes]:
         artifact = self._require_artifact(project_id, artifact_id)
+        expected_relpath = f"blobs/sha256/{artifact.sha256[:2]}/{artifact.sha256}"
+        if artifact.blob_relpath != expected_relpath:
+            raise ConflictError(
+                f"artifact blob non-canonical path for {artifact_id}: "
+                f"expected {expected_relpath}, got {artifact.blob_relpath}"
+            )
         path = self.project_dir(project_id) / artifact.blob_relpath
-        if not path.exists():
+        if not path.is_file():
             raise NotFoundError(f"artifact blob for {artifact_id} is missing")
-        return artifact, path.read_bytes()
+        blob_bytes = path.read_bytes()
+        computed_sha256 = hashlib.sha256(blob_bytes).hexdigest()
+        if computed_sha256 != artifact.sha256:
+            raise ConflictError(
+                f"artifact blob SHA-256 mismatch for {artifact_id}: "
+                f"expected {artifact.sha256}, got {computed_sha256}"
+            )
+        if len(blob_bytes) != artifact.size_bytes:
+            raise ConflictError(
+                f"artifact blob size mismatch for {artifact_id}: "
+                f"expected {artifact.size_bytes} bytes, got {len(blob_bytes)} bytes"
+            )
+        return artifact, blob_bytes
 
     # ------------------------------------------------------------------
     # ChatGPT companion import
@@ -3292,6 +3310,39 @@ class SchemaMathService:
         self.get_project(project_id)
         store = self._event_store(project_id)
         valid, index, error = store.verify_chain()
+        if valid:
+            # Verify all artifact blobs on disk for content integrity, size, and canonical path
+            artifacts = self._projection(project_id).list_artifacts()
+            for artifact in artifacts:
+                expected_relpath = f"blobs/sha256/{artifact.sha256[:2]}/{artifact.sha256}"
+                if artifact.blob_relpath != expected_relpath:
+                    valid = False
+                    error = (
+                        f"artifact {artifact.artifact_id} non-canonical blob path: "
+                        f"expected {expected_relpath}, got {artifact.blob_relpath}"
+                    )
+                    break
+                blob_path = self.project_dir(project_id) / artifact.blob_relpath
+                if not blob_path.is_file():
+                    valid = False
+                    error = f"artifact {artifact.artifact_id} blob is missing: {artifact.blob_relpath}"
+                    break
+                blob_bytes = blob_path.read_bytes()
+                computed_sha256 = hashlib.sha256(blob_bytes).hexdigest()
+                if computed_sha256 != artifact.sha256:
+                    valid = False
+                    error = (
+                        f"artifact {artifact.artifact_id} blob SHA-256 mismatch: "
+                        f"expected {artifact.sha256}, got {computed_sha256}"
+                    )
+                    break
+                if len(blob_bytes) != artifact.size_bytes:
+                    valid = False
+                    error = (
+                        f"artifact {artifact.artifact_id} blob size mismatch: "
+                        f"expected {artifact.size_bytes} bytes, got {len(blob_bytes)} bytes"
+                    )
+                    break
         return IntegrityReport(
             project_id=project_id,
             event_count=len(store.read_all()),
@@ -3447,8 +3498,31 @@ class SchemaMathService:
                                             artifact = ArtifactRecord.model_validate(
                                                 event.payload["artifact"]
                                             )
-                                            if artifact.blob_relpath not in member_names:
+                                            expected_relpath = f"blobs/sha256/{artifact.sha256[:2]}/{artifact.sha256}"
+                                            if artifact.blob_relpath != expected_relpath:
+                                                errors.append(
+                                                    f"artifact blob non-canonical path for {artifact.artifact_id}: "
+                                                    f"expected {expected_relpath}, got {artifact.blob_relpath}"
+                                                )
+                                            elif artifact.blob_relpath not in member_names:
                                                 missing_artifact_paths.append(artifact.blob_relpath)
+                                            else:
+                                                try:
+                                                    with archive.open(artifact.blob_relpath, "r") as blob_handle:
+                                                        blob_bytes = blob_handle.read()
+                                                        computed_sha256 = hashlib.sha256(blob_bytes).hexdigest()
+                                                        if computed_sha256 != artifact.sha256:
+                                                            errors.append(
+                                                                f"artifact blob SHA-256 mismatch for {artifact.blob_relpath}: "
+                                                                f"expected {artifact.sha256}, got {computed_sha256}"
+                                                            )
+                                                        if len(blob_bytes) != artifact.size_bytes:
+                                                            errors.append(
+                                                                f"artifact blob size mismatch for {artifact.blob_relpath}: "
+                                                                f"expected {artifact.size_bytes} bytes, got {len(blob_bytes)} bytes"
+                                                            )
+                                                except Exception as exc:
+                                                    errors.append(f"failed to read artifact blob {artifact.blob_relpath}: {exc}")
                                     (
                                         event_chain_valid,
                                         first_invalid_event_index,
@@ -3522,9 +3596,33 @@ class SchemaMathService:
                         "imported event chain is invalid at index "
                         f"{first_invalid}: {chain_error}"
                     )
+                events = store.read_all()
+                for event in events:
+                    if event.event_type == "ARTIFACT_ADDED":
+                        artifact = ArtifactRecord.model_validate(event.payload["artifact"])
+                        expected_relpath = f"blobs/sha256/{artifact.sha256[:2]}/{artifact.sha256}"
+                        if artifact.blob_relpath != expected_relpath:
+                            raise ConflictError(
+                                f"artifact blob non-canonical path for {artifact.artifact_id}: "
+                                f"expected {expected_relpath}, got {artifact.blob_relpath}"
+                            )
+                        blob_file = staging / artifact.blob_relpath
+                        if not blob_file.is_file():
+                            raise ConflictError(f"missing artifact blob: {artifact.blob_relpath}")
+                        blob_bytes = blob_file.read_bytes()
+                        computed_sha256 = hashlib.sha256(blob_bytes).hexdigest()
+                        if computed_sha256 != artifact.sha256:
+                            raise ConflictError(
+                                f"artifact blob SHA-256 mismatch for {artifact.blob_relpath}: "
+                                f"expected {artifact.sha256}, got {computed_sha256}"
+                            )
+                        if len(blob_bytes) != artifact.size_bytes:
+                            raise ConflictError(
+                                f"artifact blob size mismatch for {artifact.blob_relpath}: "
+                                f"expected {artifact.size_bytes} bytes, got {len(blob_bytes)} bytes"
+                            )
                 projection = ProjectionStore(staging / "database" / "projections.sqlite3")
                 projection.reset()
-                events = store.read_all()
                 for event in events:
                     projection.apply(event)
                 staging.replace(destination)

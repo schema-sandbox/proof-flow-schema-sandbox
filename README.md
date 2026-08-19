@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-**Version:** `0.1.0-alpha.5`  
+**Version:** `0.1.0-alpha.6`  
 **Short name:** ProofFlow  
 **Status:** local-first experimental mathematics research sandbox
 
@@ -28,6 +28,14 @@ route closure deliberately requires strong evidence and a human actor.
 - Mathematicians who want LLM assistance without losing the decision trail.
 - Formal-verification and Lean-adjacent researchers.
 - Anyone studying how AI reasoning on hard problems actually unfolds.
+
+## Alpha.6
+
+- Fail-closed security guard on non-loopback network interfaces preventing unauthenticated remote execution.
+- Strict content-addressed blob verification across all artifact reads, archive imports, and project integrity reports.
+- Zero npm vulnerabilities in frontend production bundle with upgraded DOMPurify and Mermaid.
+- Built-in plugins (`graphviz.local`, `python.local`) packaged in wheel distribution and container images.
+- Complete third-party SBOM notices in `THIRD_PARTY_NOTICES.md`.
 
 ## Alpha.5
 
@@ -100,8 +108,18 @@ npm run build --prefix apps/web
 .\.venv\Scripts\python.exe -m uvicorn schemamath_api.main:app --app-dir apps/api --host 127.0.0.1 --port 8000
 ```
 
-Open `http://127.0.0.1:8000/app/`. API docs are at `/docs`; the Alpha.2
-dependency-free prototype remains available at `/prototype/`.
+Open `http://127.0.0.1:8000/app/` (explore desk). API docs are at `/docs`.
+
+### Two HTTP UIs
+
+| URL | Role |
+|-----|------|
+| `/app/` (default) | Explore desk: dual canvas, search, deltas, create project, export, integrity |
+| `/prototype/` | Full workbench: route state changes, challenges, bridges, dead ends, plugins, chat import |
+
+They share the same API and optional `sessionStorage` API key (`proofflow_api_key`).
+Use **打开工作台** on a project to deep-link `/prototype/?project=<id>`.
+Exports use authenticated `fetch` + blob download so production API keys are sent.
 
 The API resolves the frontend from both a source checkout and a bundled wheel
 (`schemamath_api/_ui`). If no frontend bundle is present the root route serves a

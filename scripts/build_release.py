@@ -41,13 +41,15 @@ def git_tracked_files() -> list[Path]:
             ["git", "ls-files", "-z"],
             cwd=ROOT,
             capture_output=True,
-            text=True,
             check=False,
             timeout=60,
         )
+        if proc.returncode != 0:
+            return []
+        output = proc.stdout.decode("utf-8", errors="replace")
     except Exception:
         return []
-    tracked = (ROOT / p for p in proc.stdout.split("\0") if p)
+    tracked = (ROOT / p for p in output.split("\0") if p)
     return sorted(
         (p for p in tracked if p.is_file()),
         key=lambda item: item.relative_to(ROOT).as_posix(),
@@ -127,9 +129,54 @@ def openapi_paths() -> int | None:
         return None
 
 
+def git_commit_info() -> dict[str, str | None]:
+    info: dict[str, str | None] = {"commit": None, "branch": None, "tag": None}
+    try:
+        proc = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+            timeout=10,
+        )
+        if proc.returncode == 0:
+            info["commit"] = proc.stdout.decode("utf-8").strip()
+    except Exception:
+        pass
+
+    try:
+        proc = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+            timeout=10,
+        )
+        if proc.returncode == 0:
+            info["branch"] = proc.stdout.decode("utf-8").strip()
+    except Exception:
+        pass
+
+    try:
+        proc = subprocess.run(
+            ["git", "describe", "--tags", "--exact-match"],
+            cwd=ROOT,
+            capture_output=True,
+            check=False,
+            timeout=10,
+        )
+        if proc.returncode == 0:
+            info["tag"] = proc.stdout.decode("utf-8").strip()
+    except Exception:
+        pass
+
+    return info
+
+
 def write_manifest() -> dict[str, object]:
     files = included_files(include_generated=False)
     schema_total, runtime_schema_total = schema_metrics()
+    git_info = git_commit_info()
     file_records = [
         {
             "path": path.relative_to(ROOT).as_posix(),
@@ -143,8 +190,11 @@ def write_manifest() -> dict[str, object]:
         "version": project_version(),
         "release_date": datetime.now(UTC).date().isoformat(),
         "generated_at": datetime.now(UTC).isoformat(),
-        "status": "local-first experimental research prototype",
+        "status": "local-first experimental mathematics research sandbox",
         "license": "Apache-2.0",
+        "git_commit": git_info["commit"],
+        "git_branch": git_info["branch"],
+        "git_tag": git_info["tag"],
         "entrypoints": {
             "api": "schemamath_api.main:app",
             "application": "/app/",
@@ -225,7 +275,23 @@ def main() -> int:
         type=Path,
         help="Optional destination for a release ZIP.",
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Enforce clean git working tree before packaging release.",
+    )
     args = parser.parse_args()
+
+    if args.strict:
+        proc = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True, check=False)
+        dirty_lines = [
+            line for line in proc.stdout.decode("utf-8").splitlines()
+            if not any(ign in line for ign in ["package_manifest.json", "SHA256SUMS.txt", ".coverage", "tsconfig.tsbuildinfo"])
+        ]
+        if dirty_lines:
+            print(f"❌ Strict release build failed: dirty working tree ({len(dirty_lines)} modified/untracked files)")
+            return 1
+
     manifest = write_manifest()
     write_checksums()
     print(f"Generated manifest for {manifest['file_count_excluding_manifest_and_checksum']} files.")
