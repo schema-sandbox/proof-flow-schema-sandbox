@@ -2,7 +2,7 @@
 
 **Release:** ProofFlow Schema Sandbox `v0.1.0-alpha.8`  
 **Release Tag:** `v0.1.0-alpha.8`  
-**License:** Apache-2.0  
+**License:** MIT  
 **Package:** `proof-flow-schema-sandbox`  
 
 ---

@@ -177,4 +177,4 @@ OCI manifests must use digest-pinned images, but container availability and
 security configuration remain an operator responsibility. Tools are installed
 only when needed; an unavailable optional tool is reported honestly.
 
-License: Apache-2.0.
+License: MIT.

@@ -4,7 +4,7 @@ version = "0.1.0-alpha.8"
 description = "Local-first, human-guided experimental mathematics research sandbox"
 readme = "README.md"
 requires-python = ">=3.12"
-license = {text = "Apache-2.0"}
+license = {text = "MIT"}
 authors = [{name = "Tengjiao Liu", email = "psi@psi.run"}]
 dependencies = [
   "fastapi>=0.115,<1",

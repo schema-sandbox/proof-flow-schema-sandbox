@@ -191,7 +191,7 @@ def write_manifest() -> dict[str, object]:
         "release_date": "2026-08-20",
         "generated_at": "2026-08-20T00:00:00Z",
         "status": "local-first experimental mathematics research sandbox",
-        "license": "Apache-2.0",
+        "license": "MIT",
         "git_commit": git_info["commit"],
         "git_branch": git_info["branch"],
         "git_tag": git_info["tag"],

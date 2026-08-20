@@ -5,7 +5,7 @@
   "generated_at": "2026-08-20T00:00:00Z",
   "status": "local-first experimental mathematics research sandbox",
   "license": "Apache-2.0",
-  "git_commit": "2baecd5fdd957db30ae759f01da2c88289b33c90",
+  "git_commit": "c1818247177b158976ad68addbd7d085bf69bf09",
   "git_branch": "master",
   "git_tag": "v0.1.0-alpha.8",
   "entrypoints": {

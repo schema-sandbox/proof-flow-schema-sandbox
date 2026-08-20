@@ -127,7 +127,7 @@ def generate_cyclonedx(py_deps: list[dict[str, str]], npm_deps: list[dict[str, s
                 "name": "ProofFlow Schema Sandbox",
                 "version": version,
                 "description": "Local-first experimental mathematics research sandbox",
-                "licenses": [{"license": {"id": "Apache-2.0"}}],
+                "licenses": [{"license": {"id": "MIT"}}],
             },
         },
         "components": components,
