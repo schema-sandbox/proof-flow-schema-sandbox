@@ -4,8 +4,8 @@
   "release_date": "2026-08-20",
   "generated_at": "2026-08-20T00:00:00Z",
   "status": "local-first experimental mathematics research sandbox",
-  "license": "Apache-2.0",
-  "git_commit": "c1818247177b158976ad68addbd7d085bf69bf09",
+  "license": "MIT",
+  "git_commit": "62761525ffb778d603a2682abd97b2ada2898531",
   "git_branch": "master",
   "git_tag": "v0.1.0-alpha.8",
   "entrypoints": {
@@ -34,7 +34,7 @@
     "os_security_sandbox": false
   },
   "file_count_excluding_manifest_and_checksum": 393,
-  "total_bytes_excluding_manifest_and_checksum": 3283408,
+  "total_bytes_excluding_manifest_and_checksum": 3273104,
   "files": [
     {
       "path": ".dockerignore",
@@ -108,8 +108,8 @@
     },
     {
       "path": "LICENSE",
-      "size_bytes": 11352,
-      "sha256": "c134baffeaf5927016058cf76b1f74b926f0717eacfe3e81e8e03416a5833f4d"
+      "size_bytes": 1090,
+      "sha256": "9150b2ebeee60c1cecd9e5becf8daeb60de6795c18886ebe21ab042c662e1406"
     },
     {
       "path": "Makefile",
@@ -118,8 +118,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 8958,
-      "sha256": "54feb675cc74ba036da39ebe8d3f6f37ab6dd69f1acda43adacccc4de567261a"
+      "size_bytes": 8951,
+      "sha256": "2cdfb505ccdbbaff1bbf3f30efa819c4b4be8b105d9f6e1e46d0cf3711a4a941"
     },
     {
       "path": "README_CN.md",
@@ -968,8 +968,8 @@
     },
     {
       "path": "docs/RELEASE_NOTES_v0.1.0-alpha.8.md",
-      "size_bytes": 4747,
-      "sha256": "502c27d6a82dc2bd42edc90e60a336844da9c4af6b0bfda5c0d95ff0eb0a727b"
+      "size_bytes": 4740,
+      "sha256": "fd5ade6b17207e5df17a7671a8bd92ee762f27dfd13833921d8781396bde16af"
     },
     {
       "path": "docs/REPOSITORY_MAP.md",
@@ -1143,8 +1143,8 @@
     },
     {
       "path": "pyproject.toml",
-      "size_bytes": 1911,
-      "sha256": "ea2350f095b9f77e0848aa102daad0b0dd59b6648a38ea7de95ce9e828723212"
+      "size_bytes": 1904,
+      "sha256": "ee106e791c7742eec71ce846cdd15a987c04a4b61d8476fd1e0ab24cbb5917a5"
     },
     {
       "path": "requirements-dev.txt",
@@ -1158,8 +1158,8 @@
     },
     {
       "path": "sbom.cyclonedx.json",
-      "size_bytes": 248806,
-      "sha256": "c542b40274ca3f288525ca04130076ebbcea92fe5be852b7a0d5dc268144d87f"
+      "size_bytes": 248799,
+      "sha256": "5c1fdbcd51f16933be323dc6738867c98fb1b3d4b3468f26341dfa7c2b04c25e"
     },
     {
       "path": "schemas/arena-recipe.schema.json",
@@ -1518,8 +1518,8 @@
     },
     {
       "path": "scripts/build_release.py",
-      "size_bytes": 12690,
-      "sha256": "c933127824484df81c22d171299860e32b731764433f3818fee45c284f8af510"
+      "size_bytes": 12683,
+      "sha256": "18bdd3ab5ec5cde598fd2970fc1adaff1fd73817c410a671b5a796923fe48307"
     },
     {
       "path": "scripts/create_demo.sh",
@@ -1543,8 +1543,8 @@
     },
     {
       "path": "scripts/generate_sbom.py",
-      "size_bytes": 11805,
-      "sha256": "7799fc4b685adc3ebd13055bcf384abe9b2e1fe6f6052abd1cead225a6d9cfae"
+      "size_bytes": 11798,
+      "sha256": "f3d9ddee7f80798deed0ccf20e547eba1bfbaeb02250dd1126e595c0b39855c5"
     },
     {
       "path": "scripts/run_api.sh",
