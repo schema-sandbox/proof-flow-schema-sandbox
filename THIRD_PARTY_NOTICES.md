@@ -1,50 +1,63 @@
-# Third-Party Software Notices and Full Software Bill of Materials (SBOM)
+# Third-Party Software Attribution and Component Inventory
 
-This project, **ProofFlow Schema Sandbox** (`0.1.0-alpha.8`), incorporates third-party open-source software packages under various permissive open-source licenses (Apache-2.0, MIT, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Python-2.0, MPL-2.0).
+ProofFlow Schema Sandbox `0.1.0-alpha.9` uses the components listed below.
+The corresponding machine-readable CycloneDX 1.5 document is
+[`sbom.cyclonedx.json`](sbom.cyclonedx.json). License identifiers and
+expressions are taken from the locked package metadata; upstream license
+files remain authoritative.
 
-**Total Tracked Components:** 397 (Python Ecosystem: 27, NPM Ecosystem: 370)
+**Tracked Components:** 403 (Python: 42, NPM: 361)
 
-A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.json`](sbom.cyclonedx.json).
+## Python Runtime and Release Tooling
 
----
-
-## 1. Python Runtime & Core Tooling Dependencies
-
-| Package | Version | License | Upstream Repository |
+| Package | Version | License | Upstream |
 |---|---|---|---|
-| `anyio` | `4.8.0` | MIT | [https://github.com/agronholm/anyio](https://github.com/agronholm/anyio) |
-| `attrs` | `25.1.0` | MIT | [https://github.com/python-attrs/attrs](https://github.com/python-attrs/attrs) |
-| `certifi` | `2025.1.31` | MPL-2.0 | [https://github.com/certifi/python-certifi](https://github.com/certifi/python-certifi) |
-| `click` | `8.1.8` | BSD-3-Clause | [https://github.com/pallets/click](https://github.com/pallets/click) |
-| `fastapi` | `0.115.8` | MIT | [https://github.com/fastapi/fastapi](https://github.com/fastapi/fastapi) |
-| `h11` | `0.14.0` | MIT | [https://github.com/python-hyper/h11](https://github.com/python-hyper/h11) |
-| `httpcore` | `1.0.7` | BSD-3-Clause | [https://github.com/encode/httpcore](https://github.com/encode/httpcore) |
+| `annotated-doc` | `0.0.5` | MIT | [https://github.com/fastapi/annotated-doc](https://github.com/fastapi/annotated-doc) |
+| `annotated-types` | `0.8.0` | MIT | [https://github.com/annotated-types/annotated-types](https://github.com/annotated-types/annotated-types) |
+| `anyio` | `4.14.2` | MIT | [https://github.com/agronholm/anyio](https://github.com/agronholm/anyio) |
+| `attrs` | `26.1.0` | MIT | [https://github.com/python-attrs/attrs](https://github.com/python-attrs/attrs) |
+| `certifi` | `2026.7.22` | MPL-2.0 | [https://github.com/certifi/python-certifi](https://github.com/certifi/python-certifi) |
+| `click` | `8.4.2` | BSD-3-Clause | [https://github.com/pallets/click](https://github.com/pallets/click) |
+| `colorama` | `0.4.6` | BSD-3-Clause | [https://github.com/tartley/colorama](https://github.com/tartley/colorama) |
+| `coverage` | `7.15.4` | Apache-2.0 | [https://github.com/nedbat/coveragepy](https://github.com/nedbat/coveragepy) |
+| `fastapi` | `0.141.1` | MIT | [https://github.com/fastapi/fastapi](https://github.com/fastapi/fastapi) |
+| `h11` | `0.16.0` | MIT | [https://github.com/python-hyper/h11](https://github.com/python-hyper/h11) |
+| `httpcore` | `1.0.9` | BSD-3-Clause | [https://github.com/encode/httpcore](https://github.com/encode/httpcore) |
+| `httptools` | `0.8.0` | MIT | [https://github.com/MagicStack/httptools](https://github.com/MagicStack/httptools) |
 | `httpx` | `0.28.1` | BSD-3-Clause | [https://github.com/encode/httpx](https://github.com/encode/httpx) |
-| `idna` | `3.10` | BSD-3-Clause | [https://github.com/kjd/idna](https://github.com/kjd/idna) |
-| `iniconfig` | `2.0.0` | MIT | [https://github.com/pytest-dev/iniconfig](https://github.com/pytest-dev/iniconfig) |
-| `jsonschema` | `4.23.0` | MIT | [https://github.com/python-jsonschema/jsonschema](https://github.com/python-jsonschema/jsonschema) |
-| `jsonschema-specifications` | `2024.10.1` | MIT | [https://github.com/python-jsonschema/jsonschema-specifications](https://github.com/python-jsonschema/jsonschema-specifications) |
+| `idna` | `3.19` | BSD-3-Clause | [https://github.com/kjd/idna](https://github.com/kjd/idna) |
+| `iniconfig` | `2.3.0` | MIT | [https://github.com/pytest-dev/iniconfig](https://github.com/pytest-dev/iniconfig) |
+| `jsonschema` | `4.26.0` | MIT | [https://github.com/python-jsonschema/jsonschema](https://github.com/python-jsonschema/jsonschema) |
+| `jsonschema-specifications` | `2025.9.1` | MIT | [https://github.com/python-jsonschema/jsonschema-specifications](https://github.com/python-jsonschema/jsonschema-specifications) |
 | `mpmath` | `1.3.0` | BSD-3-Clause | [https://github.com/mpmath/mpmath](https://github.com/mpmath/mpmath) |
-| `packaging` | `24.2` | Apache-2.0 | [https://github.com/pypa/packaging](https://github.com/pypa/packaging) |
-| `pluggy` | `1.5.0` | MIT | [https://github.com/pytest-dev/pluggy](https://github.com/pytest-dev/pluggy) |
-| `pydantic` | `2.10.6` | MIT | [https://github.com/pydantic/pydantic](https://github.com/pydantic/pydantic) |
-| `pydantic-core` | `2.27.2` | MIT | [https://github.com/pydantic/pydantic-core](https://github.com/pydantic/pydantic-core) |
-| `pytest` | `8.3.4` | MIT | [https://github.com/pytest-dev/pytest](https://github.com/pytest-dev/pytest) |
-| `python-multipart` | `0.0.20` | Apache-2.0 | [https://github.com/Kludex/python-multipart](https://github.com/Kludex/python-multipart) |
-| `referencing` | `0.36.2` | MIT | [https://github.com/python-jsonschema/referencing](https://github.com/python-jsonschema/referencing) |
-| `rpds-py` | `0.22.3` | MIT | [https://github.com/crate-py/rpds](https://github.com/crate-py/rpds) |
-| `ruff` | `0.9.6` | MIT | [https://github.com/astral-sh/ruff](https://github.com/astral-sh/ruff) |
-| `sniffio` | `1.3.1` | MIT | [https://github.com/python-trio/sniffio](https://github.com/python-trio/sniffio) |
-| `starlette` | `0.45.3` | BSD-3-Clause | [https://github.com/encode/starlette](https://github.com/encode/starlette) |
-| `sympy` | `1.13.3` | BSD-3-Clause | [https://github.com/sympy/sympy](https://github.com/sympy/sympy) |
-| `typing-extensions` | `4.12.2` | Python-2.0 | [https://github.com/python/typing_extensions](https://github.com/python/typing_extensions) |
-| `uvicorn` | `0.34.0` | BSD-3-Clause | [https://github.com/encode/uvicorn](https://github.com/encode/uvicorn) |
+| `packaging` | `26.3` | Apache-2.0 OR BSD-2-Clause | [https://github.com/pypa/packaging](https://github.com/pypa/packaging) |
+| `pip` | `26.2.1` | MIT | [https://github.com/pypa/pip](https://github.com/pypa/pip) |
+| `pluggy` | `1.6.0` | MIT | [https://github.com/pytest-dev/pluggy](https://github.com/pytest-dev/pluggy) |
+| `pydantic` | `2.13.4` | MIT | [https://github.com/pydantic/pydantic](https://github.com/pydantic/pydantic) |
+| `pydantic-core` | `2.46.4` | MIT | [https://github.com/pydantic/pydantic-core](https://github.com/pydantic/pydantic-core) |
+| `pygments` | `2.21.0` | BSD-2-Clause | [https://github.com/pygments/pygments](https://github.com/pygments/pygments) |
+| `pytest` | `9.1.1` | MIT | [https://github.com/pytest-dev/pytest](https://github.com/pytest-dev/pytest) |
+| `pytest-cov` | `6.3.0` | MIT | [https://github.com/pytest-dev/pytest-cov](https://github.com/pytest-dev/pytest-cov) |
+| `python-dotenv` | `1.2.3` | BSD-3-Clause | [https://github.com/theskumar/python-dotenv](https://github.com/theskumar/python-dotenv) |
+| `python-multipart` | `0.0.32` | Apache-2.0 | [https://github.com/Kludex/python-multipart](https://github.com/Kludex/python-multipart) |
+| `pyyaml` | `6.0.3` | MIT | [https://github.com/yaml/pyyaml](https://github.com/yaml/pyyaml) |
+| `referencing` | `0.37.0` | MIT | [https://github.com/python-jsonschema/referencing](https://github.com/python-jsonschema/referencing) |
+| `rpds-py` | `2026.6.3` | MIT | [https://github.com/crate-py/rpds](https://github.com/crate-py/rpds) |
+| `ruff` | `0.16.4` | MIT | [https://github.com/astral-sh/ruff](https://github.com/astral-sh/ruff) |
+| `setuptools` | `83.0.0` | MIT | [https://github.com/pypa/setuptools](https://github.com/pypa/setuptools) |
+| `starlette` | `1.6.0` | BSD-3-Clause | [https://github.com/Kludex/starlette](https://github.com/Kludex/starlette) |
+| `sympy` | `1.14.0` | BSD-3-Clause | [https://github.com/sympy/sympy](https://github.com/sympy/sympy) |
+| `typing-extensions` | `4.16.0` | PSF-2.0 | [https://github.com/python/typing_extensions](https://github.com/python/typing_extensions) |
+| `typing-inspection` | `0.4.4` | MIT | [https://github.com/pydantic/typing-inspection](https://github.com/pydantic/typing-inspection) |
+| `uvicorn` | `0.52.4` | BSD-3-Clause | [https://github.com/Kludex/uvicorn](https://github.com/Kludex/uvicorn) |
+| `uvloop` | `0.22.1` | MIT OR Apache-2.0 | [https://github.com/MagicStack/uvloop](https://github.com/MagicStack/uvloop) |
+| `watchfiles` | `1.2.0` | MIT | [https://github.com/samuelcolvin/watchfiles](https://github.com/samuelcolvin/watchfiles) |
+| `websockets` | `17.0.1` | BSD-3-Clause | [https://github.com/python-websockets/websockets](https://github.com/python-websockets/websockets) |
+| `wheel` | `0.46.2` | MIT | [https://github.com/pypa/wheel](https://github.com/pypa/wheel) |
 
----
+## Web Frontend and Build Dependencies
 
-## 2. Web Frontend & Transitive NPM Dependencies
-
-| Package | Version | License | NPM Registry |
+| Package | Version | License | Registry |
 |---|---|---|---|
 | `@antfu/install-pkg` | `1.1.0` | MIT | [@antfu/install-pkg](https://www.npmjs.com/package/@antfu/install-pkg) |
 | `@babel/code-frame` | `7.29.7` | MIT | [@babel/code-frame](https://www.npmjs.com/package/@babel/code-frame) |
@@ -68,10 +81,12 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `@babel/traverse` | `7.29.7` | MIT | [@babel/traverse](https://www.npmjs.com/package/@babel/traverse) |
 | `@babel/types` | `7.29.7` | MIT | [@babel/types](https://www.npmjs.com/package/@babel/types) |
 | `@braintree/sanitize-url` | `6.0.2` | MIT | [@braintree/sanitize-url](https://www.npmjs.com/package/@braintree/sanitize-url) |
+| `@braintree/sanitize-url` | `7.1.2` | MIT | [@braintree/sanitize-url](https://www.npmjs.com/package/@braintree/sanitize-url) |
 | `@chevrotain/cst-dts-gen` | `11.0.3` | Apache-2.0 | [@chevrotain/cst-dts-gen](https://www.npmjs.com/package/@chevrotain/cst-dts-gen) |
 | `@chevrotain/gast` | `11.0.3` | Apache-2.0 | [@chevrotain/gast](https://www.npmjs.com/package/@chevrotain/gast) |
 | `@chevrotain/regexp-to-ast` | `11.0.3` | Apache-2.0 | [@chevrotain/regexp-to-ast](https://www.npmjs.com/package/@chevrotain/regexp-to-ast) |
 | `@chevrotain/types` | `11.0.3` | Apache-2.0 | [@chevrotain/types](https://www.npmjs.com/package/@chevrotain/types) |
+| `@chevrotain/types` | `11.1.2` | Apache-2.0 | [@chevrotain/types](https://www.npmjs.com/package/@chevrotain/types) |
 | `@chevrotain/utils` | `11.0.3` | Apache-2.0 | [@chevrotain/utils](https://www.npmjs.com/package/@chevrotain/utils) |
 | `@esbuild/aix-ppc64` | `0.25.12` | MIT | [@esbuild/aix-ppc64](https://www.npmjs.com/package/@esbuild/aix-ppc64) |
 | `@esbuild/android-arm` | `0.25.12` | MIT | [@esbuild/android-arm](https://www.npmjs.com/package/@esbuild/android-arm) |
@@ -100,29 +115,9 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `@esbuild/win32-ia32` | `0.25.12` | MIT | [@esbuild/win32-ia32](https://www.npmjs.com/package/@esbuild/win32-ia32) |
 | `@esbuild/win32-x64` | `0.25.12` | MIT | [@esbuild/win32-x64](https://www.npmjs.com/package/@esbuild/win32-x64) |
 | `@excalidraw/excalidraw` | `0.18.1` | MIT | [@excalidraw/excalidraw](https://www.npmjs.com/package/@excalidraw/excalidraw) |
-| `@excalidraw/excalidraw/@radix-ui/primitive` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/primitive](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/primitive) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs` | `1.0.2` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-context` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-context](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-context) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-direction` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-direction](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-direction) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-id` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-id](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-id) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-id/@radix-ui/react-use-layout-effect` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-id/@radix-ui/react-use-layout-effect](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-id/@radix-ui/react-use-layout-effect) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence/@radix-ui/react-compose-refs` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence/@radix-ui/react-compose-refs](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence/@radix-ui/react-compose-refs) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence/@radix-ui/react-use-layout-effect` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence/@radix-ui/react-use-layout-effect](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-presence/@radix-ui/react-use-layout-effect) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive` | `1.0.1` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive/@radix-ui/react-slot` | `1.0.1` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive/@radix-ui/react-slot](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive/@radix-ui/react-slot) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive/@radix-ui/react-slot/@radix-ui/react-compose-refs` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive/@radix-ui/react-slot/@radix-ui/react-compose-refs](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-primitive/@radix-ui/react-slot/@radix-ui/react-compose-refs) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus` | `1.0.2` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-collection` | `1.0.1` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-collection](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-collection) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-collection/@radix-ui/react-slot` | `1.0.1` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-collection/@radix-ui/react-slot](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-collection/@radix-ui/react-slot) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-compose-refs` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-compose-refs](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-compose-refs) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-use-callback-ref` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-use-callback-ref](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-roving-focus/@radix-ui/react-use-callback-ref) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-use-controllable-state` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-use-controllable-state](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-use-controllable-state) |
-| `@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-use-controllable-state/@radix-ui/react-use-callback-ref` | `1.0.0` | MIT | [@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-use-controllable-state/@radix-ui/react-use-callback-ref](https://www.npmjs.com/package/@excalidraw/excalidraw/@radix-ui/react-tabs/@radix-ui/react-use-controllable-state/@radix-ui/react-use-callback-ref) |
 | `@excalidraw/laser-pointer` | `1.3.1` | MIT | [@excalidraw/laser-pointer](https://www.npmjs.com/package/@excalidraw/laser-pointer) |
 | `@excalidraw/markdown-to-text` | `0.1.2` | MIT | [@excalidraw/markdown-to-text](https://www.npmjs.com/package/@excalidraw/markdown-to-text) |
 | `@excalidraw/mermaid-to-excalidraw` | `2.2.2` | MIT | [@excalidraw/mermaid-to-excalidraw](https://www.npmjs.com/package/@excalidraw/mermaid-to-excalidraw) |
-| `@excalidraw/mermaid-to-excalidraw/nanoid` | `5.1.16` | MIT | [@excalidraw/mermaid-to-excalidraw/nanoid](https://www.npmjs.com/package/@excalidraw/mermaid-to-excalidraw/nanoid) |
 | `@excalidraw/random-username` | `1.1.0` | MIT | [@excalidraw/random-username](https://www.npmjs.com/package/@excalidraw/random-username) |
 | `@floating-ui/core` | `1.8.0` | MIT | [@floating-ui/core](https://www.npmjs.com/package/@floating-ui/core) |
 | `@floating-ui/dom` | `1.8.0` | MIT | [@floating-ui/dom](https://www.npmjs.com/package/@floating-ui/dom) |
@@ -136,23 +131,38 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `@jridgewell/sourcemap-codec` | `1.5.5` | MIT | [@jridgewell/sourcemap-codec](https://www.npmjs.com/package/@jridgewell/sourcemap-codec) |
 | `@jridgewell/trace-mapping` | `0.3.31` | MIT | [@jridgewell/trace-mapping](https://www.npmjs.com/package/@jridgewell/trace-mapping) |
 | `@mermaid-js/parser` | `0.6.3` | MIT | [@mermaid-js/parser](https://www.npmjs.com/package/@mermaid-js/parser) |
+| `@mermaid-js/parser` | `1.2.1` | MIT | [@mermaid-js/parser](https://www.npmjs.com/package/@mermaid-js/parser) |
+| `@radix-ui/primitive` | `1.0.0` | MIT | [@radix-ui/primitive](https://www.npmjs.com/package/@radix-ui/primitive) |
 | `@radix-ui/primitive` | `1.1.1` | MIT | [@radix-ui/primitive](https://www.npmjs.com/package/@radix-ui/primitive) |
 | `@radix-ui/react-arrow` | `1.1.2` | MIT | [@radix-ui/react-arrow](https://www.npmjs.com/package/@radix-ui/react-arrow) |
+| `@radix-ui/react-collection` | `1.0.1` | MIT | [@radix-ui/react-collection](https://www.npmjs.com/package/@radix-ui/react-collection) |
+| `@radix-ui/react-compose-refs` | `1.0.0` | MIT | [@radix-ui/react-compose-refs](https://www.npmjs.com/package/@radix-ui/react-compose-refs) |
 | `@radix-ui/react-compose-refs` | `1.1.1` | MIT | [@radix-ui/react-compose-refs](https://www.npmjs.com/package/@radix-ui/react-compose-refs) |
+| `@radix-ui/react-context` | `1.0.0` | MIT | [@radix-ui/react-context](https://www.npmjs.com/package/@radix-ui/react-context) |
 | `@radix-ui/react-context` | `1.1.1` | MIT | [@radix-ui/react-context](https://www.npmjs.com/package/@radix-ui/react-context) |
+| `@radix-ui/react-direction` | `1.0.0` | MIT | [@radix-ui/react-direction](https://www.npmjs.com/package/@radix-ui/react-direction) |
 | `@radix-ui/react-dismissable-layer` | `1.1.5` | MIT | [@radix-ui/react-dismissable-layer](https://www.npmjs.com/package/@radix-ui/react-dismissable-layer) |
 | `@radix-ui/react-focus-guards` | `1.1.1` | MIT | [@radix-ui/react-focus-guards](https://www.npmjs.com/package/@radix-ui/react-focus-guards) |
 | `@radix-ui/react-focus-scope` | `1.1.2` | MIT | [@radix-ui/react-focus-scope](https://www.npmjs.com/package/@radix-ui/react-focus-scope) |
+| `@radix-ui/react-id` | `1.0.0` | MIT | [@radix-ui/react-id](https://www.npmjs.com/package/@radix-ui/react-id) |
 | `@radix-ui/react-id` | `1.1.0` | MIT | [@radix-ui/react-id](https://www.npmjs.com/package/@radix-ui/react-id) |
 | `@radix-ui/react-popover` | `1.1.6` | MIT | [@radix-ui/react-popover](https://www.npmjs.com/package/@radix-ui/react-popover) |
 | `@radix-ui/react-popper` | `1.2.2` | MIT | [@radix-ui/react-popper](https://www.npmjs.com/package/@radix-ui/react-popper) |
 | `@radix-ui/react-portal` | `1.1.4` | MIT | [@radix-ui/react-portal](https://www.npmjs.com/package/@radix-ui/react-portal) |
+| `@radix-ui/react-presence` | `1.0.0` | MIT | [@radix-ui/react-presence](https://www.npmjs.com/package/@radix-ui/react-presence) |
 | `@radix-ui/react-presence` | `1.1.2` | MIT | [@radix-ui/react-presence](https://www.npmjs.com/package/@radix-ui/react-presence) |
+| `@radix-ui/react-primitive` | `1.0.1` | MIT | [@radix-ui/react-primitive](https://www.npmjs.com/package/@radix-ui/react-primitive) |
 | `@radix-ui/react-primitive` | `2.0.2` | MIT | [@radix-ui/react-primitive](https://www.npmjs.com/package/@radix-ui/react-primitive) |
+| `@radix-ui/react-roving-focus` | `1.0.2` | MIT | [@radix-ui/react-roving-focus](https://www.npmjs.com/package/@radix-ui/react-roving-focus) |
+| `@radix-ui/react-slot` | `1.0.1` | MIT | [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot) |
 | `@radix-ui/react-slot` | `1.1.2` | MIT | [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot) |
+| `@radix-ui/react-tabs` | `1.0.2` | MIT | [@radix-ui/react-tabs](https://www.npmjs.com/package/@radix-ui/react-tabs) |
+| `@radix-ui/react-use-callback-ref` | `1.0.0` | MIT | [@radix-ui/react-use-callback-ref](https://www.npmjs.com/package/@radix-ui/react-use-callback-ref) |
 | `@radix-ui/react-use-callback-ref` | `1.1.0` | MIT | [@radix-ui/react-use-callback-ref](https://www.npmjs.com/package/@radix-ui/react-use-callback-ref) |
+| `@radix-ui/react-use-controllable-state` | `1.0.0` | MIT | [@radix-ui/react-use-controllable-state](https://www.npmjs.com/package/@radix-ui/react-use-controllable-state) |
 | `@radix-ui/react-use-controllable-state` | `1.1.0` | MIT | [@radix-ui/react-use-controllable-state](https://www.npmjs.com/package/@radix-ui/react-use-controllable-state) |
 | `@radix-ui/react-use-escape-keydown` | `1.1.0` | MIT | [@radix-ui/react-use-escape-keydown](https://www.npmjs.com/package/@radix-ui/react-use-escape-keydown) |
+| `@radix-ui/react-use-layout-effect` | `1.0.0` | MIT | [@radix-ui/react-use-layout-effect](https://www.npmjs.com/package/@radix-ui/react-use-layout-effect) |
 | `@radix-ui/react-use-layout-effect` | `1.1.0` | MIT | [@radix-ui/react-use-layout-effect](https://www.npmjs.com/package/@radix-ui/react-use-layout-effect) |
 | `@radix-ui/react-use-rect` | `1.1.0` | MIT | [@radix-ui/react-use-rect](https://www.npmjs.com/package/@radix-ui/react-use-rect) |
 | `@radix-ui/react-use-size` | `1.1.0` | MIT | [@radix-ui/react-use-size](https://www.npmjs.com/package/@radix-ui/react-use-size) |
@@ -242,9 +252,11 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `chokidar` | `3.6.0` | MIT | [chokidar](https://www.npmjs.com/package/chokidar) |
 | `classcat` | `5.0.5` | MIT | [classcat](https://www.npmjs.com/package/classcat) |
 | `clsx` | `1.1.1` | MIT | [clsx](https://www.npmjs.com/package/clsx) |
+| `commander` | `7.2.0` | MIT | [commander](https://www.npmjs.com/package/commander) |
 | `commander` | `8.3.0` | MIT | [commander](https://www.npmjs.com/package/commander) |
 | `convert-source-map` | `2.0.0` | MIT | [convert-source-map](https://www.npmjs.com/package/convert-source-map) |
 | `cose-base` | `1.0.3` | MIT | [cose-base](https://www.npmjs.com/package/cose-base) |
+| `cose-base` | `2.2.0` | MIT | [cose-base](https://www.npmjs.com/package/cose-base) |
 | `crc-32` | `0.3.0` | Apache-2.0 | [crc-32](https://www.npmjs.com/package/crc-32) |
 | `cross-env` | `7.0.3` | MIT | [cross-env](https://www.npmjs.com/package/cross-env) |
 | `cross-spawn` | `7.0.6` | MIT | [cross-spawn](https://www.npmjs.com/package/cross-spawn) |
@@ -252,9 +264,8 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `cytoscape` | `3.34.0` | MIT | [cytoscape](https://www.npmjs.com/package/cytoscape) |
 | `cytoscape-cose-bilkent` | `4.1.0` | MIT | [cytoscape-cose-bilkent](https://www.npmjs.com/package/cytoscape-cose-bilkent) |
 | `cytoscape-fcose` | `2.2.0` | MIT | [cytoscape-fcose](https://www.npmjs.com/package/cytoscape-fcose) |
-| `cytoscape-fcose/cose-base` | `2.2.0` | MIT | [cytoscape-fcose/cose-base](https://www.npmjs.com/package/cytoscape-fcose/cose-base) |
-| `cytoscape-fcose/layout-base` | `2.0.1` | MIT | [cytoscape-fcose/layout-base](https://www.npmjs.com/package/cytoscape-fcose/layout-base) |
 | `d3` | `7.9.0` | ISC | [d3](https://www.npmjs.com/package/d3) |
+| `d3-array` | `2.12.1` | BSD-3-Clause | [d3-array](https://www.npmjs.com/package/d3-array) |
 | `d3-array` | `3.2.4` | ISC | [d3-array](https://www.npmjs.com/package/d3-array) |
 | `d3-axis` | `3.0.0` | ISC | [d3-axis](https://www.npmjs.com/package/d3-axis) |
 | `d3-brush` | `3.0.0` | ISC | [d3-brush](https://www.npmjs.com/package/d3-brush) |
@@ -265,7 +276,6 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `d3-dispatch` | `3.0.1` | ISC | [d3-dispatch](https://www.npmjs.com/package/d3-dispatch) |
 | `d3-drag` | `3.0.0` | ISC | [d3-drag](https://www.npmjs.com/package/d3-drag) |
 | `d3-dsv` | `3.0.1` | ISC | [d3-dsv](https://www.npmjs.com/package/d3-dsv) |
-| `d3-dsv/commander` | `7.2.0` | MIT | [d3-dsv/commander](https://www.npmjs.com/package/d3-dsv/commander) |
 | `d3-ease` | `3.0.1` | BSD-3-Clause | [d3-ease](https://www.npmjs.com/package/d3-ease) |
 | `d3-fetch` | `3.0.1` | ISC | [d3-fetch](https://www.npmjs.com/package/d3-fetch) |
 | `d3-force` | `3.0.0` | ISC | [d3-force](https://www.npmjs.com/package/d3-force) |
@@ -273,18 +283,16 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `d3-geo` | `3.1.1` | ISC | [d3-geo](https://www.npmjs.com/package/d3-geo) |
 | `d3-hierarchy` | `3.1.2` | ISC | [d3-hierarchy](https://www.npmjs.com/package/d3-hierarchy) |
 | `d3-interpolate` | `3.0.1` | ISC | [d3-interpolate](https://www.npmjs.com/package/d3-interpolate) |
+| `d3-path` | `1.0.9` | BSD-3-Clause | [d3-path](https://www.npmjs.com/package/d3-path) |
 | `d3-path` | `3.1.0` | ISC | [d3-path](https://www.npmjs.com/package/d3-path) |
 | `d3-polygon` | `3.0.1` | ISC | [d3-polygon](https://www.npmjs.com/package/d3-polygon) |
 | `d3-quadtree` | `3.0.1` | ISC | [d3-quadtree](https://www.npmjs.com/package/d3-quadtree) |
 | `d3-random` | `3.0.1` | ISC | [d3-random](https://www.npmjs.com/package/d3-random) |
 | `d3-sankey` | `0.12.3` | BSD-3-Clause | [d3-sankey](https://www.npmjs.com/package/d3-sankey) |
-| `d3-sankey/d3-array` | `2.12.1` | BSD-3-Clause | [d3-sankey/d3-array](https://www.npmjs.com/package/d3-sankey/d3-array) |
-| `d3-sankey/d3-path` | `1.0.9` | BSD-3-Clause | [d3-sankey/d3-path](https://www.npmjs.com/package/d3-sankey/d3-path) |
-| `d3-sankey/d3-shape` | `1.3.7` | BSD-3-Clause | [d3-sankey/d3-shape](https://www.npmjs.com/package/d3-sankey/d3-shape) |
-| `d3-sankey/internmap` | `1.0.1` | ISC | [d3-sankey/internmap](https://www.npmjs.com/package/d3-sankey/internmap) |
 | `d3-scale` | `4.0.2` | ISC | [d3-scale](https://www.npmjs.com/package/d3-scale) |
 | `d3-scale-chromatic` | `3.1.0` | ISC | [d3-scale-chromatic](https://www.npmjs.com/package/d3-scale-chromatic) |
 | `d3-selection` | `3.0.0` | ISC | [d3-selection](https://www.npmjs.com/package/d3-selection) |
+| `d3-shape` | `1.3.7` | BSD-3-Clause | [d3-shape](https://www.npmjs.com/package/d3-shape) |
 | `d3-shape` | `3.2.0` | ISC | [d3-shape](https://www.npmjs.com/package/d3-shape) |
 | `d3-time` | `3.1.0` | ISC | [d3-time](https://www.npmjs.com/package/d3-time) |
 | `d3-time-format` | `4.1.0` | ISC | [d3-time-format](https://www.npmjs.com/package/d3-time-format) |
@@ -303,10 +311,11 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `esbuild` | `0.25.12` | MIT | [esbuild](https://www.npmjs.com/package/esbuild) |
 | `escalade` | `3.2.0` | MIT | [escalade](https://www.npmjs.com/package/escalade) |
 | `fastdom` | `1.0.12` | MIT | [fastdom](https://www.npmjs.com/package/fastdom) |
+| `fdir` | `6.5.0` | MIT | [fdir](https://www.npmjs.com/package/fdir) |
 | `fill-range` | `7.1.1` | MIT | [fill-range](https://www.npmjs.com/package/fill-range) |
 | `fractional-indexing` | `3.2.0` | CC0-1.0 | [fractional-indexing](https://www.npmjs.com/package/fractional-indexing) |
 | `fsevents` | `2.3.3` | MIT | [fsevents](https://www.npmjs.com/package/fsevents) |
-| `fuzzy` | `0.1.3` | MIT | [fuzzy](https://www.npmjs.com/package/fuzzy) |
+| `fuzzy` | `0.1.3` | UNKNOWN | [fuzzy](https://www.npmjs.com/package/fuzzy) |
 | `gensync` | `1.0.0-beta.2` | MIT | [gensync](https://www.npmjs.com/package/gensync) |
 | `get-nonce` | `1.0.1` | MIT | [get-nonce](https://www.npmjs.com/package/get-nonce) |
 | `glob-parent` | `5.1.2` | ISC | [glob-parent](https://www.npmjs.com/package/glob-parent) |
@@ -317,6 +326,7 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `immutable` | `4.3.9` | MIT | [immutable](https://www.npmjs.com/package/immutable) |
 | `import-meta-resolve` | `4.2.0` | MIT | [import-meta-resolve](https://www.npmjs.com/package/import-meta-resolve) |
 | `inherits` | `2.0.4` | ISC | [inherits](https://www.npmjs.com/package/inherits) |
+| `internmap` | `1.0.1` | ISC | [internmap](https://www.npmjs.com/package/internmap) |
 | `internmap` | `2.0.3` | ISC | [internmap](https://www.npmjs.com/package/internmap) |
 | `is-binary-path` | `2.1.0` | MIT | [is-binary-path](https://www.npmjs.com/package/is-binary-path) |
 | `is-extglob` | `2.1.1` | MIT | [is-extglob](https://www.npmjs.com/package/is-extglob) |
@@ -329,9 +339,10 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `jsesc` | `3.1.0` | MIT | [jsesc](https://www.npmjs.com/package/jsesc) |
 | `json5` | `2.2.3` | MIT | [json5](https://www.npmjs.com/package/json5) |
 | `katex` | `0.16.47` | MIT | [katex](https://www.npmjs.com/package/katex) |
-| `khroma` | `2.1.0` | MIT | [khroma](https://www.npmjs.com/package/khroma) |
+| `khroma` | `2.1.0` | UNKNOWN | [khroma](https://www.npmjs.com/package/khroma) |
 | `langium` | `3.3.1` | MIT | [langium](https://www.npmjs.com/package/langium) |
 | `layout-base` | `1.0.2` | MIT | [layout-base](https://www.npmjs.com/package/layout-base) |
+| `layout-base` | `2.0.1` | MIT | [layout-base](https://www.npmjs.com/package/layout-base) |
 | `lodash-es` | `4.18.1` | MIT | [lodash-es](https://www.npmjs.com/package/lodash-es) |
 | `lodash.debounce` | `4.0.8` | MIT | [lodash.debounce](https://www.npmjs.com/package/lodash.debounce) |
 | `lodash.throttle` | `4.1.1` | MIT | [lodash.throttle](https://www.npmjs.com/package/lodash.throttle) |
@@ -339,14 +350,10 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `lru-cache` | `5.1.1` | ISC | [lru-cache](https://www.npmjs.com/package/lru-cache) |
 | `marked` | `16.4.2` | MIT | [marked](https://www.npmjs.com/package/marked) |
 | `mermaid` | `11.17.0` | MIT | [mermaid](https://www.npmjs.com/package/mermaid) |
-| `mermaid/@braintree/sanitize-url` | `7.1.2` | MIT | [mermaid/@braintree/sanitize-url](https://www.npmjs.com/package/mermaid/@braintree/sanitize-url) |
-| `mermaid/@chevrotain/types` | `11.1.2` | Apache-2.0 | [mermaid/@chevrotain/types](https://www.npmjs.com/package/mermaid/@chevrotain/types) |
-| `mermaid/@mermaid-js/parser` | `1.2.1` | MIT | [mermaid/@mermaid-js/parser](https://www.npmjs.com/package/mermaid/@mermaid-js/parser) |
-| `mermaid/points-on-curve` | `0.2.0` | MIT | [mermaid/points-on-curve](https://www.npmjs.com/package/mermaid/points-on-curve) |
-| `mermaid/roughjs` | `4.6.6` | MIT | [mermaid/roughjs](https://www.npmjs.com/package/mermaid/roughjs) |
 | `ms` | `2.1.3` | MIT | [ms](https://www.npmjs.com/package/ms) |
 | `multimath` | `2.0.0` | MIT | [multimath](https://www.npmjs.com/package/multimath) |
 | `nanoid` | `3.3.18` | MIT | [nanoid](https://www.npmjs.com/package/nanoid) |
+| `nanoid` | `5.1.16` | MIT | [nanoid](https://www.npmjs.com/package/nanoid) |
 | `node-releases` | `2.0.51` | MIT | [node-releases](https://www.npmjs.com/package/node-releases) |
 | `normalize-path` | `3.0.0` | MIT | [normalize-path](https://www.npmjs.com/package/normalize-path) |
 | `object-assign` | `4.1.1` | MIT | [object-assign](https://www.npmjs.com/package/object-assign) |
@@ -359,12 +366,13 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `pica` | `7.1.1` | MIT | [pica](https://www.npmjs.com/package/pica) |
 | `picocolors` | `1.1.1` | ISC | [picocolors](https://www.npmjs.com/package/picocolors) |
 | `picomatch` | `2.3.2` | MIT | [picomatch](https://www.npmjs.com/package/picomatch) |
+| `picomatch` | `4.0.5` | MIT | [picomatch](https://www.npmjs.com/package/picomatch) |
 | `png-chunk-text` | `1.0.0` | MIT | [png-chunk-text](https://www.npmjs.com/package/png-chunk-text) |
 | `png-chunks-encode` | `1.0.0` | MIT | [png-chunks-encode](https://www.npmjs.com/package/png-chunks-encode) |
 | `png-chunks-extract` | `1.0.0` | MIT | [png-chunks-extract](https://www.npmjs.com/package/png-chunks-extract) |
+| `points-on-curve` | `0.2.0` | MIT | [points-on-curve](https://www.npmjs.com/package/points-on-curve) |
 | `points-on-curve` | `1.0.1` | MIT | [points-on-curve](https://www.npmjs.com/package/points-on-curve) |
 | `points-on-path` | `0.2.1` | MIT | [points-on-path](https://www.npmjs.com/package/points-on-path) |
-| `points-on-path/points-on-curve` | `0.2.0` | MIT | [points-on-path/points-on-curve](https://www.npmjs.com/package/points-on-path/points-on-curve) |
 | `postcss` | `8.5.25` | MIT | [postcss](https://www.npmjs.com/package/postcss) |
 | `pwacompat` | `2.0.17` | Apache-2.0 | [pwacompat](https://www.npmjs.com/package/pwacompat) |
 | `react` | `18.3.1` | MIT | [react](https://www.npmjs.com/package/react) |
@@ -377,7 +385,7 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `robust-predicates` | `3.0.3` | Unlicense | [robust-predicates](https://www.npmjs.com/package/robust-predicates) |
 | `rollup` | `4.62.3` | MIT | [rollup](https://www.npmjs.com/package/rollup) |
 | `roughjs` | `4.6.4` | MIT | [roughjs](https://www.npmjs.com/package/roughjs) |
-| `roughjs/points-on-curve` | `0.2.0` | MIT | [roughjs/points-on-curve](https://www.npmjs.com/package/roughjs/points-on-curve) |
+| `roughjs` | `4.6.6` | MIT | [roughjs](https://www.npmjs.com/package/roughjs) |
 | `rw` | `1.3.3` | BSD-3-Clause | [rw](https://www.npmjs.com/package/rw) |
 | `safer-buffer` | `2.1.2` | MIT | [safer-buffer](https://www.npmjs.com/package/safer-buffer) |
 | `sass` | `1.51.0` | MIT | [sass](https://www.npmjs.com/package/sass) |
@@ -391,8 +399,6 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `stylis` | `4.4.0` | MIT | [stylis](https://www.npmjs.com/package/stylis) |
 | `tinyexec` | `1.2.4` | MIT | [tinyexec](https://www.npmjs.com/package/tinyexec) |
 | `tinyglobby` | `0.2.17` | MIT | [tinyglobby](https://www.npmjs.com/package/tinyglobby) |
-| `tinyglobby/fdir` | `6.5.0` | MIT | [tinyglobby/fdir](https://www.npmjs.com/package/tinyglobby/fdir) |
-| `tinyglobby/picomatch` | `4.0.5` | MIT | [tinyglobby/picomatch](https://www.npmjs.com/package/tinyglobby/picomatch) |
 | `to-regex-range` | `5.0.1` | MIT | [to-regex-range](https://www.npmjs.com/package/to-regex-range) |
 | `ts-dedent` | `2.3.0` | MIT | [ts-dedent](https://www.npmjs.com/package/ts-dedent) |
 | `tslib` | `2.8.1` | 0BSD | [tslib](https://www.npmjs.com/package/tslib) |
@@ -404,8 +410,6 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `use-sync-external-store` | `1.6.0` | MIT | [use-sync-external-store](https://www.npmjs.com/package/use-sync-external-store) |
 | `uuid` | `14.0.1` | MIT | [uuid](https://www.npmjs.com/package/uuid) |
 | `vite` | `6.4.3` | MIT | [vite](https://www.npmjs.com/package/vite) |
-| `vite/fdir` | `6.5.0` | MIT | [vite/fdir](https://www.npmjs.com/package/vite/fdir) |
-| `vite/picomatch` | `4.0.5` | MIT | [vite/picomatch](https://www.npmjs.com/package/vite/picomatch) |
 | `vscode-jsonrpc` | `8.2.0` | MIT | [vscode-jsonrpc](https://www.npmjs.com/package/vscode-jsonrpc) |
 | `vscode-languageserver` | `9.0.1` | MIT | [vscode-languageserver](https://www.npmjs.com/package/vscode-languageserver) |
 | `vscode-languageserver-protocol` | `3.17.5` | MIT | [vscode-languageserver-protocol](https://www.npmjs.com/package/vscode-languageserver-protocol) |
@@ -417,40 +421,7 @@ A machine-readable CycloneDX 1.5 SBOM is also distributed in [`sbom.cyclonedx.js
 | `yallist` | `3.1.1` | ISC | [yallist](https://www.npmjs.com/package/yallist) |
 | `zustand` | `4.5.7` | MIT | [zustand](https://www.npmjs.com/package/zustand) |
 
----
+## Project License
 
-## 3. Standard Permissive License Texts
-
-### Apache License, Version 2.0
-```text
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
-```
-
-### MIT License
-```text
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software.
-```
-
-### BSD 3-Clause License
-```text
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the conditions of source copyright retention are met.
-```
-
-### Mozilla Public License Version 2.0 (MPL-2.0)
-```text
-This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
-```
-
-### ISC License
-```text
-Permission to use, copy, modify, and/or distribute this software for any purpose
-with or without fee is hereby granted.
-```
-
+ProofFlow Schema Sandbox itself is distributed under the MIT License;
+see [`LICENSE`](LICENSE). Third-party components retain their own licenses.

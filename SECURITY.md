@@ -1,6 +1,6 @@
 # Security Policy
 
-ProofFlow Schema Sandbox `0.1.0-alpha.8` is a local research prototype and has not undergone a third-party security audit.
+ProofFlow Schema Sandbox `0.1.0-alpha.9` is a local research prototype and has not undergone a third-party security audit.
 
 - Bind the FastAPI service to `127.0.0.1`; do not expose it to an untrusted network.
 - Production mode (`PROOFFLOW_ENV=production`) fails closed unless

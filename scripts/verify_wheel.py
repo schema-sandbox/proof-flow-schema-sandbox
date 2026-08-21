@@ -6,24 +6,43 @@ from __future__ import annotations
 import subprocess
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main() -> int:
-    whl_path = ROOT / "dist" / "proof_flow_schema_sandbox-0.1.0a8-py3-none-any.whl"
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    version = project["version"]
+    wheel_version = version.replace("-alpha.", "a")
+    whl_path = ROOT / "dist" / f"proof_flow_schema_sandbox-{wheel_version}-py3-none-any.whl"
     if not whl_path.is_file():
         raise SystemExit(f"Wheel not found: {whl_path}")
 
-    with tempfile.TemporaryDirectory() as td:
+    temporary_root = ROOT / ".venv"
+    temporary_root.mkdir(exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="verify-wheel-", dir=temporary_root) as td:
         venv_dir = Path(td) / ".test_venv"
         subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
 
         py_bin = venv_dir / "Scripts" / "python.exe" if (venv_dir / "Scripts" / "python.exe").exists() else venv_dir / "bin" / "python"
 
-        # Install wheel
-        subprocess.run([str(py_bin), "-m", "pip", "install", "--no-cache-dir", str(whl_path)], check=True)
+        subprocess.run(
+            [
+                str(py_bin),
+                "-m",
+                "pip",
+                "install",
+                "-r",
+                str(ROOT / "requirements-release.lock"),
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [str(py_bin), "-m", "pip", "install", "--no-deps", str(whl_path)],
+            check=True,
+        )
 
         # Run verification inside isolated venv
         verify_code = (
@@ -33,7 +52,7 @@ def main() -> int:
             "import tempfile\n"
             "\n"
             "print('Installed version:', schemamath_api.__version__)\n"
-            "assert schemamath_api.__version__ == '0.1.0-alpha.8', 'Version mismatch'\n"
+            f"assert schemamath_api.__version__ == {version!r}, 'Version mismatch'\n"
             "\n"
             "with tempfile.TemporaryDirectory() as root:\n"
             "    host = PluginHost(\n"

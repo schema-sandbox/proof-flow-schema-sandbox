@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.9
+
+- Fixed clean-checkout CI by committing the Alpha.2 archive fixture and staging the Web UI before the test suite.
+- Enabled strict release gates on `v*` tag pushes and automatic GitHub prerelease publication only after all gates pass.
+- Rebuilt the CycloneDX 1.5 SBOM with official-schema validation, valid hexadecimal hashes, valid license expressions, and exact lockfile-derived Python versions.
+- Added an exact Python 3.12 release lock and synchronized Python, npm, OpenAPI, documentation, and release metadata.
+- Reworked release manifests, checksums, source archives, and wheels as deterministic detached outputs tied to the exact release commit and tag.
+- Added metadata/SBOM validators and isolated wheel/plugin checks to prevent regression of the Alpha.8 release blockers.
+
 ## 0.1.0-alpha.8
 
 - CI strict release gate: `release-gate` job executes `build_release.py --strict --dist`, verifies SHA-256 checksums, and runs isolated wheel install with plugin discovery on `v*` tag pushes.
@@ -8,7 +17,7 @@
 
 ## 0.1.0-alpha.7
 
-- Deterministic zero-drift release pipeline with detached manifest and signature generation.
+- Deterministic release pipeline with detached manifest and checksum generation.
 - Full machine-readable CycloneDX 1.5 Software Bill of Materials (`sbom.cyclonedx.json`) and exhaustive 370+ dependency notices in `THIRD_PARTY_NOTICES.md`.
 - Explicit companion research study dataset repository linking and attribution metadata.
 - Clean separation of release notes and git tag provenance.

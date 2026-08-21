@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-## 图式证明流实验沙箱 `0.1.0-alpha.8`
+## 图式证明流实验沙箱 `0.1.0-alpha.9`
 
 正式名称是 **ProofFlow Schema Sandbox**，简称 **ProofFlow**。
 
@@ -20,13 +20,13 @@ ProofFlow 不保证解题，不声称访问模型隐藏思维链，也从不自�
 - 形式化验证与 Lean 相关的研究者。
 - 任何想观察 AI 在难题上的推理如何真实展开的人。
 
-## Alpha.7 内容
+## Alpha.9 内容
 
-- **完整 CycloneDX 1.5 SBOM**：`sbom.cyclonedx.json` 覆盖 397 个直接和传递依赖（Python 运行时 + 全量 NPM），`THIRD_PARTY_NOTICES.md` 同步扩展至 397 组件完整许可证。
-- **确定性发布流水线**：`build_release.py` 消除循环哈希漂移，使用 UUIDv5 保证可复现序列号，每次构建前清理 `dist/`。
-- **非循环发布说明**：发布说明锚定在标签和外部校验和，不再自引用提交哈希。
-- **伴随研究数据集公开**：论文 v0.14 新增开放数据集仓库 URL 和持久访问链接。
-- **CI 严格发布门禁**：`ci.yml` 新增 `release-gate` 作业，执行 `build_release.py --strict --dist` 并验证隔离 Wheel 安装和内置插件发现。
+- **干净检出可复现**：CI 在测试前构建并装载 Web UI，Alpha.2 导入样例作为正式测试数据纳入版本控制。
+- **真实标签门禁**：`v*` 标签会触发严格发布门禁；门禁通过后自动创建对应 GitHub 预发布并上传经校验的资产。
+- **合规 SBOM**：CycloneDX 1.5 SBOM 通过官方 JSON Schema 校验，Python 组件来自精确发布锁文件，npm 组件来自锁文件。
+- **准确发布溯源**：项目清单和校验和改为分离式构建产物，所记录的提交与标签精确对应构建源。
+- **发布元数据一致**：版本、MIT 许可证、仓库地址、OpenAPI、文档、Wheel 与前端元数据统一为 Alpha.9。
 
 ## Alpha.6 内容
 
@@ -79,7 +79,7 @@ ProofFlow 不保证解题，不声称访问模型隐藏思维链，也从不自�
 
 ## 本地运行
 
-建议 Python 3.12+ 与 Node.js 20+。
+建议 Python 3.12+ 与 Node.js 22+。
 
 ```powershell
 python -m venv .venv
@@ -134,4 +134,4 @@ ProofFlow 的本地用户权限。只运行可信代码，并将 API 绑定在 l
 OCI 插件要求镜像使用摘要固定，但容器运行时及其安全配置仍由操作者负责。
 数学工具按需安装；缺少可选工具时，系统会如实报告不可用。
 
-许可证：Apache-2.0。
+许可证：MIT。

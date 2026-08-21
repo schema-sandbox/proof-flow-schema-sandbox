@@ -32,6 +32,9 @@ apps/api/schemamath_api/THIRD_PARTY_NOTICES.md
 apps/api/schemamath_api/sbom.cyclonedx.json
 .release-final-pytest*/
 *.zip
+!examples/demo_open_research_project_alpha2.smath.zip
+package_manifest.json
+SHA256SUMS.txt
 ProofFlow_Schema_Sandbox_*/
 SchemaMath_Experimental_Sandbox_*/
 SchemaMath_Experimental_Sandbox_Design_*/
@@ -44,4 +47,3 @@ From_Prompt_to_Proof_v0.13*.md
 operational_evidence_map_v0.11*
 operational_evidence_map_v0.12*
 operational_evidence_map_v0.13*
-

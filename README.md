@@ -1,6 +1,6 @@
 # ProofFlow Schema Sandbox
 
-**Version:** `0.1.0-alpha.8`  
+**Version:** `0.1.0-alpha.9`
 **Short name:** ProofFlow  
 **Status:** local-first experimental mathematics research sandbox
 
@@ -28,6 +28,19 @@ route closure deliberately requires strong evidence and a human actor.
 - Mathematicians who want LLM assistance without losing the decision trail.
 - Formal-verification and Lean-adjacent researchers.
 - Anyone studying how AI reasoning on hard problems actually unfolds.
+
+## Alpha.9
+
+- Clean-checkout CI now builds and stages the Web UI before tests, and the Alpha.2
+  import fixture is committed as release test data.
+- Tag pushes run the strict release gate; a successful `v*` gate publishes the
+  matching GitHub prerelease and its verified assets.
+- CycloneDX 1.5 SBOM output is schema-valid, deterministic, and derived from the
+  exact Python release lock plus the npm lockfile.
+- Release manifests and checksums are detached build outputs, so their recorded
+  commit and tag exactly identify the source used to build them.
+- Version, license, repository URL, OpenAPI metadata, documentation, wheel, and
+  frontend metadata are synchronized to Alpha.9.
 
 ## Alpha.6
 
@@ -98,7 +111,7 @@ records local verification and the external evidence boundary.
 
 ## Run locally
 
-Python 3.12+ and Node.js 20+ are recommended.
+Python 3.12+ and Node.js 22+ are recommended.
 
 ```powershell
 python -m venv .venv

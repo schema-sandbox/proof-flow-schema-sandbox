@@ -3,7 +3,7 @@
   "info": {
     "title": "ProofFlow Schema Sandbox Local API",
     "description": "Local-first experimental research workspace. It does not promise solutions and does not automatically label results as solved.",
-    "version": "0.1.0-alpha.6"
+    "version": "0.1.0-alpha.9"
   },
   "paths": {
     "/api/v1/projects": {
