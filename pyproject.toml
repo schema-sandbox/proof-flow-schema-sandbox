@@ -10,7 +10,7 @@ authors = [{name = "Tengjiao Liu", email = "psi@psi.run"}]
 dependencies = [
   "fastapi==0.141.1",
   "uvicorn[standard]==0.52.4",
-  "pydantic==2.13.4",
+  "pydantic==2.13.5",
   "python-multipart==0.0.32",
   # schemamath_api.sip.contract imports jsonschema at module load.
   "jsonschema==4.26.0",
