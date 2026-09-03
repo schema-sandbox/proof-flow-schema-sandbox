@@ -30,7 +30,7 @@ dev = [
   "httpx==0.28.1",
   "pytest==9.1.1",
   "pytest-cov==6.3.0",
-  "ruff==0.16.4",
+  "ruff==0.16.5",
   "pyyaml==6.0.3",
   "sympy==1.14.0",
 ]
